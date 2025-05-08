@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: ..
+      dockerfile: .devcontainer/Dockerfile
+    user: vscode
+    volumes:
+      - ..:/workspaces/CamOnPrefect  # Maps entire project directory
+      - ./duckdb:/workspaces/CamOnPrefect/duckdb:z  # The :z flag helps with SELinux contexts
+    environment:
+      - DUCKDB_PATH=/workspaces/CamOnPrefect/duckdb/CamOnPrefect.duckdb
+      - PREFECT_API_DATABASE_CONNECTION_URL=postgresql://prefect:prefect@postgres:5432/prefect
+    working_dir: /workspaces/CamOnPrefect  # Matches volume mount
+    depends_on:  # Add this section
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import duckdb; conn = duckdb.connect('/workspaces/CamOnPrefect/duckdb/healthcheck.duckdb', read_only=True); conn.close()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Add this new service for PostgreSQL
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: prefect
+      POSTGRES_PASSWORD: prefect
+      POSTGRES_DB: prefect
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U prefect -d prefect"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  postgres_data:  # Persists database data

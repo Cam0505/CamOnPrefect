@@ -1,0 +1,35 @@
+# Git-related files
+.git
+
+# Python
+__pycache__/
+*.py[cod]
+.env
+.venv
+venv/
+*.pyc
+*.pyo
+*.pyd
+
+# Data files
+*.duckdb
+*.db
+
+
+# Docker-related
+#.devcontainer/dockerfile
+
+# Environment files
+.env
+pipelines/.dlt/secrets.toml
+pipelines/credentials.json
+
+# IDE
+.vscode/
+.idea/
+
+dbt/profiles.yml
+dbt/dbt_packages/
+
+# Misc
+*.log

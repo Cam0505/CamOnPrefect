@@ -1,0 +1,8 @@
+version: 2
+
+sources:
+  - name: gsheets
+    database: camonprefect
+    schema: google_sheets
+    tables:
+      - name: gsheet_finance

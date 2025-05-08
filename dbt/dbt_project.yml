@@ -1,0 +1,35 @@
+name: 'duckdb_project'
+version: '1.0'
+config-version: 2
+
+profile: 'duckdb'
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+analysis-paths: ["analysis"]
+macro-paths: ["macros"]
+
+target-path: "target"
+clean-targets: ["target", "dbt_modules", "logs"]
+
+models:
+  duckdb_project:
+      base:
+        # +required_tests: {"unique.*|not_null": 1}
+        +schema: base
+        +materialized: table
+        +tags: base
+      staging_source:
+        +schema: staging_source
+        +materialized: table
+      staging:
+        +schema: staging
+        +materialized: table
+      common:
+        +schema: common
+        +materialized: table
+snapshots:
+  duckdb_project:
+    +path: snapshots
+    +tags: snapshot_dependencies
