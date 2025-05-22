@@ -1,4 +1,4 @@
-name: 'duckdb_project'
+name: 'camonprefect'
 version: '1.0'
 config-version: 2
 
@@ -15,15 +15,12 @@ target-path: "target"
 clean-targets: ["target", "dbt_modules", "logs"]
 
 models:
-  duckdb_project:
+  camonprefect:
       base:
         # +required_tests: {"unique.*|not_null": 1}
         +schema: base
         +materialized: table
         +tags: base
-      staging_source:
-        +schema: staging_source
-        +materialized: table
       staging:
         +schema: staging
         +materialized: table
@@ -31,6 +28,6 @@ models:
         +schema: common
         +materialized: table
 snapshots:
-  duckdb_project:
+  camonprefect:
     +path: snapshots
     +tags: snapshot_dependencies
