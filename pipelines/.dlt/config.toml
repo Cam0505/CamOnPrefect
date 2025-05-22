@@ -1,0 +1,9 @@
+[runtime]
+request_max_attempts = 10  # Stop after 10 retry attempts instead of 5
+request_backoff_factor = 1.5  # Multiplier applied to the exponential delays. Default is 1
+request_timeout = 120  # Timeout in seconds
+request_max_retry_delay = 30  # Cap exponential delay to 30 seconds
+
+
+[core]
+telemetry = false

@@ -2,13 +2,14 @@ name: 'duckdb_project'
 version: '1.0'
 config-version: 2
 
-profile: 'duckdb'
+profile: 'camonprefect'
 
 model-paths: ["models"]
 seed-paths: ["seeds"]
 test-paths: ["tests"]
 analysis-paths: ["analysis"]
 macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
 
 target-path: "target"
 clean-targets: ["target", "dbt_modules", "logs"]

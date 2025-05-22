@@ -2,24 +2,31 @@
   "name": "CamOnPrefect",
   "build": {
     "dockerfile": "Dockerfile",
+    "cacheFrom": "camonprefect-app:latest",
     "context": ".."
   },
   "runArgs": [
-    "--cap-add=SYS_PTRACE",
-    "--security-opt",
-    "seccomp=unconfined"
+    "--cpus=4",
+    "--memory=4g",
+    "--init"
   ],
   "mounts": [
     "source=${localWorkspaceFolder}/duckdb,target=/workspaces/CamOnPrefect/duckdb,type=bind,consistency=cached"
   ],
   "customizations": {
     "vscode": {
-      "extensions": ["ms-python.python"]
+      "settings": {
+        "dbt.profilesDir": "${containerWorkspaceFolder}/dbt",
+        "python.linting.enabled": true,
+        "python.envFile": "${containerWorkspaceFolder}/.env"
+      },
+      "extensions": ["ms-python.python", "dbt-labs.dbt"]
     }
   },
   "postCreateCommand": "bash .devcontainer/init_prefect.sh",
   "forwardPorts": [4200],
   "containerEnv": {
-    "PREFECT_API_URL": "http://127.0.0.1:4200/api"
+    "PREFECT_API_URL": "http://127.0.0.1:4200/api",
+    "PYTHONPATH": "/workspaces/CamOnPrefect"
   }
 }
