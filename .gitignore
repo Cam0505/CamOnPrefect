@@ -22,6 +22,8 @@ venv/
 # Environment files
 .env
 pipelines/.dlt/secrets.toml
+pipelines/.dlt/config.toml
+pipelines/.dlt/.*.toml
 pipelines/credentials.json
 
 # IDE
