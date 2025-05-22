@@ -10,9 +10,6 @@
     "--memory=4g",
     "--init"
   ],
-  "mounts": [
-    "source=${localWorkspaceFolder}/duckdb,target=/workspaces/CamOnPrefect/duckdb,type=bind,consistency=cached"
-  ],
   "customizations": {
     "vscode": {
       "settings": {

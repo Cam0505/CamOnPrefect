@@ -20,11 +20,11 @@ pull:
 # the deployments section allows you to provide configuration for deploying flows
 deployments:
 - name: gsheets-financial-deployment
+  entrypoint: pipelines/gsheets_financial.py:main_flow
   version: null
-  tags: []
+  description: Fetch financial data from Google Sheets every 45 minutes
+  tags: [gsheets, finance]
   concurrency_limit: null
-  description: null
-  entrypoint: gsheets_financial.py:main_flow
   parameters: {}
   work_pool:
     name: default

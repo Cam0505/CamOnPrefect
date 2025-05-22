@@ -12,9 +12,8 @@ venv/
 *.pyd
 
 # Data files
-*.duckdb
-*.db
-
+*.parquet
+*.csv
 
 # Docker-related
 #.devcontainer/dockerfile
@@ -25,6 +24,7 @@ pipelines/.dlt/secrets.toml
 pipelines/.dlt/config.toml
 pipelines/.dlt/.*.toml
 pipelines/credentials.json
+pipelines/.dlt/
 
 # IDE
 .vscode/

@@ -152,7 +152,7 @@ def get_geo_data(logger) -> bool:
     logger.info("Starting DLT pipeline...")
     pipeline = dlt.pipeline(
         pipeline_name="geo_cities_pipeline",
-        destination=os.getenv("DLT_DESTINATION", "duckdb"),
+        destination=os.getenv("DLT_DESTINATION"),
         dataset_name="geo_data",
         dev_mode=False
     )

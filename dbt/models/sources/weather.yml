@@ -1,0 +1,11 @@
+sources:
+  - name: weather
+    database: camonprefect
+    schema: weather_data
+    tables:
+      - name: daily_weather
+        loaded_at_field: date
+        description: 'Open Meteo API Datasource'
+        freshness:
+          warn_after: {count: 2, period: day}
+          error_after: {count: 5, period: day}
