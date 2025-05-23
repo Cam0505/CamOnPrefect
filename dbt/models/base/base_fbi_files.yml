@@ -13,3 +13,6 @@ models:
     description: ''
   - name: wanted_files_sk
     description: ''
+    data_tests:
+    - unique:
+        severity: warn

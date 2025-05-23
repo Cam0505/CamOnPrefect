@@ -1,12 +1,13 @@
 import os
 from dotenv import load_dotenv
 import dlt
-import json
 import dlt
 from dlt.sources.helpers.rest_client.paginators import PageNumberPaginator
 from dlt.sources.helpers.rest_client.client import RESTClient
 from prefect import flow, task, get_run_logger
 from dlt.pipeline.exceptions import PipelineNeverRan
+import subprocess
+import time
 
 load_dotenv(dotenv_path="/workspaces/CamOnPrefect/.env")
 
@@ -17,12 +18,15 @@ ENDPOINT = "/wanted/v1/list"
 
 
 @dlt.resource(name="wanted", write_disposition="merge", primary_key="uid", table_name="wanted")
-def wanted(logger):
+def wanted(logger, db_count: int):
     state = dlt.current.source_state().setdefault("wanted", {
-            "uid": []
-        })
-    seen_uids = set(state["uid"])
-    new_uids = set()
+                # we will store tuples like f"{uid}|{status}"
+        "seen_keys": [],
+        'last_run_Status': None
+    })
+    seen_keys = set(state.setdefault("seen_keys", []))
+    new_keys = set()
+
 
     client = RESTClient(
         base_url=BASE_URL,
@@ -40,24 +44,32 @@ def wanted(logger):
                       "Chrome/115.0.0.0 Safari/537.36"
         }
     )
+    try:
+        for page in client.paginate(ENDPOINT):
+            for item in page:
+                # Prevents repeatedly processing the same item while allowing for updates of dbt snapshot columns
+                # Status and Poster Classification
+                key = f"{item['uid']}|{item.get('status', '').lower()}|{item.get('poster_classification', '').lower()}"
+                if key in seen_keys and db_count > 0:
+                    # logger.info(f"Skipping seen key: {key}")
+                    continue
 
-    for page in client.paginate(ENDPOINT):
-        for item in page:
-            if item["uid"] in seen_uids:
-                # Debugging log for skipped items
-                # logger.info(f"SKIPPED LOAD: `{item['uid']}` — Already exists.")
-                continue  # skip duplicates (already processed)
-            new_uids.add(item["uid"])  # new uid found, add to batch
-            yield item  # send item downstream
+                new_keys.add(key)
+                yield item
 
-    # After all pages:
-    if new_uids:
-        state["uid"].extend(list(new_uids))  # update persistent state with new uids
+        if new_keys:
+            state["seen_keys"].extend(list(new_keys))  # update persistent state with new keys
+            state["last_run_Status"] = "success"
+        else:   
+            state["last_run_Status"] = "skipped"
+    except Exception as e:
+        logger.error(f"❌ Error during resource extraction: {e}")
+        state["last_run_Status"] = "failed"
     return
 
 @dlt.source(name="fbi_wanted")
-def fbi_wanted_source(logger):
-    return wanted(logger=logger)
+def fbi_wanted_source(logger, db_count):
+    return wanted(logger=logger, db_count=db_count)
 
 
 
@@ -86,32 +98,69 @@ def run_dlt_pipeline(logger):
 
     logger.info(f"Row counts: {row_counts_dict}")   
 
-    source = fbi_wanted_source(logger)
+    source = fbi_wanted_source(logger, db_count=row_counts_dict['wanted'])
 
     try:
         pipeline.run(source)
-        current_id = len(source.state.get('wanted', {}).get('uid', []))
-        logger.info(f"Current State Length: {current_id}")
-        if current_id == row_counts_dict['wanted']:
+        run_status = source.state.get('wanted', {}).get('last_run_Status', [])
+        if run_status == "skipped":
             logger.info(
                 "⏭️ All resources skipped — no data loaded.")
             return False
-        elif current_id > row_counts_dict['wanted']:
+        elif run_status == "success":
             logger.info(
-                f"✅ New data for `wanted`: {row_counts_dict['wanted']} ➝ {current_id}")
+                f"✅ New data to merge — {len(source.state['seen_keys'])} new keys found.")
             return True
         else:
             logger.info(
-                f"❌ DLT State Reset, DB Count: {row_counts_dict['wanted']} ➝ State Count: {current_id}")
-            return True
+                f"❌ DLT pipeline run failed with status: {run_status}")
+            return False
     except Exception as e:
         logger.error(f"❌ Pipeline run failed: {e}")
         return False
 
-@flow(name="FBI Wanted Pipeline")
-def fbi_prefect_flow():
-    run_dlt_pipeline(logger=get_run_logger())
+
+
+@task
+def dbt_fbi(logger, run_dlt_pipeline: bool) -> None:
+    """Runs dbt models for FBI data after loading data."""
+
+    if not run_dlt_pipeline:
+        logger.warning(
+            "\n⚠️  WARNING: DBT SKIPPED\n"
+            "📉 No data was loaded from Rick and Morty API.\n"
+            "🚫 Skipping dbt run.\n"
+        )
+        return
+
+    DBT_PROJECT_DIR = "/workspaces/CamOnPrefect/dbt"
+    logger.info(f"📁 DBT Project Directory: {DBT_PROJECT_DIR}")
+
+    start = time.time()
+    try:
+        subprocess.run(
+            "dbt build --select source:fbi+",
+            shell=True,
+            cwd=DBT_PROJECT_DIR,
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        duration = round(time.time() - start, 2)
+        logger.info(f"✅ dbt build completed in {duration}s")
+    except subprocess.CalledProcessError as e:
+        logger.error(f"❌ dbt build failed:\n{e.stdout}\n{e.stderr}")
+        raise
+
+
+
+@flow(name="fbi_flow")
+def fbi_flow():
+    pipeline_outcome = run_dlt_pipeline(logger=get_run_logger())
+
+    dbt_fbi(run_dlt_pipeline=pipeline_outcome, logger=get_run_logger())
+
 
 if __name__ == "__main__":
-    os.environ["PREFECT_API_URL"] = ""
-    fbi_prefect_flow()
+    # os.environ["PREFECT_API_URL"] = ""
+    fbi_flow()

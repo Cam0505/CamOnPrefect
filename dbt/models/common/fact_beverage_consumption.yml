@@ -7,7 +7,7 @@ models:
     description: ''
   - name: beverage_name
     description: ''
-  - name: glass_type_sk
+  - name: Glass_Type_SK
     description: ''
   - name: beverage_category_sk
     description: ''

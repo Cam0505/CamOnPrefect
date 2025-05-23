@@ -8,9 +8,9 @@ models:
       - ingredient
       - beverage_id
   columns:
-  - name: ingredient
+  - name: Ingredient
     description: ''
   - name: beverage_id
     description: ''
-  - name: beverage_name
+  - name: Beverage_Name
     description: ''

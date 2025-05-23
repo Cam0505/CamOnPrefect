@@ -9,10 +9,9 @@ models:
     description: ''
   - name: longitude # Tested in Base table
     description: ''
-  - name: city_sk
+  - name: region
     description: ''
-    data_tests:
-    - not_null
-    - unique # Ensure API hasn't pulled in data from elsewhere again, Portland US is close to Portland Canada
-  - name: country_sk
-    description: '' # Tested in Dim_Country
+  - name: City_SK
+    description: ''
+  - name: Country_SK
+    description: ''

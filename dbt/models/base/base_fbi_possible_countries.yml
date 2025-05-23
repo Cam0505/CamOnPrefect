@@ -11,3 +11,6 @@ models:
     description: ''
   - name: wanted_countries_sk
     description: ''
+    data_tests:
+    - unique:
+        severity: warn

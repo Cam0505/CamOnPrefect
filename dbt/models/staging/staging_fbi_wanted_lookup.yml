@@ -1,21 +1,14 @@
 version: 2
 models:
-- name: base_fbi_wanted
+- name: staging_fbi_wanted_lookup
   description: ''
   columns:
-  - name: poster_classification
-    description: ''
   - name: hair
     description: ''
   - name: race_raw
     description: ''
   - name: urllink
     description: ''
-  - name: pk
-    description: ''
-    data_tests:
-    - not_null
-    - unique
   - name: remarks
     description: ''
   - name: eyes_raw
@@ -27,8 +20,6 @@ models:
   - name: modified
     description: ''
   - name: hair_raw
-    description: ''
-  - name: status
     description: ''
   - name: publication
     description: ''
@@ -52,9 +43,6 @@ models:
     description: ''
   - name: wanted_id
     description: ''
-    data_tests:
-    - not_null
-    - unique
   - name: warning_message
     description: ''
   - name: reward_text

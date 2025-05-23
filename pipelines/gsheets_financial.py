@@ -189,7 +189,7 @@ def run_dbt_command(should_run: bool, logger) -> None:
 def main_flow() -> None:
     """Main pipeline flow"""
     logger = get_run_logger()
-    os.environ["PREFECT_API_URL"] = ""
+    # os.environ["PREFECT_API_URL"] = ""
     try:
         logger.info("Starting gsheets financial pipeline")
         outcome = extract_data_from_gsheet(logger)
@@ -200,5 +200,5 @@ def main_flow() -> None:
         raise
 
 if __name__ == "__main__":
-    os.environ["PREFECT_API_URL"] = ""
+    # os.environ["PREFECT_API_URL"] = ""
     main_flow()

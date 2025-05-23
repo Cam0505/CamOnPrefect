@@ -6,8 +6,8 @@ models:
   - name: id
     description: ''
     data_tests:
-      - not_null
-      - unique
+    - not_null
+    - unique
   - name: stock
     description: ''
   - name: price

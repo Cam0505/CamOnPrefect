@@ -15,7 +15,7 @@ push: null
 # pull section allows you to provide instructions for cloning this project in remote locations
 pull:
 - prefect.deployments.steps.set_working_directory:
-    directory: /workspaces/CamOnPrefect/pipelines
+    directory: /workspaces/CamOnPrefect
 
 # the deployments section allows you to provide configuration for deploying flows
 deployments:
@@ -32,4 +32,19 @@ deployments:
     job_variables: {}
   schedule:
     cron: "*/45 * * * *"
+    timezone: UTC
+
+- name: fbi-deployment
+  entrypoint: pipelines/fbi.py:fbi_flow
+  version: null
+  description: Fetch FBI data from API
+  tags: [fbi]
+  concurrency_limit: null
+  parameters: {}
+  work_pool:
+    name: camprocess1
+    work_queue_name: null
+    job_variables: {}
+  schedule:
+    cron: "*/3 * * * *"
     timezone: UTC

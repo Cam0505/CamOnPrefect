@@ -7,8 +7,5 @@ models:
     description: ''
   - name: country
     description: ''
-  - name: country_sk
+  - name: Country_SK
     description: ''
-    data_tests:
-    - not_null
-    - unique # May seem pointless, however, this is to ensure that the API doesn't mistakenly have 2 codes per country

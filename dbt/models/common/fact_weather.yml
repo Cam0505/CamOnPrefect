@@ -1,0 +1,35 @@
+version: 2
+models:
+- name: fact_weather
+  description: ''
+  columns:
+  - name: weather_date
+    description: ''
+  - name: city
+    description: ''
+  - name: temperature_max
+    description: ''
+  - name: temperature_min
+    description: ''
+  - name: temperature_range
+    description: ''
+  - name: temperature_mean
+    description: ''
+  - name: precipitation_sum
+    description: ''
+  - name: precipitation_fortnightly_anomaly
+    description: ''
+  - name: windspeed_max
+    description: ''
+  - name: windgusts_max
+    description: ''
+  - name: sunshine_duration
+    description: ''
+  - name: mean_temp_fortnightly_anomaly
+    description: ''
+  - name: mean_temp_fortnightly_avg
+    description: ''
+  - name: mean_temp_moving_avg
+    description: ''
+  - name: City_SK
+    description: ''

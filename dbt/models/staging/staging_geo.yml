@@ -15,10 +15,10 @@ models:
     description: ''
   - name: country
     description: ''
-  - name: city_sk
-    description: ''
-  - name: country_sk
-    description: ''
   - name: region
     description: ''
     data_type: varchar
+  - name: City_SK
+    description: ''
+  - name: Country_SK
+    description: ''

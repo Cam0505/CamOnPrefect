@@ -15,5 +15,8 @@ models:
     description: ''
   - name: wanted_images_sk
     description: ''
+    data_tests:
+    - unique:
+        severity: warn
   - name: caption
     description: ''

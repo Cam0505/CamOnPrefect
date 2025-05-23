@@ -23,7 +23,7 @@ models:
     description: ''
   - name: str_alcoholic
     description: ''
-  - name: glass_type_sk
+  - name: Glass_Type_SK
     description: ''
   - name: beverage_instructions
     description: ''

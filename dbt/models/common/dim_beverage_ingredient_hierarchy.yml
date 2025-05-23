@@ -3,11 +3,11 @@ models:
 - name: dim_beverage_ingredient_hierarchy
   description: ''
   columns:
-  - name: ingredient
+  - name: Ingredient
     description: ''
   - name: beverage_id
     description: ''
-  - name: beverage_name
+  - name: Beverage_Name
     description: ''
   - name: ingredient2
     description: ''

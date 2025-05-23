@@ -11,3 +11,6 @@ models:
     description: ''
   - name: wanted_DoB_sk
     description: ''
+    data_tests:
+    - unique:
+        severity: warn

@@ -7,7 +7,14 @@ models:
     description: ''
   - name: wanted_id
     description: ''
+    data_tests:
+    - relationships:
+        to: ref('base_fbi_wanted')
+        field: wanted_id
   - name: state_order
     description: ''
   - name: wanted_states_sk
     description: ''
+    data_tests:
+    - unique:
+        severity: warn
