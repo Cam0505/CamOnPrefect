@@ -1,16 +1,20 @@
 # CamOnPrefect
 
-This project is a data engineering pipeline built with **Prefect**, **Docker**, and **DBT**. It serves as an example of automating data workflows and performing data transformation tasks using modern tools.
+This project orchestrates data extraction from the CocktailDB API using **Prefect**, transforms it with **DBT**, and stores it in a MotherDuck Data Warehouse. It serves as a learning platform for integrating data engineering tools like Prefect, dbt, and DLT.
 
-## Project Structure
 
-- **.devcontainer/**: Contains configuration files for working within a containerized development environment using Visual Studio Code.
-- **Dockerfile**: The Docker configuration used to build the project container.
-- **docker-compose.yml**: Defines the services and dependencies for the project.
-- **prefect/**: Prefect workflows and tasks that orchestrate data processing.
-- **dbt/**: Contains DBT configurations and models for transforming data.
-- **requirements.txt**: Python dependencies for the project.
-- **README.md**: Project documentation.
+## 📁 Project Structure
+**.devcontainer/**: Configuration for VS Code's Remote - Containers extension.
+**pipelines/**: Contains Prefect flows and tasks for data orchestration.
+**dbt/**: Houses dbt models and configurations for data transformation.
+**requirements.txt**: Lists Python dependencies.
+
+## 🚀 Features
+**Prefect Flows**: Automates data extraction and loading processes.
+**DLT Integration**: Facilitates seamless data loading into DuckDB.
+**dbt Models**: Transforms raw data into structured formats for analysis.
+**File-Based Caching**: Reduces redundant API calls by caching responses.
+
 
 ## Prerequisites
 

@@ -1,0 +1,15 @@
+version: 2
+models:
+- name: base_fbi_files
+  description: ''
+  columns:
+  - name: url_link
+    description: ''
+  - name: language_name
+    description: ''
+  - name: wanted_id
+    description: ''
+  - name: file_order
+    description: ''
+  - name: wanted_files_sk
+    description: ''

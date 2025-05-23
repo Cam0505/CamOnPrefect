@@ -1,0 +1,13 @@
+version: 2
+models:
+- name: base_fbi_languages
+  description: ''
+  columns:
+  - name: wanted_language
+    description: ''
+  - name: wanted_id
+    description: ''
+  - name: language_order
+    description: ''
+  - name: wanted_languages_sk
+    description: ''

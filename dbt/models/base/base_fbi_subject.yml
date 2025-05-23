@@ -1,0 +1,13 @@
+version: 2
+models:
+- name: base_fbi_subject
+  description: ''
+  columns:
+  - name: wanted_subject
+    description: ''
+  - name: wanted_id
+    description: ''
+  - name: subject_order
+    description: ''
+  - name: wanted_subject_sk
+    description: ''

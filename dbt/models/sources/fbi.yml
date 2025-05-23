@@ -1,0 +1,18 @@
+version: 2
+
+sources:
+  - name: fbi
+    database: camonprefect
+    schema: fbi_data
+    tables:
+      - name: wanted
+      - name: wanted__aliases
+      - name: wanted__dates_of_birth_used
+      - name: wanted__files
+      - name: wanted__field_offices
+      - name: wanted__images
+      - name: wanted__languages
+      - name: wanted__occupations
+      - name: wanted__possible_countries
+      - name: wanted__possible_states
+      - name: wanted__subjects

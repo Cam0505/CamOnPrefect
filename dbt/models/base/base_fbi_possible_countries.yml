@@ -1,0 +1,13 @@
+version: 2
+models:
+- name: base_fbi_possible_countries
+  description: ''
+  columns:
+  - name: country
+    description: ''
+  - name: wanted_id
+    description: ''
+  - name: country_order
+    description: ''
+  - name: wanted_countries_sk
+    description: ''

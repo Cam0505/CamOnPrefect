@@ -1,0 +1,19 @@
+version: 2
+models:
+- name: base_fbi_images
+  description: ''
+  columns:
+  - name: large_image
+    description: ''
+  - name: thumb_image
+    description: ''
+  - name: original_image
+    description: ''
+  - name: wanted_id
+    description: ''
+  - name: image_order
+    description: ''
+  - name: wanted_images_sk
+    description: ''
+  - name: caption
+    description: ''

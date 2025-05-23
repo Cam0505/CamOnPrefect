@@ -1,0 +1,83 @@
+version: 2
+models:
+- name: base_fbi_wanted
+  description: ''
+  columns:
+  - name: poster_classification
+    description: ''
+  - name: hair
+    description: ''
+  - name: race_raw
+    description: ''
+  - name: urllink
+    description: ''
+  - name: pk
+    description: ''
+  - name: remarks
+    description: ''
+  - name: eyes_raw
+    description: ''
+  - name: race
+    description: ''
+  - name: place_of_birth
+    description: ''
+  - name: modified
+    description: ''
+  - name: hair_raw
+    description: ''
+  - name: status
+    description: ''
+  - name: publication
+    description: ''
+  - name: reward_min
+    description: ''
+  - name: sex
+    description: ''
+  - name: caution
+    description: ''
+  - name: eyes
+    description: ''
+  - name: title
+    description: ''
+  - name: reward_max
+    description: ''
+  - name: person_classification
+    description: ''
+  - name: description
+    description: ''
+  - name: path_id
+    description: ''
+  - name: wanted_id
+    description: ''
+  - name: warning_message
+    description: ''
+  - name: reward_text
+    description: ''
+  - name: details
+    description: ''
+  - name: age_max
+    description: ''
+  - name: weight_min
+    description: ''
+  - name: weight_max
+    description: ''
+  - name: height_min
+    description: ''
+  - name: bodyweight
+    description: ''
+  - name: height_max
+    description: ''
+  - name: age_min
+    description: ''
+  - name: age_range
+    description: ''
+  - name: nationality
+    description: ''
+  - name: scars_and_marks
+    description: ''
+  - name: ncic
+    description: ''
+  - name: build
+    description: ''
+  - name: complexion
+    description: ''

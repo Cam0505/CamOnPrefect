@@ -1,0 +1,13 @@
+version: 2
+models:
+- name: base_fbi_dates_of_birth_used
+  description: ''
+  columns:
+  - name: DoB
+    description: ''
+  - name: wanted_id
+    description: ''
+  - name: DoB_order
+    description: ''
+  - name: wanted_DoB_sk
+    description: ''

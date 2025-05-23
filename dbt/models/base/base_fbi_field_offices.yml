@@ -1,0 +1,13 @@
+version: 2
+models:
+- name: base_fbi_field_offices
+  description: ''
+  columns:
+  - name: field_office
+    description: ''
+  - name: wanted_id
+    description: ''
+  - name: field_office_order
+    description: ''
+  - name: wanted_field_offices_sk
+    description: ''

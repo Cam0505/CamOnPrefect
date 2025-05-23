@@ -1,0 +1,13 @@
+version: 2
+models:
+- name: base_fbi_possible_states
+  description: ''
+  columns:
+  - name: wanted_state
+    description: ''
+  - name: wanted_id
+    description: ''
+  - name: state_order
+    description: ''
+  - name: wanted_states_sk
+    description: ''

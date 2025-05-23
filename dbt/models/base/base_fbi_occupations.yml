@@ -1,0 +1,13 @@
+version: 2
+models:
+- name: base_fbi_occupations
+  description: ''
+  columns:
+  - name: occupations
+    description: ''
+  - name: wanted_id
+    description: ''
+  - name: occupations_order
+    description: ''
+  - name: wanted_occupations_sk
+    description: ''

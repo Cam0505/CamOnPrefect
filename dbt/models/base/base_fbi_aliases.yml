@@ -1,0 +1,13 @@
+version: 2
+models:
+- name: base_fbi_aliases
+  description: ''
+  columns:
+  - name: aliases
+    description: ''
+  - name: wanted_id
+    description: ''
+  - name: aliases_order
+    description: ''
+  - name: wanted_aliases_sk
+    description: ''
