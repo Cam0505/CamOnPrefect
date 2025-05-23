@@ -1,3 +1,14 @@
+-- ------------------------------------------------------------------------------
+-- Model: Base_gsheets_finance
+-- Description: Base Table Google Sheets Finance
+-- ------------------------------------------------------------------------------
+-- Change Log:
+-- Date       | Author   | Description
+-- -----------|----------|-------------------------------------------------------
+-- 2025-05-10 | Cam      | Initial creation
+-- YYYY-MM-DD | NAME     | [Add future changes here] (Second Test, Please work)
+-- ------------------------------------------------------------------------------
+
 SELECT 
     id, 
     stock, 

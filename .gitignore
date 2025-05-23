@@ -25,6 +25,7 @@ pipelines/.dlt/config.toml
 pipelines/.dlt/.*.toml
 pipelines/credentials.json
 pipelines/.dlt/
+pipelines/request_cache/*.json
 
 # IDE
 .vscode/

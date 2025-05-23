@@ -8,6 +8,7 @@ import subprocess
 from prefect import flow, task, get_run_logger
 from dlt.pipeline.exceptions import PipelineNeverRan
 import json
+from datetime import datetime, timedelta
 
 load_dotenv(dotenv_path="/workspaces/CamOnPrefect/.env")
 
@@ -54,27 +55,39 @@ DIMENSION_CONFIG = {
     }
 
 
-def fetch_and_extract(table: str) -> list:
-    """
-    Fetch data from TheCocktailDB API based on table type, and normalize to a list of values.
+def fetch_and_extract(table: str, logger) -> list:
+    # Check if the cache directory exists, if not, create it
+    CACHE_DIR = Path("request_cache")
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
-    Args:
-        table (str): One of "beverages", "glasses", "ingredients", "alcoholic".
-
-    Returns:
-        List[str]: Extracted list of values.
-    """
+    cache_file = CACHE_DIR / f"{table}.json"
 
     if table not in TABLE_PARAMS:
         raise ValueError(
             f"Unsupported table: {table}. Valid options: {list(TABLE_PARAMS.keys())}")
-
     param, field = TABLE_PARAMS[table]
+
+    # Check if the cache file exists and is less than 24 hours old
+    if cache_file.exists():
+        logger.info(f"✅ Using cached response for table: {table} Param: {param} field: {field}")
+        file_mtime = datetime.fromtimestamp(cache_file.stat().st_mtime)
+        if datetime.now() - file_mtime < timedelta(hours=24):
+            with open(cache_file, "r") as f:
+                data = json.load(f)
+                for key, value in data.items():
+                    if isinstance(value, list) and all(isinstance(item, dict) for item in value):
+                        return [item.get(field) for item in value if field in item]
+        
+
     url = f"https://www.thecocktaildb.com/api/json/v2/{API_KEY}/list.php?{param}"
 
     response = dlt_requests.get(url)
     response.raise_for_status()  # Raise exception on error
     data = response.json()
+
+    # Cache the response
+    with open(cache_file, "w") as f:
+        json.dump(data, f, indent=2)
 
     # Find the first key containing a list of dicts
     for key, value in data.items():
@@ -83,6 +96,38 @@ def fetch_and_extract(table: str) -> list:
 
     return []
 
+
+def resource_dim_request_cache(resource, query_param, value, logger):
+    CACHE_DIR = Path("request_cache")
+    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+
+    cache_file = CACHE_DIR / f"{resource}_{query_param}_{value}.json"
+
+    # Check if the cache file exists and is less than 48 hours old
+    if cache_file.exists():
+        logger.info(f"✅ Using cached response for {query_param}={value}")
+        file_mtime = datetime.fromtimestamp(cache_file.stat().st_mtime)
+        if datetime.now() - file_mtime < timedelta(hours=48):
+            with open(cache_file, "r") as f:
+                return json.load(f)
+    
+    url = f"https://www.thecocktaildb.com/api/json/v2/{API_KEY}/filter.php?{query_param}={value}"
+
+    try:
+        response = dlt_requests.get(url)
+        response.raise_for_status()  # Raise exception on error
+        data = response.json()["drinks"]
+    except Exception as e:
+        logger.warning(
+            f"❌ Failed to fetch drinks for value '{value}': {e}")
+        return []
+
+    with open(cache_file, "w") as f:
+        json.dump(data, f, indent=2)
+
+    return data
+                
+                
 
 def create_dimension_resource(table_name, config, values, currentdbcount, logger):
     @dlt.resource(name=config["resource_name"], write_disposition="merge", primary_key=config["primary_key"])
@@ -105,25 +150,21 @@ def create_dimension_resource(table_name, config, values, currentdbcount, logger
         total_records = 0
 
         for value in values:
-            url = f"https://www.thecocktaildb.com/api/json/v2/{API_KEY}/filter.php?{config['query_param']}={value}"
             try:
-                response = dlt_requests.get(url)
-                response.raise_for_status()  # Raise exception on error
-                drinks = response.json()["drinks"]
-                if not drinks:
-                    logger.warning(
-                        f"No drinks found for {config['query_param']}={value}")
-                    continue
-                for drink in drinks:
-                    if isinstance(drink, dict):  # Ensure it's a dictionary
-                        drink[config["source_key"]] = value
-                        yield drink
-                        total_records += 1
+                drinks = resource_dim_request_cache(config['resource_name'], config['query_param'], value, logger)
             except Exception as e:
-                logger.warning(
-                    f"❌ Failed to fetch drinks for value '{value}': {e}")
                 state["last_run_status"] = "failed"
                 return
+            
+            if not drinks:
+                logger.warning(
+                    f"No drinks found for {config['query_param']}={value}")
+                continue
+            for drink in drinks:
+                if isinstance(drink, dict):  # Ensure it's a dictionary
+                    drink[config["source_key"]] = value
+                    yield drink
+                    total_records += 1
         # Check Previous State:
         # previous_value = state.get("processed_records", 0)
         # if total_records == previous_value:
@@ -147,7 +188,7 @@ def dimension_data_source(logger, row_counts_dict: dict):
 
     for table_name, config in DIMENSION_CONFIG.items():
         logger.info(f"Creating resource: {table_name}")
-        values = fetch_and_extract(table_name)
+        values = fetch_and_extract(table_name, logger)
         yield create_dimension_resource(table_name, config, values, row_counts_dict.get(config['resource_name'], 0), logger)
 
 
@@ -219,7 +260,7 @@ def beverage_fact_data(logger, dimension_data: bool) -> bool:
 
         url = f"https://www.thecocktaildb.com/api/json/v2/{API_KEY}/randomselection.php"
 
-        for i in range(100):
+        for i in range(50):
             try:
                 response = dlt_requests.get(url, timeout=10)
                 response.raise_for_status()
