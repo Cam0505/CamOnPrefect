@@ -1,4 +1,14 @@
-
+-- ------------------------------------------------------------------------------
+-- Model: Base_FBI_Wanted
+-- Description: This model is the base for the FBI wanted persons data.
+-- Plan to add in more countries in the future (Please work)
+-- ------------------------------------------------------------------------------
+-- Change Log:
+-- Date       | Author   | Description
+-- -----------|----------|-------------------------------------------------------
+-- 2025-05-23 | Cam      | Initial creation
+-- YYYY-MM-DD | NAME     | [Add future changes here]
+-- ------------------------------------------------------------------------------
 
 
 SELECT poster_classification, hair, race_raw, url as urllink, uid as pk, remarks, eyes_raw, race, place_of_birth, modified, hair_raw, 

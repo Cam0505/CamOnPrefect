@@ -10,8 +10,6 @@ import time as t
 from datetime import datetime, time
 from zoneinfo import ZoneInfo
 
-# Disable Prefect server communication
-os.environ["PREFECT_API_ENABLE"] = "false"
 
 # Load environment variables
 load_dotenv(dotenv_path="/workspaces/CamOnPrefect/.env")

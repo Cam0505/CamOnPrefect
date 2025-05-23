@@ -160,6 +160,7 @@ def openmeteo_source(cities: dict, base_start_date: date, end_date: date, row_ma
                     expected_days = (end_date - base_start_date).days + 1
                     # In the DB
                     existing_days = (max_date - min_date).days + 1
+                    
 
                     if existing_days >= expected_days and max_date >= end_date:
                         logger.info(
@@ -186,27 +187,27 @@ def openmeteo_source(cities: dict, base_start_date: date, end_date: date, row_ma
                 futures[executor.submit(
                     fetch_city_chunk_data, city, city_info, city_start, end_date, logger)] = city
 
-                for future in as_completed(futures):
-                    city = futures[future]
-                    try:
-                        records = future.result()[1]
-                    except Exception as e:
-                        logger.error(f"Failed fetching data for {city}: {e}")
-                        state["city_status"][city] = "failed"
-                        continue
-                    if records:
-                        yield records
-                        state["city_status"][city] = "success"
-                        state["city_date"][city] = {
-                            "start": records[0]["date"],
-                            "end": records[-1]["date"]
-                        }
-                        all_dates.append(
-                            date.fromisoformat(records[0]["date"]))
-                        all_dates.append(
-                            date.fromisoformat(records[-1]["date"]))
-                    else:
-                        state["city_status"][city] = "failed"
+            for future in as_completed(futures):
+                city = futures[future]
+                try:
+                    records = future.result()[1]
+                except Exception as e:
+                    logger.error(f"Failed fetching data for {city}: {e}")
+                    state["city_status"][city] = "failed"
+                    continue
+                if records:
+                    yield records
+                    state["city_status"][city] = "success"
+                    state["city_date"][city] = {
+                        "start": records[0]["date"],
+                        "end": records[-1]["date"]
+                    }
+                    all_dates.append(
+                        date.fromisoformat(records[0]["date"]))
+                    all_dates.append(
+                        date.fromisoformat(records[-1]["date"]))
+                else:
+                    state["city_status"][city] = "failed"
 
             if all_dates:
                 state["last_run_date"]["Min"] = str(min(all_dates))
@@ -234,17 +235,18 @@ def openmeteo_task(logger) -> bool:
             row_max_min = dataset.groupby("city").agg(min_date=("date", "min"), max_date=("date", "max")).reset_index()
             row_max_min["min_date"] = pd.to_datetime(row_max_min["min_date"]).dt.date
             row_max_min["max_date"] = pd.to_datetime(row_max_min["max_date"]).dt.date
-            row_max_min_dict = (
-                row_max_min
-                .set_index("city")[["min_date", "max_date"]]
-                # .map(lambda x: x.date() if hasattr(x, 'date') else x)
-                .to_dict(orient="index")
-            )
+            row_max_min_dict = {
+                str(k): v for k, v in (
+                    row_max_min
+                    .set_index("city")[["min_date", "max_date"]]
+                    .to_dict(orient="index")
+                ).items()
+            }
             logger.info(f"Grouped Min and Max:\n{row_max_min}")
     except PipelineNeverRan:
         logger.warning(
             "⚠️ No previous runs found for this pipeline. Assuming first run.")
-        row_max_min = {}
+        row_max_min_dict = {}
 
 
 
@@ -281,12 +283,12 @@ def openmeteo_task(logger) -> bool:
     except Exception as e:
         logger.error(f"\n\n ❌ Pipeline run failed: {e}")
         return False
-
+    
 
 @task
 def dbt_meteo_data(logger, openmeteo_task: bool) -> None:
     """Runs the dbt command after loading the data from OpenMeteo API."""
-
+    return
     if not openmeteo_task:
         logger.warning(
             "\n⚠️  WARNING: DBT SKIPPED\n"
@@ -317,21 +319,25 @@ def dbt_meteo_data(logger, openmeteo_task: bool) -> None:
         raise
 
 
-@flow(name="meteo-flow")
+@flow(name="meteo-flow", timeout_seconds=35)
 def meteo_flow():
     """
     Main flow to run the pipeline and dbt transformations.
     """
-    logger = get_run_logger()
-    logger.info("Starting the Meteo Flow...")
+    try:
+        logger = get_run_logger()
+        logger.info("Starting the Meteo Flow...")
 
-    # Run the DLT pipeline
-    should_run = openmeteo_task(logger=logger)
+        # Run the DLT pipeline
+        should_run = openmeteo_task(logger=logger)
 
-    # Run dbt transformations
-    dbt_meteo_data(logger, openmeteo_task=should_run)
-
-
+        # Run dbt transformations
+        dbt_meteo_data(logger, openmeteo_task=should_run)
+    except Exception as e:
+        logger.error(f"Flow failed: {e}")
+        raise
 if __name__ == "__main__":
-    os.environ["PREFECT_API_URL"] = ""
+    # os.environ["PREFECT_API_URL"] = ""
     meteo_flow()
+    time.sleep(30) # Dev pause
+    os._exit(0) # Dev exit
