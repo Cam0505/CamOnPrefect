@@ -1,0 +1,17 @@
+version: 2
+
+sources:
+  - name: beverages
+    database: camonprefect
+    schema: beverage_data
+    tables:
+    # Alcoholic
+      - name: alcoholic_table
+    # Consumption Fact
+      - name: consumption
+    # Beverage Type
+      - name: beverages_table
+    # Glass Type
+      - name: glass_table
+    # Ingredients
+      - name: ingredients_table
