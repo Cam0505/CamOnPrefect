@@ -17,6 +17,20 @@ BASE_URL = "https://api.fbi.gov/"
 ENDPOINT = "/wanted/v1/list"
 
 
+def write_profiles_yml():
+    """Write dbt/profiles.yml from the DBT_PROFILES_YML environment variable, only in Prefect Cloud."""
+    profiles_content = os.environ.get("DBT_PROFILES_YML")
+    if profiles_content and os.environ.get("PREFECT_DEPLOYMENT_RUN_ID"):
+        dbt_dir = os.path.join(os.getcwd(), "dbt")
+        os.makedirs(dbt_dir, exist_ok=True)
+        profiles_path = os.path.join(dbt_dir, "profiles.yml")
+        with open(profiles_path, "w") as f:
+            f.write(profiles_content)
+        print(f"Wrote profiles.yml to: {profiles_path}")
+    else:
+        print("Not in Prefect Cloud or DBT_PROFILES_YML not set; not overwriting local profiles.yml")
+
+
 def write_dlt_secrets():
     """Write .dlt/secrets.toml from env variable if present (for managed work pools)."""
     creds = os.environ.get("MOTHERDUCK_CREDENTIALS")
@@ -149,13 +163,15 @@ def dbt_fbi(logger, run_dlt_pipeline: bool) -> None:
             "🚫 Skipping dbt run.\n"
         )
         return
+    
+    write_profiles_yml()
 
     logger.info(f"📁 DBT Project Directory: {DBT_DIR}")
 
     start = time.time()
     try:
         subprocess.run(
-            "dbt build --select source:fbi+",
+            "dbt build --select source:fbi+ --profiles-dir .",
             shell=True,
             cwd=DBT_DIR,
             capture_output=True,
