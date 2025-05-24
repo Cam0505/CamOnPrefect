@@ -172,6 +172,14 @@ def dbt_fbi(logger, run_dlt_pipeline: bool) -> None:
     start = time.time()
     try:
         subprocess.run(
+            "dbt deps",
+            shell=True,
+            cwd=DBT_DIR,
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        subprocess.run(
             "dbt build --select source:fbi+ --profiles-dir .",
             shell=True,
             cwd=DBT_DIR,
