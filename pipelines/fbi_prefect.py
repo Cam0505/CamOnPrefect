@@ -21,8 +21,7 @@ def write_profiles_yml(logger):
     """Write dbt/profiles.yml from the DBT_PROFILES_YML environment variable, only in Prefect Cloud."""
     profiles_content = os.environ.get("DBT_PROFILES_YML")
     logger.info(f"DBT_PROFILES_YML content: {profiles_content}")
-    logger.info(f"PREFECT_DEPLOYMENT_RUN_ID: {os.environ.get('PREFECT_DEPLOYMENT_RUN_ID')}")
-    if profiles_content and os.environ.get("PREFECT_DEPLOYMENT_RUN_ID"):
+    if profiles_content:
         dbt_dir = os.path.join(os.getcwd(), "dbt")
         os.makedirs(dbt_dir, exist_ok=True)
         profiles_path = os.path.join(dbt_dir, "profiles.yml")
@@ -30,7 +29,7 @@ def write_profiles_yml(logger):
             f.write(profiles_content)
         logger.info(f"Wrote profiles.yml to: {profiles_path}")
     else:
-        logger.info("Not in Prefect Cloud or DBT_PROFILES_YML not set; not overwriting local profiles.yml")
+        logger.info("DBT_PROFILES_YML not set; not overwriting local profiles.yml")
 
 
 def write_dlt_secrets():
