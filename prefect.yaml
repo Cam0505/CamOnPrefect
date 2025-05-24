@@ -1,53 +1,47 @@
-# Welcome to your prefect.yaml file! You can use this file for storing and managing
-# configuration for deploying your flows. We recommend committing this file to source
-# control along with your flow code.
-
-# Generic metadata about this project
-name: pipelines
+=name: pipelines
 prefect-version: 3.4.0
 
-# build section allows you to manage and build docker images
-build: null
+variables:
+  build:
+    image_name: "camondbt/camonprefect-pipelines"
+    tag: "1.0.1"
 
-# push section allows you to manage if and how this project is uploaded to remote locations
-push: null
+# build:
+#   - prefect_docker.deployments.steps.build_docker_image:
+#       id: build-image
+#       name: Build image
+#       image_name: camondbt/camonprefect-pipelines
+#       tag: 1.0.1
+#       dockerfile: Dockerfile
+#       push: true
 
-# pull section allows you to provide instructions for cloning this project in remote locations
-pull:
-  - prefect.deployments.steps.clone_repo:
-      repo_url: "https://github.com/Cam0505/CamOnPrefect.git"
-      directory: /app
-  - prefect.deployments.steps.set_working_directory:
-      directory: /app
+# Can't use Prefect Docker, not supported on Prefect Cloud free tier  
 
-# the deployments section allows you to provide configuration for deploying flows
 deployments:
-- name: gsheets-financial-deployment
-  entrypoint: pipelines/gsheets_financial.py:main_flow
-  version: null
-  description: Fetch financial data from Google Sheets every 45 minutes
-  tags: [gsheets, finance]
-  concurrency_limit: null
-  parameters: {}
-  work_pool:
-    name: default
-    work_queue_name: null
-    job_variables: {}
-  schedule:
-    cron: "*/45 * * * *"
-    timezone: UTC
-
-- name: fbi-deployment
-  entrypoint: pipelines/fbi.py:fbi_flow
-  version: null
-  description: Fetch FBI data from API
-  tags: [fbi]
-  concurrency_limit: null
-  parameters: {}
-  work_pool:
-    name: camprocess1
-    work_queue_name: null
-    job_variables: {}
-  schedule:
-    cron: "*/3 * * * *"
-    timezone: UTC
+  - name: fbi-deployment
+    # infrastructure:
+    #   type: docker-container
+    #   image: "camondbt/camonprefect-pipelines:1.0.1"
+    #   job_variables:
+    #     working_dir: /workspaces/CamOnPrefect
+    #     env:
+    #       WORKING_DIRECTORY: /workspaces/CamOnPrefect
+    #       PREFECT__FLOWS_DIR: "/workspaces/CamOnPrefect/pipelines"
+    #       PROJECT_ROOT: "/workspaces/CamOnPrefect"
+    #       PREFECT_LOGGING_LEVEL: "DEBUG"
+    #       FBI_API_TIMEOUT: "30"
+    #       PREFECT_LOGGING_SERVER_LEVEL: "DEBUG"
+    #       PREFECT_LOGGING_EXTRA_LOGGERS: "prefect.infrastructure"
+    #   auto_remove: true
+    version: null
+    description: Fetch FBI data from API
+    tags: [fbi]
+    concurrency_limit: null
+    parameters: {}
+    work_pool:
+      name: camprocess1
+      work_queue_name: null
+      job_variables: {}
+    schedule:
+      cron: "*/45 * * * *"
+      timezone: UTC

@@ -29,6 +29,8 @@ pipelines/request_cache/*.json
 .dlt/secrets.toml
 .dlt/config.toml
 
+Dockerfile
+
 # IDE
 .vscode/
 .idea/

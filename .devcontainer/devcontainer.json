@@ -3,29 +3,46 @@
   "build": {
     "dockerfile": "Dockerfile",
     "cacheFrom": "camonprefect-app:latest",
-    "context": ".."
+    "context": "..",
+    "args": {
+      "VARIANT": "3.11"  // Explicit Python version
+    }
   },
   "runArgs": [
     "--cpus=4",
     "--memory=4g",
-    "--init"
+    "--init",
+    "--privileged"  // Required for Docker-in-Docker
   ],
   "mounts": [
-    "source=${localEnv:USERPROFILE}\\.prefect,target=/home/vscode/.prefect,type=bind"
+    "source=${localEnv:USERPROFILE}\\.prefect,target=/home/vscode/.prefect,type=bind",
+    "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"  // Docker socket mount
   ],
+  "features": {
+    "docker-in-docker": {
+      "version": "latest",
+      "moby": true
+    }
+  },
   "customizations": {
     "vscode": {
       "settings": {
         "dbt.profilesDir": "${containerWorkspaceFolder}/dbt",
         "python.linting.enabled": true,
-        "terminal.integrated.shellArgs.linux": ["-l"],
         "terminal.integrated.defaultProfile.linux": "bash",
-        "python.envFile": "${containerWorkspaceFolder}/.env"
+        "python.envFile": "${containerWorkspaceFolder}/.env",
+        "docker.environment": {
+          "PREFECT_API_URL": "https://api.prefect.cloud/api"
+        }
       },
-      "extensions": ["ms-python.python", "dbt-labs.dbt"]
+      "extensions": [
+        "ms-python.python",
+        "dbt-labs.dbt",
+        "ms-azuretools.vscode-docker"  // Docker extension
+      ]
     }
   },
-  "postCreateCommand": "bash .devcontainer/init_prefect.sh",
+  "postCreateCommand": "bash .devcontainer/init_prefect.sh && sudo chmod 666 /var/run/docker.sock",
   "forwardPorts": [4200],
   "containerEnv": {
     "PREFECT_API_URL": "https://api.prefect.cloud/api",
@@ -34,7 +51,10 @@
     "DLT_SECRETS_TOML": "${localEnv:DLT_SECRETS_TOML}",
     "GOOGLE_API_KEY": "${localEnv:GOOGLE_API_KEY}",
     "MD": "${localEnv:MD}",
-    "PYTHONPATH": "/workspaces/CamOnPrefect"
+    "PYTHONPATH": "/workspaces/CamOnPrefect",
+    "DOCKER_BUILDKIT": "1"  // Enable Docker buildkit
   },
+  "remoteUser": "vscode",
+  "updateRemoteUserUID": true,
   "envFile": "${containerWorkspaceFolder}/.env"
 }

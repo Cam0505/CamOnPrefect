@@ -1,7 +1,7 @@
 dbt-core==1.9.4
 dbt-duckdb==1.9.3
 dlt==1.10.0
-docker==7.1.0
+docker==6.1.1
 duckdb==1.2.2
 gitdb==4.0.12
 GitPython==3.1.41
@@ -16,3 +16,4 @@ psycopg2-binary==2.9.10
 python-dotenv==1.1.0
 pyarrow==17.0.0
 dlt[motherduck]
+prefect-docker==0.6.5

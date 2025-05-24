@@ -8,12 +8,23 @@ from prefect import flow, task, get_run_logger
 from dlt.pipeline.exceptions import PipelineNeverRan
 import subprocess
 import time
+from path_config import DBT_DIR, ENV_FILE
 
-# load_dotenv(dotenv_path="/workspaces/CamOnPrefect/.env")
-load_dotenv("../.env")
+
+# load_dotenv(ENV_FILE)
 
 BASE_URL = "https://api.fbi.gov/"
 ENDPOINT = "/wanted/v1/list"
+
+
+def write_dlt_secrets():
+    """Write .dlt/secrets.toml from env variable if present (for managed work pools)."""
+    creds = os.environ.get("MOTHERDUCK_CREDENTIALS")
+    if creds:
+        os.makedirs("pipelines/.dlt", exist_ok=True)
+        with open("pipelines/.dlt/secrets.toml", "w") as f:
+            f.write(f'[destination]\nmotherduck.credentials="{creds}"\n')
+
 
 
 
@@ -76,9 +87,12 @@ def fbi_wanted_source(logger, db_count):
 
 @task
 def run_dlt_pipeline(logger):
+
+    write_dlt_secrets()
+
     pipeline = dlt.pipeline(
         pipeline_name="fbi_wanted_pipeline",
-        destination=os.getenv("DLT_DESTINATION", "duckdb"),
+        destination=os.environ.get("DLT_DESTINATION") or os.getenv("DLT_DESTINATION"),
         dataset_name="fbi_data"
     )
     try:
@@ -133,15 +147,14 @@ def dbt_fbi(logger, run_dlt_pipeline: bool) -> None:
         )
         return
 
-    DBT_PROJECT_DIR = "/workspaces/CamOnPrefect/dbt"
-    logger.info(f"📁 DBT Project Directory: {DBT_PROJECT_DIR}")
+    logger.info(f"📁 DBT Project Directory: {DBT_DIR}")
 
     start = time.time()
     try:
         subprocess.run(
             "dbt build --select source:fbi+",
             shell=True,
-            cwd=DBT_PROJECT_DIR,
+            cwd=DBT_DIR,
             capture_output=True,
             text=True,
             check=True

@@ -9,10 +9,11 @@ from dotenv import load_dotenv
 import time as t
 from datetime import datetime, time
 from zoneinfo import ZoneInfo
+from path_config import DBT_DIR, ENV_FILE
 
 
 # Load environment variables
-load_dotenv(dotenv_path="/workspaces/CamOnPrefect/.env")
+load_dotenv(dotenv_path=ENV_FILE)
 
 def is_within_asx_hours() -> bool:
     now_sydney = datetime.now(ZoneInfo("Australia/Sydney"))
@@ -160,8 +161,8 @@ def run_dbt_command(should_run: bool, logger) -> None:
             "----------------------------------------"
         )
         return
-    DBT_PROJECT_DIR = "/workspaces/CamOnPrefect/dbt"
-    logger.info(f"DBT Project Directory: {DBT_PROJECT_DIR}")
+    
+    logger.info(f"DBT Project Directory: {DBT_DIR}")
 
     start = t.time()
     try:
@@ -169,7 +170,7 @@ def run_dbt_command(should_run: bool, logger) -> None:
         result = subprocess.run(
             "dbt run --select source:gsheets+",
             shell=True,
-            cwd=DBT_PROJECT_DIR,
+            cwd=DBT_DIR,
             capture_output=True,
             text=True,
             check=True,
