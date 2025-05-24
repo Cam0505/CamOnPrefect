@@ -112,7 +112,7 @@ def run_dlt_pipeline(logger):
 
     logger.info(f"Row counts: {row_counts_dict}")   
 
-    source = fbi_wanted_source(logger, db_count=row_counts_dict['wanted'])
+    source = fbi_wanted_source(logger, db_count=row_counts_dict.get('wanted', 0))
 
     try:
         pipeline.run(source)
