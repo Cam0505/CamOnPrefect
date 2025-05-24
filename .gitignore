@@ -20,11 +20,10 @@ venv/
 
 # Environment files
 .env
-pipelines/.dlt/secrets.toml
-pipelines/.dlt/config.toml
-pipelines/.dlt/.*.toml
-pipelines/credentials.json
+# DLT secrets and config
 pipelines/.dlt/
+.dlt/
+pipelines/credentials.json
 pipelines/request_cache/*.json
 
 .dlt/secrets.toml

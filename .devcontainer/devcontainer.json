@@ -23,7 +23,12 @@
   "postCreateCommand": "bash .devcontainer/init_prefect.sh",
   "forwardPorts": [4200],
   "containerEnv": {
-    "PREFECT_API_URL": "http://127.0.0.1:4200/api",
+    "PREFECT_API_URL": "https://api.prefect.cloud/api",
+    "PREFECT_API_KEY": "${localEnv:PREFECT_API_KEY}",
+    "PREFECT_WORKSPACE": "${localEnv:PREFECT_WORKSPACE}",
+    "DLT_SECRETS_TOML": "${localEnv:DLT_SECRETS_TOML}",
+    "GOOGLE_API_KEY": "${localEnv:GOOGLE_API_KEY}",
+    "MD": "${localEnv:MD}",
     "PYTHONPATH": "/workspaces/CamOnPrefect"
   }
 }
