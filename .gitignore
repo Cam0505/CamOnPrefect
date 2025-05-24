@@ -29,14 +29,14 @@ pipelines/request_cache/*.json
 .dlt/secrets.toml
 .dlt/config.toml
 
-Dockerfile
-
 # IDE
 .vscode/
 .idea/
 
 dbt/profiles.yml
 dbt/dbt_packages/
+
+request_cache/*.json
 
 # Misc
 *.log

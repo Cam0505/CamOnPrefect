@@ -7,14 +7,42 @@ import time
 import subprocess
 from prefect import flow, task, get_run_logger
 from dlt.pipeline.exceptions import PipelineNeverRan
+from dlt.destinations.exceptions import DatabaseUndefinedRelation
 import json
 from datetime import datetime, timedelta
+from path_config import DBT_DIR, ENV_FILE
+import re
 
-load_dotenv(dotenv_path="/workspaces/CamOnPrefect/.env")
+load_dotenv(dotenv_path=ENV_FILE)
+
+
+def write_profiles_yml(logger) -> bool:
+    """Write dbt/profiles.yml from the DBT_PROFILES_YML environment variable, only in Prefect Cloud."""
+    profiles_content = os.environ.get("DBT_PROFILES_YML")
+    logger.info(f"DBT_PROFILES_YML content: {profiles_content}")
+    if profiles_content:
+        dbt_dir = os.path.join(os.getcwd(), "dbt")
+        os.makedirs(dbt_dir, exist_ok=True)
+        profiles_path = os.path.join(dbt_dir, "profiles.yml")
+        with open(profiles_path, "w") as f:
+            f.write(profiles_content)
+        logger.info(f"Wrote profiles.yml to: {profiles_path}")
+        return True
+    else:
+        logger.info("DBT_PROFILES_YML not set; not overwriting local profiles.yml")
+        return False
+
 
 API_KEY = os.getenv("BEVERAGE_API_KEY")
 if not API_KEY:
     raise ValueError("Environment variable BEVERAGE_API_KEY is not set.")
+
+def sanitize_filename(value: str) -> str:
+    # Replace all non-word characters (anything other than letters, digits, underscore) with underscore
+    no_whitespace = ''.join(value.split())
+    ascii_only = no_whitespace.encode("ascii", errors="ignore").decode()
+    return re.sub(r"[^\w\-_\.]", "_", ascii_only)
+
 
 TABLE_PARAMS = {
     "beverages": ("c=list", "strCategory"),
@@ -67,11 +95,11 @@ def fetch_and_extract(table: str, logger) -> list:
             f"Unsupported table: {table}. Valid options: {list(TABLE_PARAMS.keys())}")
     param, field = TABLE_PARAMS[table]
 
-    # Check if the cache file exists and is less than 24 hours old
+    # Check if the cache file exists and is less than 74 hours old
     if cache_file.exists():
         logger.info(f"✅ Using cached response for table: {table} Param: {param} field: {field}")
         file_mtime = datetime.fromtimestamp(cache_file.stat().st_mtime)
-        if datetime.now() - file_mtime < timedelta(hours=24):
+        if datetime.now() - file_mtime < timedelta(hours=72):
             with open(cache_file, "r") as f:
                 data = json.load(f)
                 for key, value in data.items():
@@ -101,15 +129,17 @@ def resource_dim_request_cache(resource, query_param, value, logger):
     CACHE_DIR = Path("request_cache")
     CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
-    cache_file = CACHE_DIR / f"{resource}_{query_param}_{value}.json"
+    cache_file = CACHE_DIR / f"{resource}_{query_param}_{sanitize_filename(value)}.json"
 
-    # Check if the cache file exists and is less than 48 hours old
+    # Check if the cache file exists and is less than 72 hours old
     if cache_file.exists():
-        logger.info(f"✅ Using cached response for {query_param}={value}")
+        # logger.info(f"✅ Using cached response for {query_param}={sanitize_filename(value)}")
         file_mtime = datetime.fromtimestamp(cache_file.stat().st_mtime)
-        if datetime.now() - file_mtime < timedelta(hours=48):
+        if datetime.now() - file_mtime < timedelta(hours=72):
             with open(cache_file, "r") as f:
                 return json.load(f)
+    else: 
+        logger.info(f"❌ No cache found for {query_param}={value}, fetching from API...")
     
     url = f"https://www.thecocktaildb.com/api/json/v2/{API_KEY}/filter.php?{query_param}={value}"
 
@@ -137,25 +167,25 @@ def create_dimension_resource(table_name, config, values, currentdbcount, logger
             "processed_records": 0,
             "last_run_status": None
         })
-        if currentdbcount == state["processed_records"]:
-            logger.info(
-                f"🔁 SKIPPED LOAD for {config['resource_name']}:\n"
-                f"📅 Previous: {state['processed_records']}\n"
-                f"📦 Current: {currentdbcount}\n"
-                f"⏳ No new data for {config['resource_name']}. Skipping..."
-            )
-            state["last_run_status"] = "skipped_no_new_data"
-            return
+        # if currentdbcount == state["processed_records"]:
+        #     logger.info(
+        #         f"🔁 SKIPPED LOAD for {config['resource_name']}:\n"
+        #         f"📅 Previous: {state['processed_records']}\n"
+        #         f"📦 Current: {currentdbcount}\n"
+        #         f"⏳ No new data for {config['resource_name']}. Skipping..."
+        #     )
+        #     state["last_run_status"] = "skipped_no_new_data"
+        #     return
 
         total_records = 0
-
+        logger.info(f"Processing {len(values)} values for {config['resource_name']}...")
         for value in values:
             try:
                 drinks = resource_dim_request_cache(config['resource_name'], config['query_param'], value, logger)
             except Exception as e:
-                state["last_run_status"] = "failed"
-                return
-            
+                logger.error(f"❌ Failed to fetch drinks for {config['query_param']}={value}: {e}")
+                continue
+
             if not drinks:
                 logger.warning(
                     f"No drinks found for {config['query_param']}={value}")
@@ -165,20 +195,32 @@ def create_dimension_resource(table_name, config, values, currentdbcount, logger
                     drink[config["source_key"]] = value
                     yield drink
                     total_records += 1
+      
         # Check Previous State:
-        # previous_value = state.get("processed_records", 0)
-        # if total_records == previous_value:
-        #     logger.info(
-        #         f"🔁 SKIPPED LOAD for {config['resource_name']}:\n"
-        #         f"📅 Previous: {previous_value}\n"
-        #         f"📦 Current: {total_records}\n"
-        #         f"⏳ No new data for {config['resource_name']}. Skipping..."
-        #     )
-        #     state["last_run_status"] = "skipped_no_new_data"
-        #     return
-        # else:
-        state["processed_records"] = total_records
-        state["last_run_status"] = "success"
+        previous_value = state.get("processed_records", 0)
+        if total_records == previous_value and currentdbcount == previous_value:
+            logger.info(
+                f"🔁 SKIPPED LOAD for {config['resource_name']}:\n"
+                f"📅 Previous: {previous_value}\n"
+                f"📦 Current: {total_records}\n"
+                f"⏳ No new data for {config['resource_name']}. Skipping..."
+            )
+            state["last_run_status"] = "skipped_no_new_data"
+            return
+        elif total_records == 0:
+            logger.warning(
+                f"⚠️ No data loaded for {config['resource_name']}. Marking as failed.")
+            state["last_run_status"] = "failed"
+        else:
+            logger.info(
+                f"✅ Loaded {total_records} records for {config['resource_name']}:\n"
+                f"📅 Previous: {previous_value}\n"
+                f"📦 Current: {total_records}\n"
+                f"Database: {currentdbcount}\n"
+                f"⏳ New data loaded for {config['resource_name']}."
+            )
+            state["processed_records"] = total_records
+            state["last_run_status"] = "success"
 
     return resource_func
 
@@ -195,10 +237,11 @@ def dimension_data_source(logger, row_counts_dict: dict):
 @task
 def dimension_data(logger) -> bool:
 
+
     logger.info("Starting DLT pipeline...")
     pipeline = dlt.pipeline(
         pipeline_name="beverage_pipeline",
-        destination=os.getenv("DLT_DESTINATION", "duckdb"),
+        destination=os.environ.get("DLT_DESTINATION") or os.getenv("DLT_DESTINATION"),
         dataset_name="beverage_data",
         dev_mode=False
     )
@@ -208,6 +251,10 @@ def dimension_data(logger) -> bool:
     except PipelineNeverRan:
         logger.warning(
             "⚠️ No previous runs found for this pipeline. Assuming first run.")
+        row_counts = None
+    except DatabaseUndefinedRelation:
+        logger.warning(
+            "⚠️ Table Doesn't Exist. Assuming truncation.")
         row_counts = None
 
     if row_counts is not None:
@@ -228,16 +275,16 @@ def dimension_data(logger) -> bool:
         statuses = [source.state.get(config["resource_name"], {}).get('last_run_status', None) for config in DIMENSION_CONFIG.values()]
         logger.info(f"Resource Statuses: {statuses}")
         logger.info(f"Pipeline Load Info: {load_info}")
-        return True
-        # if any(s == "success" for s in statuses):
-        #     logger.info(f"Pipeline Load Info: {load_info}")
-        #     return True
-        # elif all(s == "skipped_no_new_data" for s in statuses):
-        #     return False
-        # else:
-        #     logger.error(
-        #         "💥  Pipeline Failures — check Logic, API or network.")
-        #     return False
+      
+        if any(s == "success" for s in statuses):
+            logger.info(f"Pipeline Load Info: {load_info}")
+            return True
+        elif all(s == "skipped_no_new_data" for s in statuses):
+            return False
+        else:
+            logger.error(
+                "💥  Pipeline Failures — check Logic, API or network.")
+            return False
     except Exception as e:
         logger.error(f"❌ Pipeline run failed: {e}")
         return False
@@ -260,7 +307,7 @@ def beverage_fact_data(logger, dimension_data: bool) -> bool:
 
         url = f"https://www.thecocktaildb.com/api/json/v2/{API_KEY}/randomselection.php"
 
-        for i in range(50):
+        for i in range(5):
             try:
                 response = dlt_requests.get(url, timeout=10)
                 response.raise_for_status()
@@ -314,13 +361,24 @@ def dbt_beverage_data(logger, beverage_fact_data: bool):
             "----------------------------------------"
         )
         return False
-    DBT_PROJECT_DIR = Path("/workspaces/CamOnPrefect/dbt").resolve()
-    logger.info(f"DBT Project Directory: {DBT_PROJECT_DIR}")
 
+    iscloudrun = write_profiles_yml(logger=logger)
+
+    logger.info(f"DBT Project Directory: {DBT_DIR}")
+
+    if iscloudrun:
+            subprocess.run(
+                "dbt deps",
+                shell=True,
+                cwd=DBT_DIR,
+                capture_output=True,
+                text=True,
+                check=True
+            )
     result = subprocess.run(
         "dbt build --select source:beverages+",
         shell=True,
-        cwd=DBT_PROJECT_DIR,
+        cwd=DBT_DIR,
         capture_output=True,
         text=True
     )
@@ -355,5 +413,5 @@ def beverages_flow():
 
 
 if __name__ == "__main__":
-    os.environ["PREFECT_API_URL"] = ""
+    # os.environ["PREFECT_API_URL"] = ""
     beverages_flow()

@@ -12,6 +12,6 @@
 
 SELECT hair, race_raw, urllink, remarks, eyes_raw, race, place_of_birth, modified, hair_raw, 
 publication, reward_min, sex, caution, eyes, title, reward_max, person_classification, description, path_id, 
-wanted_id, warning_message, reward_text, details, age_max, weight_min, weight_max, height_min, bodyweight, height_max, 
-age_min, age_range, nationality, scars_and_marks, ncic, build, complexion
+warning_message, reward_text, details, age_max, weight_min, weight_max, height_min, bodyweight, height_max, 
+age_min, age_range, nationality, scars_and_marks, ncic, build, complexion, pk
 from {{ref('base_fbi_wanted')}}  bw

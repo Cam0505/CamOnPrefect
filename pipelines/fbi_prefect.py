@@ -1,15 +1,14 @@
 import os
 from dotenv import load_dotenv
 import dlt
-import dlt
 from dlt.sources.helpers.rest_client.paginators import PageNumberPaginator
 from dlt.sources.helpers.rest_client.client import RESTClient
 from prefect import flow, task, get_run_logger
 from dlt.pipeline.exceptions import PipelineNeverRan
+from dlt.destinations.exceptions import DatabaseUndefinedRelation
 import subprocess
 import time
 from path_config import DBT_DIR, ENV_FILE
-
 
 # load_dotenv(ENV_FILE)
 
@@ -17,14 +16,21 @@ BASE_URL = "https://api.fbi.gov/"
 ENDPOINT = "/wanted/v1/list"
 
 
-def write_dlt_secrets():
-    """Write .dlt/secrets.toml from env variable if present (for managed work pools)."""
-    creds = os.environ.get("MOTHERDUCK_CREDENTIALS")
-    if creds:
-        os.makedirs("pipelines/.dlt", exist_ok=True)
-        with open("pipelines/.dlt/secrets.toml", "w") as f:
-            f.write(f'[destination]\nmotherduck.credentials="{creds}"\n')
-
+def write_profiles_yml(logger) -> bool:
+    """Write dbt/profiles.yml from the DBT_PROFILES_YML environment variable, only in Prefect Cloud."""
+    profiles_content = os.environ.get("DBT_PROFILES_YML")
+    logger.info(f"DBT_PROFILES_YML content: {profiles_content}")
+    if profiles_content:
+        dbt_dir = os.path.join(os.getcwd(), "dbt")
+        os.makedirs(dbt_dir, exist_ok=True)
+        profiles_path = os.path.join(dbt_dir, "profiles.yml")
+        with open(profiles_path, "w") as f:
+            f.write(profiles_content)
+        logger.info(f"Wrote profiles.yml to: {profiles_path}")
+        return True
+    else:
+        logger.info("DBT_PROFILES_YML not set; not overwriting local profiles.yml")
+        return False
 
 
 
@@ -61,10 +67,10 @@ def wanted(logger, db_count: int):
                 # Prevents repeatedly processing the same item while allowing for updates of dbt snapshot columns
                 # Status and Poster Classification
                 key = f"{item['uid']}|{item.get('status', '').lower()}|{item.get('poster_classification', '').lower()}"
-                if key in seen_keys and db_count > 0:
-                    # logger.info(f"Skipping seen key: {key}")
+                if key in seen_keys and db_count != -1:
+                    logger.info(f"Skipping seen key: {key}")
                     continue
-
+                logger.info(f"Processing new key: {key}")
                 new_keys.add(key)
                 yield item
 
@@ -88,18 +94,22 @@ def fbi_wanted_source(logger, db_count):
 @task
 def run_dlt_pipeline(logger):
 
-    write_dlt_secrets()
-
     pipeline = dlt.pipeline(
         pipeline_name="fbi_wanted_pipeline",
         destination=os.environ.get("DLT_DESTINATION") or os.getenv("DLT_DESTINATION"),
-        dataset_name="fbi_data"
+        dataset_name="fbi_data",
+        dev_mode=False
     )
+
     try:
         row_counts = pipeline.dataset().row_counts().df()
     except PipelineNeverRan:
         logger.warning(
             "⚠️ No previous runs found for this pipeline. Assuming first run.")
+        row_counts = None
+    except DatabaseUndefinedRelation:
+        logger.warning(
+            "⚠️ Table Doesn't Exist. Assuming truncation.")
         row_counts = None
 
     if row_counts is not None:
@@ -112,7 +122,7 @@ def run_dlt_pipeline(logger):
 
     logger.info(f"Row counts: {row_counts_dict}")   
 
-    source = fbi_wanted_source(logger, db_count=row_counts_dict.get('wanted', 0))
+    source = fbi_wanted_source(logger, db_count=row_counts_dict.get('wanted', -1))
 
     try:
         pipeline.run(source)
@@ -123,7 +133,7 @@ def run_dlt_pipeline(logger):
             return False
         elif run_status == "success":
             logger.info(
-                f"✅ New data to merge — {len(source.state['seen_keys'])} new keys found.")
+                f"✅ New data to merge — {len(source.state['wanted']['seen_keys'])} new keys found.")
             return True
         else:
             logger.info(
@@ -146,13 +156,25 @@ def dbt_fbi(logger, run_dlt_pipeline: bool) -> None:
             "🚫 Skipping dbt run.\n"
         )
         return
+    
+    iscloudrun = write_profiles_yml(logger=logger)
 
     logger.info(f"📁 DBT Project Directory: {DBT_DIR}")
 
-    start = time.time()
     try:
+        start = time.time()
+        if iscloudrun:
+            subprocess.run(
+                "dbt deps",
+                shell=True,
+                cwd=DBT_DIR,
+                capture_output=True,
+                text=True,
+                check=True
+            )
+
         subprocess.run(
-            "dbt build --select source:fbi+",
+            "dbt build --select source:fbi+ --profiles-dir .",
             shell=True,
             cwd=DBT_DIR,
             capture_output=True,

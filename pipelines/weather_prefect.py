@@ -13,9 +13,26 @@ from dlt.sources.helpers import requests
 from prefect import flow, task, get_run_logger
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dlt.pipeline.exceptions import PipelineNeverRan
+from path_config import DBT_DIR, ENV_FILE
+
+def write_profiles_yml(logger) -> bool:
+    """Write dbt/profiles.yml from the DBT_PROFILES_YML environment variable, only in Prefect Cloud."""
+    profiles_content = os.environ.get("DBT_PROFILES_YML")
+    logger.info(f"DBT_PROFILES_YML content: {profiles_content}")
+    if profiles_content:
+        dbt_dir = os.path.join(os.getcwd(), "dbt")
+        os.makedirs(dbt_dir, exist_ok=True)
+        profiles_path = os.path.join(dbt_dir, "profiles.yml")
+        with open(profiles_path, "w") as f:
+            f.write(profiles_content)
+        logger.info(f"Wrote profiles.yml to: {profiles_path}")
+        return True
+    else:
+        logger.info("DBT_PROFILES_YML not set; not overwriting local profiles.yml")
+        return False
 
 
-load_dotenv(dotenv_path="/workspaces/CamOnPrefect/.env")
+load_dotenv(dotenv_path=ENV_FILE)
 
 cities = {
     "Sydney": {"lat": -33.8688, "lng": 151.2093,
@@ -288,7 +305,7 @@ def openmeteo_task(logger) -> bool:
 @task
 def dbt_meteo_data(logger, openmeteo_task: bool) -> None:
     """Runs the dbt command after loading the data from OpenMeteo API."""
-    return
+    
     if not openmeteo_task:
         logger.warning(
             "\n⚠️  WARNING: DBT SKIPPED\n"
@@ -297,16 +314,25 @@ def dbt_meteo_data(logger, openmeteo_task: bool) -> None:
             "----------------------------------------"
         )
         return
+    
+    iscloudrun = write_profiles_yml(logger=logger)
+    logger.info(f"📁 DBT Project Directory: {DBT_DIR}")
 
-    DBT_PROJECT_DIR = Path("/workspaces/CamOnPrefect/dbt").resolve()
-    logger.info(f"DBT Project Directory: {DBT_PROJECT_DIR}")
-
-    start = time.time()
     try:
+        start = time.time()
+        if iscloudrun:
+            subprocess.run(
+                "dbt deps",
+                shell=True,
+                cwd=DBT_DIR,
+                capture_output=True,
+                text=True,
+                check=True
+            )
         result = subprocess.run(
             ["dbt", "build", "--select", "source:weather+"],
             # shell=True,
-            cwd=DBT_PROJECT_DIR,
+            cwd=DBT_DIR,
             capture_output=True,
             text=True,
             check=True

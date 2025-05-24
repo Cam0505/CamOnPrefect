@@ -45,3 +45,16 @@ deployments:
     schedule:
       cron: "*/45 * * * *"
       timezone: UTC
+  - name: beverages-deployment
+    version: null
+    description: Fetch Beverage data from API
+    tags: [beverages]
+    concurrency_limit: null
+    parameters: {}
+    work_pool:
+      name: camprocess1
+      work_queue_name: null
+      job_variables: {}
+    schedule:
+      cron: "*/45 * * * *"
+      timezone: UTC

@@ -38,6 +38,7 @@ def get_project_root():
 PROJECT_ROOT = get_project_root()
 DBT_DIR = PROJECT_ROOT / "dbt"
 PIPELINES_DIR = PROJECT_ROOT / "pipelines"
+CREDENTIALS = PIPELINES_DIR / "credentials.json"
 ENV_FILE = PROJECT_ROOT / ".env"  # For local development
 
 # Environment variable for containers

@@ -13,7 +13,7 @@
 {{
     config(
         target_schema='public_snapshots',
-        unique_key='wanted_id',
+        unique_key='pk',
         strategy='check',
         check_cols=['fbi_status'],
         invalidate_hard_deletes=True
@@ -21,8 +21,8 @@
 }}
 
 
-SELECT status as fbi_status, wanted_id
+SELECT status as fbi_status, pk
 FROM {{ ref('base_fbi_wanted') }}
-GROUP BY status, fbi_status, wanted_id
+GROUP BY status, fbi_status, pk
 
 {% endsnapshot %}

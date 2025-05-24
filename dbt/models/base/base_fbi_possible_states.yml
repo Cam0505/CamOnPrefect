@@ -10,7 +10,7 @@ models:
     data_tests:
     - relationships:
         to: ref('base_fbi_wanted')
-        field: wanted_id
+        field: pk
   - name: state_order
     description: ''
   - name: wanted_states_sk
