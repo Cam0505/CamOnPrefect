@@ -9,8 +9,8 @@ from dlt.pipeline.exceptions import PipelineNeverRan
 import subprocess
 import time
 
-load_dotenv(dotenv_path="/workspaces/CamOnPrefect/.env")
-
+# load_dotenv(dotenv_path="/workspaces/CamOnPrefect/.env")
+load_dotenv("../.env")
 
 BASE_URL = "https://api.fbi.gov/"
 ENDPOINT = "/wanted/v1/list"
@@ -156,9 +156,10 @@ def dbt_fbi(logger, run_dlt_pipeline: bool) -> None:
 
 @flow(name="fbi_flow")
 def fbi_flow():
-    pipeline_outcome = run_dlt_pipeline(logger=get_run_logger())
+    logger = get_run_logger()
+    pipeline_outcome = run_dlt_pipeline(logger=logger)
 
-    dbt_fbi(run_dlt_pipeline=pipeline_outcome, logger=get_run_logger())
+    dbt_fbi(run_dlt_pipeline=pipeline_outcome, logger=logger)
 
 
 if __name__ == "__main__":

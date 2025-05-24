@@ -10,11 +10,16 @@
     "--memory=4g",
     "--init"
   ],
+  "mounts": [
+    "source=${localEnv:USERPROFILE}\\.prefect,target=/home/vscode/.prefect,type=bind"
+  ],
   "customizations": {
     "vscode": {
       "settings": {
         "dbt.profilesDir": "${containerWorkspaceFolder}/dbt",
         "python.linting.enabled": true,
+        "terminal.integrated.shellArgs.linux": ["-l"],
+        "terminal.integrated.defaultProfile.linux": "bash",
         "python.envFile": "${containerWorkspaceFolder}/.env"
       },
       "extensions": ["ms-python.python", "dbt-labs.dbt"]
@@ -30,5 +35,6 @@
     "GOOGLE_API_KEY": "${localEnv:GOOGLE_API_KEY}",
     "MD": "${localEnv:MD}",
     "PYTHONPATH": "/workspaces/CamOnPrefect"
-  }
+  },
+  "envFile": "${containerWorkspaceFolder}/.env"
 }

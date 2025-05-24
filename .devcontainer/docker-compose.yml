@@ -9,14 +9,15 @@ services:
         - camonprefect-app:latest
     user: vscode
     volumes:
-      - ..:/workspaces/CamOnPrefect  # Maps entire project directory
+      - ..:/workspaces/CamOnPrefect  # Bind mount project folder
+      - C:/Users/Cam/.prefect:/home/vscode/.prefect  # Bind mount Prefect config for persistence
     environment:
       - DLT_TELEMETRY=off
       - DBT_PROFILES_DIR=/workspaces/CamOnPrefect/dbt
       - PREFECT_API_KEY=${PREFECT_API_KEY}
       - PREFECT_API_URL=${PREFECT_API_URL}
       - PREFECT_WORKSPACE=${PREFECT_WORKSPACE}
-    working_dir: /workspaces/CamOnPrefect  # Matches volume mount
+    working_dir: /workspaces/CamOnPrefect
     networks:
       - prefect-net
 

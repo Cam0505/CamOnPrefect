@@ -14,8 +14,11 @@ push: null
 
 # pull section allows you to provide instructions for cloning this project in remote locations
 pull:
-- prefect.deployments.steps.set_working_directory:
-    directory: /workspaces/CamOnPrefect
+  - prefect.deployments.steps.clone_repo:
+      repo_url: "https://github.com/Cam0505/CamOnPrefect.git"
+      directory: /app
+  - prefect.deployments.steps.set_working_directory:
+      directory: /app
 
 # the deployments section allows you to provide configuration for deploying flows
 deployments:
