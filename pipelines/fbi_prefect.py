@@ -10,7 +10,7 @@ import subprocess
 import time
 from path_config import DBT_DIR, ENV_FILE
 
-
+load_dotenv(ENV_FILE)
 # load_dotenv(ENV_FILE)
 
 BASE_URL = "https://api.fbi.gov/"
@@ -126,7 +126,7 @@ def run_dlt_pipeline(logger):
             return False
         elif run_status == "success":
             logger.info(
-                f"✅ New data to merge — {len(source.state['seen_keys'])} new keys found.")
+                f"✅ New data to merge — {len(source.state['wanted']['seen_keys'])} new keys found.")
             return True
         else:
             logger.info(

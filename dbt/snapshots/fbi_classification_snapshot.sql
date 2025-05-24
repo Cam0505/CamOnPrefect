@@ -13,7 +13,7 @@
 {{
     config(
         target_schema='public_snapshots',
-        unique_key='wanted_id',
+        unique_key='pk',
         strategy='check',
         check_cols=['person_classification'],
         invalidate_hard_deletes=True
@@ -21,8 +21,8 @@
 }}
 
 
-SELECT person_classification, wanted_id
+SELECT person_classification, pk
 FROM {{ ref('base_fbi_wanted') }}
-GROUP BY person_classification, wanted_id
+GROUP BY person_classification, pk
 
 {% endsnapshot %}

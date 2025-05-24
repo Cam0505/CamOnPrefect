@@ -21,6 +21,7 @@ ba.wanted_aliases_sk
 ,bfpc.wanted_countries_sk
 ,bfps.wanted_states_sk
 ,bfs.wanted_subject_sk
+,bw.pk
 from {{ref('base_fbi_wanted')}}  bw
 left join {{ref('base_fbi_aliases')}} as ba
 on bw.wanted_id = ba.wanted_id
