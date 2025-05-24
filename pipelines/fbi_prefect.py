@@ -21,9 +21,12 @@ def write_dlt_secrets():
     """Write .dlt/secrets.toml from env variable if present (for managed work pools)."""
     creds = os.environ.get("MOTHERDUCK_CREDENTIALS")
     if creds:
-        os.makedirs("pipelines/.dlt", exist_ok=True)
-        with open("pipelines/.dlt/secrets.toml", "w") as f:
+        dlt_dir = os.path.join(os.getcwd(), ".dlt")
+        os.makedirs(dlt_dir, exist_ok=True)
+        secrets_path = os.path.join(dlt_dir, "secrets.toml")
+        with open(secrets_path, "w") as f:
             f.write(f'[destination]\nmotherduck.credentials="{creds}"\n')
+        print(f"Wrote secrets.toml to: {secrets_path}")
 
 
 
