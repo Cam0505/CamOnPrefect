@@ -40,6 +40,7 @@ DBT_DIR = PROJECT_ROOT / "dbt"
 PIPELINES_DIR = PROJECT_ROOT / "pipelines"
 CREDENTIALS = PIPELINES_DIR / "credentials.json"
 ENV_FILE = PROJECT_ROOT / ".env"  # For local development
+REQUEST_CACHE_DIR = PROJECT_ROOT / "request_cache"
 
 # Environment variable for containers
 os.environ["PROJECT_ROOT"] = str(PROJECT_ROOT)

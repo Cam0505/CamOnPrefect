@@ -10,7 +10,7 @@ from dlt.pipeline.exceptions import PipelineNeverRan
 from dlt.destinations.exceptions import DatabaseUndefinedRelation
 import json
 from datetime import datetime, timedelta
-from path_config import DBT_DIR, ENV_FILE
+from path_config import DBT_DIR, ENV_FILE, REQUEST_CACHE_DIR
 import re
 
 load_dotenv(dotenv_path=ENV_FILE)
@@ -82,13 +82,12 @@ DIMENSION_CONFIG = {
         }
     }
 
-
+# Would need to cache these in a Docker Image to work
 def fetch_and_extract(table: str, logger) -> list:
     # Check if the cache directory exists, if not, create it
-    CACHE_DIR = Path("request_cache")
-    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    REQUEST_CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
-    cache_file = CACHE_DIR / f"{table}.json"
+    cache_file = REQUEST_CACHE_DIR / f"{table}.json"
 
     if table not in TABLE_PARAMS:
         raise ValueError(
@@ -126,10 +125,9 @@ def fetch_and_extract(table: str, logger) -> list:
 
 
 def resource_dim_request_cache(resource, query_param, value, logger):
-    CACHE_DIR = Path("request_cache")
-    CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    REQUEST_CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
-    cache_file = CACHE_DIR / f"{resource}_{query_param}_{sanitize_filename(value)}.json"
+    cache_file = REQUEST_CACHE_DIR / f"{resource}_{query_param}_{sanitize_filename(value)}.json"
 
     # Check if the cache file exists and is less than 72 hours old
     if cache_file.exists():
