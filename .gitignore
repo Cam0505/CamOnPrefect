@@ -21,13 +21,18 @@ venv/
 # Environment files
 .env
 # DLT secrets and config
-pipelines/.dlt/
-.dlt/
+pipelines/.dlt/secrets.toml
+.dlt/secrets.toml
 pipelines/credentials.json
-pipelines/request_cache/*.json
 
 .dlt/secrets.toml
 .dlt/config.toml
+
+
+pipelines/.dlt/*/load
+pipelines/.dlt/*/normalize
+pipelines/.dlt/*/trace.pickle
+
 
 # IDE
 .vscode/

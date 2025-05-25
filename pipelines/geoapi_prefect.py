@@ -8,10 +8,10 @@ import json
 from dlt.sources.helpers.requests import get
 from prefect import flow, task, get_run_logger
 from dlt.pipeline.exceptions import PipelineNeverRan
-from path_config import DBT_DIR, ENV_FILE
+from path_config import DBT_DIR, ENV_FILE, DLT_PIPELINE_DIR
 
 load_dotenv(dotenv_path=ENV_FILE)
-COUNTRIES = ["AU", "NZ", "GB", "CA"]
+COUNTRIES = ["NZ", "AU", "GB", "CA"]
 
 def write_profiles_yml(logger) -> bool:
     """Write dbt/profiles.yml from the DBT_PROFILES_YML environment variable, only in Prefect Cloud."""
@@ -29,21 +29,6 @@ def write_profiles_yml(logger) -> bool:
         logger.info("DBT_PROFILES_YML not set; not overwriting local profiles.yml")
         return False
 
-
-# def get_existing_count(country_code: str, logger) -> int:
-#     try:
-#         pipeline = dlt.current.pipeline()
-#         with pipeline.sql_client() as client:
-#             result = client.execute_sql(
-#                 f"SELECT COUNT(*) FROM geo_data.geo_cities WHERE country_code = '{country_code}'")
-#             count = result[0][0] if result else 0
-#             logger.info(
-#                 f"🔍 Existing row count for `{country_code}`: {count}")
-#             return count
-#     except Exception as e:
-#         logger.warning(
-#             f"⚠️ Could not get count for {country_code}: {str(e)}")
-#         return 0  # Assume table doesn't exist yet
 
 
 @dlt.source
@@ -99,8 +84,11 @@ def geo_source(logger, row_counts_dict: dict):
             if country_code in bboxes:
                 params.update(bboxes[country_code])
             try:
+                # logger.info(f"Fetching cities for {country_code} with params: {params}")
                 cities_data = get(BASE_URL, params=params).json().get(
                     "geonames", [])
+                # logger.info(
+                #     f"Fetched {cities_data} cities for {country_code}")
             except Exception as e:
                 logger.error(
                     f"Failed to fetch cities for {country_code}: {e}")
@@ -170,6 +158,7 @@ def get_geo_data(logger) -> bool:
         pipeline_name="geo_cities_pipeline",
         destination=os.getenv("DLT_DESTINATION"),
         dataset_name="geo_data",
+        pipelines_dir=str(DLT_PIPELINE_DIR),
         dev_mode=False
     )
     try:

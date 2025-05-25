@@ -10,7 +10,7 @@ from dlt.pipeline.exceptions import PipelineNeverRan
 from dlt.destinations.exceptions import DatabaseUndefinedRelation
 import json
 from datetime import datetime, timedelta
-from path_config import DBT_DIR, ENV_FILE, REQUEST_CACHE_DIR
+from path_config import DBT_DIR, ENV_FILE, REQUEST_CACHE_DIR, DLT_PIPELINE_DIR
 import re
 
 load_dotenv(dotenv_path=ENV_FILE)
@@ -241,11 +241,14 @@ def dimension_data(logger) -> bool:
         pipeline_name="beverage_pipeline",
         destination=os.environ.get("DLT_DESTINATION") or os.getenv("DLT_DESTINATION"),
         dataset_name="beverage_data",
+        pipelines_dir=str(DLT_PIPELINE_DIR),
         dev_mode=False
     )
 
     try:
         row_counts = pipeline.dataset().row_counts().df()
+        logger.info(
+            f"📊 Row counts for existing tables: {row_counts}")
     except PipelineNeverRan:
         logger.warning(
             "⚠️ No previous runs found for this pipeline. Assuming first run.")
@@ -335,6 +338,7 @@ def beverage_fact_data(logger, dimension_data: bool) -> bool:
             pipeline_name="beverage_pipeline",
             destination=os.getenv("DLT_DESTINATION", "duckdb"),
             dataset_name="beverage_data",
+            pipelines_dir=str(DLT_PIPELINE_DIR),
             dev_mode=False
         )
 

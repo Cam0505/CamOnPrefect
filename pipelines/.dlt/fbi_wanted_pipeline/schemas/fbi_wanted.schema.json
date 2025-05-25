@@ -1,0 +1,795 @@
+{
+  "version": 2,
+  "version_hash": "ZFerVSNovwpdjjehCnkTuttylQJHlHomMADAjnolDno=",
+  "engine_version": 11,
+  "name": "fbi_wanted",
+  "tables": {
+    "_dlt_version": {
+      "name": "_dlt_version",
+      "columns": {
+        "version": {
+          "name": "version",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "engine_version": {
+          "name": "engine_version",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "inserted_at": {
+          "name": "inserted_at",
+          "data_type": "timestamp",
+          "nullable": false
+        },
+        "schema_name": {
+          "name": "schema_name",
+          "data_type": "text",
+          "nullable": false
+        },
+        "version_hash": {
+          "name": "version_hash",
+          "data_type": "text",
+          "nullable": false
+        },
+        "schema": {
+          "name": "schema",
+          "data_type": "text",
+          "nullable": false
+        }
+      },
+      "write_disposition": "skip",
+      "resource": "_dlt_version",
+      "description": "Created by DLT. Tracks schema updates"
+    },
+    "_dlt_loads": {
+      "name": "_dlt_loads",
+      "columns": {
+        "load_id": {
+          "name": "load_id",
+          "data_type": "text",
+          "nullable": false
+        },
+        "schema_name": {
+          "name": "schema_name",
+          "data_type": "text",
+          "nullable": true
+        },
+        "status": {
+          "name": "status",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "inserted_at": {
+          "name": "inserted_at",
+          "data_type": "timestamp",
+          "nullable": false
+        },
+        "schema_version_hash": {
+          "name": "schema_version_hash",
+          "data_type": "text",
+          "nullable": true
+        }
+      },
+      "write_disposition": "skip",
+      "resource": "_dlt_loads",
+      "description": "Created by DLT. Tracks completed loads"
+    },
+    "wanted": {
+      "columns": {
+        "weight_max": {
+          "name": "weight_max",
+          "data_type": "bigint",
+          "nullable": true
+        },
+        "weight_min": {
+          "name": "weight_min",
+          "data_type": "bigint",
+          "nullable": true
+        },
+        "details": {
+          "name": "details",
+          "data_type": "text",
+          "nullable": true
+        },
+        "eyes_raw": {
+          "name": "eyes_raw",
+          "data_type": "text",
+          "nullable": true
+        },
+        "height_max": {
+          "name": "height_max",
+          "data_type": "bigint",
+          "nullable": true
+        },
+        "status": {
+          "name": "status",
+          "data_type": "text",
+          "nullable": true
+        },
+        "height_min": {
+          "name": "height_min",
+          "data_type": "bigint",
+          "nullable": true
+        },
+        "place_of_birth": {
+          "name": "place_of_birth",
+          "data_type": "text",
+          "nullable": true
+        },
+        "url": {
+          "name": "url",
+          "data_type": "text",
+          "nullable": true
+        },
+        "title": {
+          "name": "title",
+          "data_type": "text",
+          "nullable": true
+        },
+        "hair_raw": {
+          "name": "hair_raw",
+          "data_type": "text",
+          "nullable": true
+        },
+        "reward_max": {
+          "name": "reward_max",
+          "data_type": "bigint",
+          "nullable": true
+        },
+        "race_raw": {
+          "name": "race_raw",
+          "data_type": "text",
+          "nullable": true
+        },
+        "sex": {
+          "name": "sex",
+          "data_type": "text",
+          "nullable": true
+        },
+        "path": {
+          "name": "path",
+          "data_type": "text",
+          "nullable": true
+        },
+        "race": {
+          "name": "race",
+          "data_type": "text",
+          "nullable": true
+        },
+        "uid": {
+          "name": "uid",
+          "nullable": false,
+          "primary_key": true,
+          "data_type": "text"
+        },
+        "publication": {
+          "name": "publication",
+          "data_type": "timestamp",
+          "nullable": true
+        },
+        "weight": {
+          "name": "weight",
+          "data_type": "text",
+          "nullable": true
+        },
+        "description": {
+          "name": "description",
+          "data_type": "text",
+          "nullable": true
+        },
+        "eyes": {
+          "name": "eyes",
+          "data_type": "text",
+          "nullable": true
+        },
+        "modified": {
+          "name": "modified",
+          "data_type": "timestamp",
+          "nullable": true
+        },
+        "reward_min": {
+          "name": "reward_min",
+          "data_type": "bigint",
+          "nullable": true
+        },
+        "hair": {
+          "name": "hair",
+          "data_type": "text",
+          "nullable": true
+        },
+        "poster_classification": {
+          "name": "poster_classification",
+          "data_type": "text",
+          "nullable": true
+        },
+        "person_classification": {
+          "name": "person_classification",
+          "data_type": "text",
+          "nullable": true
+        },
+        "reward_text": {
+          "name": "reward_text",
+          "data_type": "text",
+          "nullable": true
+        },
+        "path_id": {
+          "name": "path_id",
+          "data_type": "text",
+          "nullable": true
+        },
+        "_dlt_load_id": {
+          "name": "_dlt_load_id",
+          "data_type": "text",
+          "nullable": false
+        },
+        "_dlt_id": {
+          "name": "_dlt_id",
+          "data_type": "text",
+          "nullable": false,
+          "unique": true,
+          "row_key": true
+        },
+        "nationality": {
+          "name": "nationality",
+          "data_type": "text",
+          "nullable": true
+        },
+        "remarks": {
+          "name": "remarks",
+          "data_type": "text",
+          "nullable": true
+        },
+        "scars_and_marks": {
+          "name": "scars_and_marks",
+          "data_type": "text",
+          "nullable": true
+        },
+        "caution": {
+          "name": "caution",
+          "data_type": "text",
+          "nullable": true
+        },
+        "warning_message": {
+          "name": "warning_message",
+          "data_type": "text",
+          "nullable": true
+        },
+        "age_range": {
+          "name": "age_range",
+          "data_type": "text",
+          "nullable": true
+        },
+        "age_max": {
+          "name": "age_max",
+          "data_type": "bigint",
+          "nullable": true
+        },
+        "age_min": {
+          "name": "age_min",
+          "data_type": "bigint",
+          "nullable": true
+        },
+        "ncic": {
+          "name": "ncic",
+          "data_type": "text",
+          "nullable": true
+        },
+        "build": {
+          "name": "build",
+          "data_type": "text",
+          "nullable": true
+        },
+        "complexion": {
+          "name": "complexion",
+          "data_type": "text",
+          "nullable": true
+        }
+      },
+      "write_disposition": "merge",
+      "name": "wanted",
+      "resource": "wanted",
+      "x-normalizer": {
+        "seen-data": true
+      }
+    },
+    "_dlt_pipeline_state": {
+      "columns": {
+        "version": {
+          "name": "version",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "engine_version": {
+          "name": "engine_version",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "pipeline_name": {
+          "name": "pipeline_name",
+          "data_type": "text",
+          "nullable": false
+        },
+        "state": {
+          "name": "state",
+          "data_type": "text",
+          "nullable": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "data_type": "timestamp",
+          "nullable": false
+        },
+        "version_hash": {
+          "name": "version_hash",
+          "data_type": "text",
+          "nullable": true
+        },
+        "_dlt_load_id": {
+          "name": "_dlt_load_id",
+          "data_type": "text",
+          "nullable": false
+        },
+        "_dlt_id": {
+          "name": "_dlt_id",
+          "data_type": "text",
+          "nullable": false,
+          "unique": true,
+          "row_key": true
+        }
+      },
+      "write_disposition": "append",
+      "file_format": "preferred",
+      "name": "_dlt_pipeline_state",
+      "resource": "_dlt_pipeline_state",
+      "x-normalizer": {
+        "seen-data": true
+      }
+    },
+    "wanted__files": {
+      "name": "wanted__files",
+      "columns": {
+        "url": {
+          "name": "url",
+          "data_type": "text",
+          "nullable": true
+        },
+        "name": {
+          "name": "name",
+          "data_type": "text",
+          "nullable": true
+        },
+        "_dlt_root_id": {
+          "name": "_dlt_root_id",
+          "data_type": "text",
+          "nullable": false,
+          "root_key": true
+        },
+        "_dlt_parent_id": {
+          "name": "_dlt_parent_id",
+          "data_type": "text",
+          "nullable": false,
+          "parent_key": true
+        },
+        "_dlt_list_idx": {
+          "name": "_dlt_list_idx",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "_dlt_id": {
+          "name": "_dlt_id",
+          "data_type": "text",
+          "nullable": false,
+          "unique": true,
+          "row_key": true
+        }
+      },
+      "parent": "wanted",
+      "x-normalizer": {
+        "seen-data": true
+      }
+    },
+    "wanted__images": {
+      "name": "wanted__images",
+      "columns": {
+        "caption": {
+          "name": "caption",
+          "data_type": "text",
+          "nullable": true
+        },
+        "thumb": {
+          "name": "thumb",
+          "data_type": "text",
+          "nullable": true
+        },
+        "original": {
+          "name": "original",
+          "data_type": "text",
+          "nullable": true
+        },
+        "large": {
+          "name": "large",
+          "data_type": "text",
+          "nullable": true
+        },
+        "_dlt_root_id": {
+          "name": "_dlt_root_id",
+          "data_type": "text",
+          "nullable": false,
+          "root_key": true
+        },
+        "_dlt_parent_id": {
+          "name": "_dlt_parent_id",
+          "data_type": "text",
+          "nullable": false,
+          "parent_key": true
+        },
+        "_dlt_list_idx": {
+          "name": "_dlt_list_idx",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "_dlt_id": {
+          "name": "_dlt_id",
+          "data_type": "text",
+          "nullable": false,
+          "unique": true,
+          "row_key": true
+        }
+      },
+      "parent": "wanted",
+      "x-normalizer": {
+        "seen-data": true
+      }
+    },
+    "wanted__dates_of_birth_used": {
+      "name": "wanted__dates_of_birth_used",
+      "columns": {
+        "value": {
+          "name": "value",
+          "data_type": "text",
+          "nullable": true
+        },
+        "_dlt_root_id": {
+          "name": "_dlt_root_id",
+          "data_type": "text",
+          "nullable": false,
+          "root_key": true
+        },
+        "_dlt_parent_id": {
+          "name": "_dlt_parent_id",
+          "data_type": "text",
+          "nullable": false,
+          "parent_key": true
+        },
+        "_dlt_list_idx": {
+          "name": "_dlt_list_idx",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "_dlt_id": {
+          "name": "_dlt_id",
+          "data_type": "text",
+          "nullable": false,
+          "unique": true,
+          "row_key": true
+        }
+      },
+      "parent": "wanted",
+      "x-normalizer": {
+        "seen-data": true
+      }
+    },
+    "wanted__field_offices": {
+      "name": "wanted__field_offices",
+      "columns": {
+        "value": {
+          "name": "value",
+          "data_type": "text",
+          "nullable": true
+        },
+        "_dlt_root_id": {
+          "name": "_dlt_root_id",
+          "data_type": "text",
+          "nullable": false,
+          "root_key": true
+        },
+        "_dlt_parent_id": {
+          "name": "_dlt_parent_id",
+          "data_type": "text",
+          "nullable": false,
+          "parent_key": true
+        },
+        "_dlt_list_idx": {
+          "name": "_dlt_list_idx",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "_dlt_id": {
+          "name": "_dlt_id",
+          "data_type": "text",
+          "nullable": false,
+          "unique": true,
+          "row_key": true
+        }
+      },
+      "parent": "wanted",
+      "x-normalizer": {
+        "seen-data": true
+      }
+    },
+    "wanted__subjects": {
+      "name": "wanted__subjects",
+      "columns": {
+        "value": {
+          "name": "value",
+          "data_type": "text",
+          "nullable": true
+        },
+        "_dlt_root_id": {
+          "name": "_dlt_root_id",
+          "data_type": "text",
+          "nullable": false,
+          "root_key": true
+        },
+        "_dlt_parent_id": {
+          "name": "_dlt_parent_id",
+          "data_type": "text",
+          "nullable": false,
+          "parent_key": true
+        },
+        "_dlt_list_idx": {
+          "name": "_dlt_list_idx",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "_dlt_id": {
+          "name": "_dlt_id",
+          "data_type": "text",
+          "nullable": false,
+          "unique": true,
+          "row_key": true
+        }
+      },
+      "parent": "wanted",
+      "x-normalizer": {
+        "seen-data": true
+      }
+    },
+    "wanted__aliases": {
+      "name": "wanted__aliases",
+      "columns": {
+        "value": {
+          "name": "value",
+          "data_type": "text",
+          "nullable": true
+        },
+        "_dlt_root_id": {
+          "name": "_dlt_root_id",
+          "data_type": "text",
+          "nullable": false,
+          "root_key": true
+        },
+        "_dlt_parent_id": {
+          "name": "_dlt_parent_id",
+          "data_type": "text",
+          "nullable": false,
+          "parent_key": true
+        },
+        "_dlt_list_idx": {
+          "name": "_dlt_list_idx",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "_dlt_id": {
+          "name": "_dlt_id",
+          "data_type": "text",
+          "nullable": false,
+          "unique": true,
+          "row_key": true
+        }
+      },
+      "parent": "wanted",
+      "x-normalizer": {
+        "seen-data": true
+      }
+    },
+    "wanted__occupations": {
+      "name": "wanted__occupations",
+      "columns": {
+        "value": {
+          "name": "value",
+          "data_type": "text",
+          "nullable": true
+        },
+        "_dlt_root_id": {
+          "name": "_dlt_root_id",
+          "data_type": "text",
+          "nullable": false,
+          "root_key": true
+        },
+        "_dlt_parent_id": {
+          "name": "_dlt_parent_id",
+          "data_type": "text",
+          "nullable": false,
+          "parent_key": true
+        },
+        "_dlt_list_idx": {
+          "name": "_dlt_list_idx",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "_dlt_id": {
+          "name": "_dlt_id",
+          "data_type": "text",
+          "nullable": false,
+          "unique": true,
+          "row_key": true
+        }
+      },
+      "parent": "wanted",
+      "x-normalizer": {
+        "seen-data": true
+      }
+    },
+    "wanted__languages": {
+      "name": "wanted__languages",
+      "columns": {
+        "value": {
+          "name": "value",
+          "data_type": "text",
+          "nullable": true
+        },
+        "_dlt_root_id": {
+          "name": "_dlt_root_id",
+          "data_type": "text",
+          "nullable": false,
+          "root_key": true
+        },
+        "_dlt_parent_id": {
+          "name": "_dlt_parent_id",
+          "data_type": "text",
+          "nullable": false,
+          "parent_key": true
+        },
+        "_dlt_list_idx": {
+          "name": "_dlt_list_idx",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "_dlt_id": {
+          "name": "_dlt_id",
+          "data_type": "text",
+          "nullable": false,
+          "unique": true,
+          "row_key": true
+        }
+      },
+      "parent": "wanted",
+      "x-normalizer": {
+        "seen-data": true
+      }
+    },
+    "wanted__possible_countries": {
+      "name": "wanted__possible_countries",
+      "columns": {
+        "value": {
+          "name": "value",
+          "data_type": "text",
+          "nullable": true
+        },
+        "_dlt_root_id": {
+          "name": "_dlt_root_id",
+          "data_type": "text",
+          "nullable": false,
+          "root_key": true
+        },
+        "_dlt_parent_id": {
+          "name": "_dlt_parent_id",
+          "data_type": "text",
+          "nullable": false,
+          "parent_key": true
+        },
+        "_dlt_list_idx": {
+          "name": "_dlt_list_idx",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "_dlt_id": {
+          "name": "_dlt_id",
+          "data_type": "text",
+          "nullable": false,
+          "unique": true,
+          "row_key": true
+        }
+      },
+      "parent": "wanted",
+      "x-normalizer": {
+        "seen-data": true
+      }
+    },
+    "wanted__possible_states": {
+      "name": "wanted__possible_states",
+      "columns": {
+        "value": {
+          "name": "value",
+          "data_type": "text",
+          "nullable": true
+        },
+        "_dlt_root_id": {
+          "name": "_dlt_root_id",
+          "data_type": "text",
+          "nullable": false,
+          "root_key": true
+        },
+        "_dlt_parent_id": {
+          "name": "_dlt_parent_id",
+          "data_type": "text",
+          "nullable": false,
+          "parent_key": true
+        },
+        "_dlt_list_idx": {
+          "name": "_dlt_list_idx",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "_dlt_id": {
+          "name": "_dlt_id",
+          "data_type": "text",
+          "nullable": false,
+          "unique": true,
+          "row_key": true
+        }
+      },
+      "parent": "wanted",
+      "x-normalizer": {
+        "seen-data": true
+      }
+    }
+  },
+  "settings": {
+    "detections": [
+      "iso_timestamp"
+    ],
+    "default_hints": {
+      "not_null": [
+        "_dlt_id",
+        "_dlt_root_id",
+        "_dlt_parent_id",
+        "_dlt_list_idx",
+        "_dlt_load_id"
+      ],
+      "parent_key": [
+        "_dlt_parent_id"
+      ],
+      "root_key": [
+        "_dlt_root_id"
+      ],
+      "unique": [
+        "_dlt_id"
+      ],
+      "row_key": [
+        "_dlt_id"
+      ]
+    }
+  },
+  "normalizers": {
+    "names": "snake_case",
+    "json": {
+      "module": "dlt.common.normalizers.json.relational",
+      "config": {
+        "propagation": {
+          "tables": {
+            "wanted": {
+              "_dlt_id": "_dlt_root_id"
+            }
+          }
+        }
+      }
+    }
+  },
+  "previous_hashes": [
+    "xwttnqA1pHEd7N0QHwNpoT2IAJxFTi+JJnCX7IVV7iE=",
+    "xxLLdzwat6+Ap4qlf1Rnt5YPIsI+uJIpn76A0QfHEHk="
+  ]
+}

@@ -41,6 +41,7 @@ PIPELINES_DIR = PROJECT_ROOT / "pipelines"
 CREDENTIALS = PIPELINES_DIR / "credentials.json"
 ENV_FILE = PROJECT_ROOT / ".env"  # For local development
 REQUEST_CACHE_DIR = PROJECT_ROOT / "request_cache"
+DLT_PIPELINE_DIR = PIPELINES_DIR / ".dlt"
 
 # Environment variable for containers
 os.environ["PROJECT_ROOT"] = str(PROJECT_ROOT)

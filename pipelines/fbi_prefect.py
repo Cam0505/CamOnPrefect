@@ -8,7 +8,7 @@ from dlt.pipeline.exceptions import PipelineNeverRan
 from dlt.destinations.exceptions import DatabaseUndefinedRelation
 import subprocess
 import time
-from path_config import DBT_DIR, ENV_FILE
+from path_config import DBT_DIR, ENV_FILE, DLT_PIPELINE_DIR
 
 # load_dotenv(ENV_FILE)
 
@@ -41,7 +41,10 @@ def wanted(logger, db_count: int):
         "seen_keys": [],
         'last_run_Status': None
     })
+    # logger.info(f"Current state: {len(state.get('seen_keys', []))}")
     seen_keys = set(state.setdefault("seen_keys", []))
+    state["seen_keys"] = list(seen_keys) # Testing
+    # logger.info(f"Current state after deduplication: {len(state.get('seen_keys', []))}")
     new_keys = set()
 
 
@@ -67,15 +70,16 @@ def wanted(logger, db_count: int):
                 # Prevents repeatedly processing the same item while allowing for updates of dbt snapshot columns
                 # Status and Poster Classification
                 key = f"{item['uid']}|{item.get('status', '').lower()}|{item.get('poster_classification', '').lower()}"
-                if key in seen_keys and db_count != -1:
+                if key in seen_keys and db_count != 0:
                     logger.info(f"Skipping seen key: {key}")
                     continue
                 logger.info(f"Processing new key: {key}")
                 new_keys.add(key)
                 yield item
-
+        # Ok lets troubleshoot why it's not working by seeing all keys
+        
         if new_keys:
-            state["seen_keys"].extend(list(new_keys))  # update persistent state with new keys
+            state["seen_keys"] = list(seen_keys.union(new_keys))  # update persistent state with new keys
             state["last_run_Status"] = "success"
         else:   
             state["last_run_Status"] = "skipped"
@@ -98,11 +102,14 @@ def run_dlt_pipeline(logger):
         pipeline_name="fbi_wanted_pipeline",
         destination=os.environ.get("DLT_DESTINATION") or os.getenv("DLT_DESTINATION"),
         dataset_name="fbi_data",
-        dev_mode=False
+        dev_mode=False,
+        pipelines_dir=str(DLT_PIPELINE_DIR)
     )
 
     try:
         row_counts = pipeline.dataset().row_counts().df()
+        logger.info(
+            f"📊 Row counts for existing tables: {row_counts}")
     except PipelineNeverRan:
         logger.warning(
             "⚠️ No previous runs found for this pipeline. Assuming first run.")
@@ -120,7 +127,6 @@ def run_dlt_pipeline(logger):
             "⚠️ No tables found yet in dataset — assuming first run.")
         row_counts_dict = {}
 
-    logger.info(f"Row counts: {row_counts_dict}")   
 
     source = fbi_wanted_source(logger, db_count=row_counts_dict.get('wanted', -1))
 
