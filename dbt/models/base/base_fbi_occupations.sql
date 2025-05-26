@@ -7,3 +7,4 @@ SELECT value as occupations, fw.uid as wanted_id,
 from {{ source("fbi", "wanted__occupations") }} as wf
 left join {{ source("fbi", "wanted") }} as fw 
 on wf."_dlt_root_id" = fw."_dlt_id"
+where fw.uid is not null

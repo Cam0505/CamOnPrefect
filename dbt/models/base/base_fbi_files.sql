@@ -8,3 +8,4 @@ wf."_dlt_id" as wanted_files_sk
 from {{ source("fbi", "wanted__files") }} as wf
 left join {{ source("fbi", "wanted") }} as fw 
 on wf."_dlt_root_id" = fw."_dlt_id"
+where fw.uid is not null
