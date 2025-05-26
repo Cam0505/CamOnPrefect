@@ -12,8 +12,9 @@ gspread==6.2.0
 numpy==2.2.5
 pandas==2.2.3
 prefect==3.4.0
-psycopg2-binary==2.9.10
 python-dotenv==1.1.0
 pyarrow==17.0.0
 dlt[motherduck]
-prefect-docker==0.6.5
+# prefect-docker==0.6.5
+rapidfuzz==3.13.0
+pydantic==2.11.5

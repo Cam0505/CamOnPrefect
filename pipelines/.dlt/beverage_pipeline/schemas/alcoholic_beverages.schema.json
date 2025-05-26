@@ -1,0 +1,356 @@
+{
+  "version": 2,
+  "version_hash": "SOsx1C5WHdsOtzUBzt0giNuooqO/gOFF73d52/tYhio=",
+  "engine_version": 11,
+  "name": "alcoholic_beverages",
+  "tables": {
+    "_dlt_version": {
+      "name": "_dlt_version",
+      "columns": {
+        "version": {
+          "name": "version",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "engine_version": {
+          "name": "engine_version",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "inserted_at": {
+          "name": "inserted_at",
+          "data_type": "timestamp",
+          "nullable": false
+        },
+        "schema_name": {
+          "name": "schema_name",
+          "data_type": "text",
+          "nullable": false
+        },
+        "version_hash": {
+          "name": "version_hash",
+          "data_type": "text",
+          "nullable": false
+        },
+        "schema": {
+          "name": "schema",
+          "data_type": "text",
+          "nullable": false
+        }
+      },
+      "write_disposition": "skip",
+      "resource": "_dlt_version",
+      "description": "Created by DLT. Tracks schema updates"
+    },
+    "_dlt_loads": {
+      "name": "_dlt_loads",
+      "columns": {
+        "load_id": {
+          "name": "load_id",
+          "data_type": "text",
+          "nullable": false
+        },
+        "schema_name": {
+          "name": "schema_name",
+          "data_type": "text",
+          "nullable": true
+        },
+        "status": {
+          "name": "status",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "inserted_at": {
+          "name": "inserted_at",
+          "data_type": "timestamp",
+          "nullable": false
+        },
+        "schema_version_hash": {
+          "name": "schema_version_hash",
+          "data_type": "text",
+          "nullable": true
+        }
+      },
+      "write_disposition": "skip",
+      "resource": "_dlt_loads",
+      "description": "Created by DLT. Tracks completed loads"
+    },
+    "consumption": {
+      "columns": {
+        "id_drink": {
+          "name": "id_drink",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_drink": {
+          "name": "str_drink",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_category": {
+          "name": "str_category",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_alcoholic": {
+          "name": "str_alcoholic",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_glass": {
+          "name": "str_glass",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_instructions": {
+          "name": "str_instructions",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_instructions_es": {
+          "name": "str_instructions_es",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_instructions_de": {
+          "name": "str_instructions_de",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_instructions_fr": {
+          "name": "str_instructions_fr",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_instructions_it": {
+          "name": "str_instructions_it",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_drink_thumb": {
+          "name": "str_drink_thumb",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_ingredient1": {
+          "name": "str_ingredient1",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_ingredient2": {
+          "name": "str_ingredient2",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_ingredient3": {
+          "name": "str_ingredient3",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_ingredient4": {
+          "name": "str_ingredient4",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_measure1": {
+          "name": "str_measure1",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_measure2": {
+          "name": "str_measure2",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_measure3": {
+          "name": "str_measure3",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_measure4": {
+          "name": "str_measure4",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_creative_commons_confirmed": {
+          "name": "str_creative_commons_confirmed",
+          "data_type": "text",
+          "nullable": true
+        },
+        "date_modified": {
+          "name": "date_modified",
+          "data_type": "timestamp",
+          "nullable": true
+        },
+        "_dlt_load_id": {
+          "name": "_dlt_load_id",
+          "data_type": "text",
+          "nullable": false
+        },
+        "_dlt_id": {
+          "name": "_dlt_id",
+          "data_type": "text",
+          "nullable": false,
+          "unique": true,
+          "row_key": true
+        },
+        "str_ingredient5": {
+          "name": "str_ingredient5",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_ingredient6": {
+          "name": "str_ingredient6",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_measure5": {
+          "name": "str_measure5",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_tags": {
+          "name": "str_tags",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_video": {
+          "name": "str_video",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_iba": {
+          "name": "str_iba",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_image_source": {
+          "name": "str_image_source",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_image_attribution": {
+          "name": "str_image_attribution",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_measure6": {
+          "name": "str_measure6",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_measure7": {
+          "name": "str_measure7",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_ingredient7": {
+          "name": "str_ingredient7",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_ingredient8": {
+          "name": "str_ingredient8",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_measure8": {
+          "name": "str_measure8",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_measure9": {
+          "name": "str_measure9",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_measure10": {
+          "name": "str_measure10",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_measure11": {
+          "name": "str_measure11",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_measure12": {
+          "name": "str_measure12",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_ingredient9": {
+          "name": "str_ingredient9",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_ingredient10": {
+          "name": "str_ingredient10",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_ingredient11": {
+          "name": "str_ingredient11",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_ingredient12": {
+          "name": "str_ingredient12",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_instructions_zh_hans": {
+          "name": "str_instructions_zh_hans",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_instructions_zh_hant": {
+          "name": "str_instructions_zh_hant",
+          "data_type": "text",
+          "nullable": true
+        }
+      },
+      "write_disposition": "append",
+      "name": "consumption",
+      "resource": "consumption",
+      "x-normalizer": {
+        "seen-data": true
+      }
+    }
+  },
+  "settings": {
+    "detections": [
+      "iso_timestamp"
+    ],
+    "default_hints": {
+      "not_null": [
+        "_dlt_id",
+        "_dlt_root_id",
+        "_dlt_parent_id",
+        "_dlt_list_idx",
+        "_dlt_load_id"
+      ],
+      "parent_key": [
+        "_dlt_parent_id"
+      ],
+      "root_key": [
+        "_dlt_root_id"
+      ],
+      "unique": [
+        "_dlt_id"
+      ],
+      "row_key": [
+        "_dlt_id"
+      ]
+    }
+  },
+  "normalizers": {
+    "names": "snake_case",
+    "json": {
+      "module": "dlt.common.normalizers.json.relational"
+    }
+  },
+  "previous_hashes": [
+    "tpIFoHnEqGg0csG5G4H1AChSBn63/Qq2q2e2Pldmmns="
+  ]
+}

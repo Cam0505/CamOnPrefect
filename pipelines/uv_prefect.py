@@ -9,7 +9,8 @@ import json
 from dlt.sources.helpers import requests
 from prefect import flow, task, get_run_logger
 from dlt.pipeline.exceptions import PipelineNeverRan
-from path_config import DBT_DIR, ENV_FILE
+from path_config import DBT_DIR, ENV_FILE, DLT_PIPELINE_DIR
+from helper_functions import write_profiles_yml
 
 load_dotenv(dotenv_path=ENV_FILE)
 BASE_URL = "https://api.openuv.io/api/v1/uv"
@@ -25,22 +26,6 @@ cities = [
     {"city": "Darwin", "lat": -12.4634, "lng": 130.8456}
 ]
 
-
-def write_profiles_yml(logger) -> bool:
-    """Write dbt/profiles.yml from the DBT_PROFILES_YML environment variable, only in Prefect Cloud."""
-    profiles_content = os.environ.get("DBT_PROFILES_YML")
-    logger.info(f"DBT_PROFILES_YML content: {profiles_content}")
-    if profiles_content:
-        dbt_dir = os.path.join(os.getcwd(), "dbt")
-        os.makedirs(dbt_dir, exist_ok=True)
-        profiles_path = os.path.join(dbt_dir, "profiles.yml")
-        with open(profiles_path, "w") as f:
-            f.write(profiles_content)
-        logger.info(f"Wrote profiles.yml to: {profiles_path}")
-        return True
-    else:
-        logger.info("DBT_PROFILES_YML not set; not overwriting local profiles.yml")
-        return False
     
 
 def get_dates(logger):
@@ -83,7 +68,6 @@ def openuv_source(cities: list[dict], dates: list[datetime], logger):
 
     @dlt.resource(name="uv_index", write_disposition="merge", primary_key=["uv_time", "City"])
     def uv_resource():
-        logger.info(f"Using UV_API_KEY: {os.getenv('UV_API_KEY')}")
         for dt in dates:
             for city_info in cities:
                 logger.info(
@@ -116,7 +100,8 @@ def uv_task(logger) -> bool:
         pipeline_name="openuv_pipeline",
         destination=os.environ.get("DLT_DESTINATION") or os.getenv("DLT_DESTINATION"),
         dataset_name="uv_data",
-        dev_mode=False
+        dev_mode=False,
+        pipelines_dir=str(DLT_PIPELINE_DIR)
     )
 
     try:

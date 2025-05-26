@@ -44,7 +44,7 @@ deployments:
       job_variables: {}
     schedule:
       cron: "*/45 * * * *"
-      timezone: UTC
+      timezone: Australia/Melbourne
   - name: beverages-deployment
     version: null
     description: Fetch Beverage data from API
@@ -56,5 +56,44 @@ deployments:
       work_queue_name: null
       job_variables: {}
     schedule:
-      cron: "*/45 * * * *"
-      timezone: UTC
+      cron: "0 8 * * 1"
+      timezone: Australia/Melbourne
+  - name: gsheets-deployment
+    version: null
+    description: Fetch GSheets data from API
+    tags: [gsheets]
+    concurrency_limit: null
+    parameters: {}
+    work_pool:
+      name: camprocess1
+      work_queue_name: null
+      job_variables: {}
+    schedule:
+      cron: "0 11 * * *"
+      timezone: Australia/Melbourne
+  - name: RickyAndMarty-deployment
+    version: null
+    description: Fetch Ricky and Marty data from API
+    tags: [RickyAndMarty]
+    concurrency_limit: null
+    parameters: {}
+    work_pool:
+      name: camprocess1
+      work_queue_name: null
+      job_variables: {}
+    schedule:
+      cron: "0 7 * * 4"
+      timezone: Australia/Melbourne
+  - name: uv-deployment
+    version: null
+    description: Fetch UV data from API
+    tags: [UV]
+    concurrency_limit: null
+    parameters: {}
+    work_pool:
+      name: camprocess1
+      work_queue_name: null
+      job_variables: {}
+    schedule:
+      cron: "0 12 * * *"
+      timezone: Australia/Melbourne

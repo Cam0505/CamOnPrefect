@@ -1,7 +1,6 @@
 
 import os
 from dotenv import load_dotenv
-from pathlib import Path
 from prefect import flow, task, get_run_logger
 import dlt
 import time
@@ -9,26 +8,12 @@ import subprocess
 from dlt.sources.helpers.rest_client.paginators import JSONLinkPaginator
 from dlt.sources.helpers.rest_client.client import RESTClient
 from dlt.pipeline.exceptions import PipelineNeverRan
-from path_config import DBT_DIR, ENV_FILE
+from path_config import DBT_DIR, ENV_FILE, DLT_PIPELINE_DIR
+from helper_functions import write_profiles_yml
 
 load_dotenv(dotenv_path="/workspaces/CamOnPrefect/.env")
 
 
-def write_profiles_yml(logger) -> bool:
-    """Write dbt/profiles.yml from the DBT_PROFILES_YML environment variable, only in Prefect Cloud."""
-    profiles_content = os.environ.get("DBT_PROFILES_YML")
-    logger.info(f"DBT_PROFILES_YML content: {profiles_content}")
-    if profiles_content:
-        dbt_dir = os.path.join(os.getcwd(), "dbt")
-        os.makedirs(dbt_dir, exist_ok=True)
-        profiles_path = os.path.join(dbt_dir, "profiles.yml")
-        with open(profiles_path, "w") as f:
-            f.write(profiles_content)
-        logger.info(f"Wrote profiles.yml to: {profiles_path}")
-        return True
-    else:
-        logger.info("DBT_PROFILES_YML not set; not overwriting local profiles.yml")
-        return False
 
 
 BASE_URL = "https://rickandmortyapi.com/api"
@@ -106,7 +91,9 @@ def rick_and_morty_task(logger) -> bool:
     pipeline = dlt.pipeline(
         pipeline_name="rick_and_morty_pipeline",
         destination=os.getenv("DLT_DESTINATION", "duckdb"),
-        dataset_name="rick_and_morty_data"
+        dataset_name="rick_and_morty_data",
+        dev_mode=False,
+        pipelines_dir=str(DLT_PIPELINE_DIR)
     )
     try:
         row_counts = pipeline.dataset().row_counts().df()

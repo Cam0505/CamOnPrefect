@@ -1,0 +1,360 @@
+{
+  "version": 3,
+  "version_hash": "tPmkjZNt07GKljjpj6AD5ie3+EXsfuvahmGDvkrUQ1w=",
+  "engine_version": 11,
+  "name": "dimension_data_source",
+  "tables": {
+    "_dlt_version": {
+      "name": "_dlt_version",
+      "columns": {
+        "version": {
+          "name": "version",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "engine_version": {
+          "name": "engine_version",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "inserted_at": {
+          "name": "inserted_at",
+          "data_type": "timestamp",
+          "nullable": false
+        },
+        "schema_name": {
+          "name": "schema_name",
+          "data_type": "text",
+          "nullable": false
+        },
+        "version_hash": {
+          "name": "version_hash",
+          "data_type": "text",
+          "nullable": false
+        },
+        "schema": {
+          "name": "schema",
+          "data_type": "text",
+          "nullable": false
+        }
+      },
+      "write_disposition": "skip",
+      "resource": "_dlt_version",
+      "description": "Created by DLT. Tracks schema updates"
+    },
+    "_dlt_loads": {
+      "name": "_dlt_loads",
+      "columns": {
+        "load_id": {
+          "name": "load_id",
+          "data_type": "text",
+          "nullable": false
+        },
+        "schema_name": {
+          "name": "schema_name",
+          "data_type": "text",
+          "nullable": true
+        },
+        "status": {
+          "name": "status",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "inserted_at": {
+          "name": "inserted_at",
+          "data_type": "timestamp",
+          "nullable": false
+        },
+        "schema_version_hash": {
+          "name": "schema_version_hash",
+          "data_type": "text",
+          "nullable": true
+        }
+      },
+      "write_disposition": "skip",
+      "resource": "_dlt_loads",
+      "description": "Created by DLT. Tracks completed loads"
+    },
+    "ingredients_table": {
+      "columns": {
+        "str_drink": {
+          "name": "str_drink",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_drink_thumb": {
+          "name": "str_drink_thumb",
+          "data_type": "text",
+          "nullable": true
+        },
+        "id_drink": {
+          "name": "id_drink",
+          "data_type": "text",
+          "nullable": false,
+          "primary_key": true
+        },
+        "source_ingredient": {
+          "name": "source_ingredient",
+          "data_type": "text",
+          "nullable": false,
+          "primary_key": true
+        },
+        "_dlt_load_id": {
+          "name": "_dlt_load_id",
+          "data_type": "text",
+          "nullable": false
+        },
+        "_dlt_id": {
+          "name": "_dlt_id",
+          "data_type": "text",
+          "nullable": false,
+          "unique": true,
+          "row_key": true
+        }
+      },
+      "write_disposition": "merge",
+      "name": "ingredients_table",
+      "resource": "ingredients_table",
+      "x-normalizer": {
+        "seen-data": true
+      }
+    },
+    "alcoholic_table": {
+      "columns": {
+        "str_drink": {
+          "name": "str_drink",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_drink_thumb": {
+          "name": "str_drink_thumb",
+          "data_type": "text",
+          "nullable": true
+        },
+        "id_drink": {
+          "name": "id_drink",
+          "data_type": "text",
+          "nullable": false,
+          "primary_key": true
+        },
+        "source_alcohol_type": {
+          "name": "source_alcohol_type",
+          "data_type": "text",
+          "nullable": true
+        },
+        "_dlt_load_id": {
+          "name": "_dlt_load_id",
+          "data_type": "text",
+          "nullable": false
+        },
+        "_dlt_id": {
+          "name": "_dlt_id",
+          "data_type": "text",
+          "nullable": false,
+          "unique": true,
+          "row_key": true
+        }
+      },
+      "write_disposition": "merge",
+      "name": "alcoholic_table",
+      "resource": "alcoholic_table",
+      "x-normalizer": {
+        "seen-data": true
+      }
+    },
+    "beverages_table": {
+      "columns": {
+        "str_drink": {
+          "name": "str_drink",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_drink_thumb": {
+          "name": "str_drink_thumb",
+          "data_type": "text",
+          "nullable": true
+        },
+        "id_drink": {
+          "name": "id_drink",
+          "data_type": "text",
+          "nullable": false,
+          "primary_key": true
+        },
+        "source_beverage_type": {
+          "name": "source_beverage_type",
+          "data_type": "text",
+          "nullable": true
+        },
+        "_dlt_load_id": {
+          "name": "_dlt_load_id",
+          "data_type": "text",
+          "nullable": false
+        },
+        "_dlt_id": {
+          "name": "_dlt_id",
+          "data_type": "text",
+          "nullable": false,
+          "unique": true,
+          "row_key": true
+        }
+      },
+      "write_disposition": "merge",
+      "name": "beverages_table",
+      "resource": "beverages_table",
+      "x-normalizer": {
+        "seen-data": true
+      }
+    },
+    "glass_table": {
+      "columns": {
+        "str_drink": {
+          "name": "str_drink",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_drink_thumb": {
+          "name": "str_drink_thumb",
+          "data_type": "text",
+          "nullable": true
+        },
+        "id_drink": {
+          "name": "id_drink",
+          "data_type": "text",
+          "nullable": false,
+          "primary_key": true
+        },
+        "source_glass": {
+          "name": "source_glass",
+          "data_type": "text",
+          "nullable": true
+        },
+        "_dlt_load_id": {
+          "name": "_dlt_load_id",
+          "data_type": "text",
+          "nullable": false
+        },
+        "_dlt_id": {
+          "name": "_dlt_id",
+          "data_type": "text",
+          "nullable": false,
+          "unique": true,
+          "row_key": true
+        }
+      },
+      "write_disposition": "merge",
+      "name": "glass_table",
+      "resource": "glass_table",
+      "x-normalizer": {
+        "seen-data": true
+      }
+    },
+    "_dlt_pipeline_state": {
+      "columns": {
+        "version": {
+          "name": "version",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "engine_version": {
+          "name": "engine_version",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "pipeline_name": {
+          "name": "pipeline_name",
+          "data_type": "text",
+          "nullable": false
+        },
+        "state": {
+          "name": "state",
+          "data_type": "text",
+          "nullable": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "data_type": "timestamp",
+          "nullable": false
+        },
+        "version_hash": {
+          "name": "version_hash",
+          "data_type": "text",
+          "nullable": true
+        },
+        "_dlt_load_id": {
+          "name": "_dlt_load_id",
+          "data_type": "text",
+          "nullable": false
+        },
+        "_dlt_id": {
+          "name": "_dlt_id",
+          "data_type": "text",
+          "nullable": false,
+          "unique": true,
+          "row_key": true
+        }
+      },
+      "write_disposition": "append",
+      "file_format": "preferred",
+      "name": "_dlt_pipeline_state",
+      "resource": "_dlt_pipeline_state",
+      "x-normalizer": {
+        "seen-data": true
+      }
+    }
+  },
+  "settings": {
+    "detections": [
+      "iso_timestamp"
+    ],
+    "default_hints": {
+      "not_null": [
+        "_dlt_id",
+        "_dlt_root_id",
+        "_dlt_parent_id",
+        "_dlt_list_idx",
+        "_dlt_load_id"
+      ],
+      "parent_key": [
+        "_dlt_parent_id"
+      ],
+      "root_key": [
+        "_dlt_root_id"
+      ],
+      "unique": [
+        "_dlt_id"
+      ],
+      "row_key": [
+        "_dlt_id"
+      ]
+    }
+  },
+  "normalizers": {
+    "names": "snake_case",
+    "json": {
+      "module": "dlt.common.normalizers.json.relational",
+      "config": {
+        "propagation": {
+          "tables": {
+            "ingredients_table": {
+              "_dlt_id": "_dlt_root_id"
+            },
+            "alcoholic_table": {
+              "_dlt_id": "_dlt_root_id"
+            },
+            "beverages_table": {
+              "_dlt_id": "_dlt_root_id"
+            },
+            "glass_table": {
+              "_dlt_id": "_dlt_root_id"
+            }
+          }
+        }
+      }
+    }
+  },
+  "previous_hashes": [
+    "R80c7w7KnMTO44RofI8Xp1cw4W8yXuvQGxZbDVHaZ4c=",
+    "AXBqXrPmnbYr3XWRu1Le3RJwZ82TyvEiCkqtk0hZ5v8=",
+    "joSpt+mF67A/Y1uNX12r5jxhCoq19FbeerjDZho7Bjg="
+  ]
+}
