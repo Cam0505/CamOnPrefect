@@ -1,6 +1,5 @@
 import os
 from dlt.sources.helpers import requests as dlt_requests
-from pathlib import Path
 from dotenv import load_dotenv
 import dlt
 import time
@@ -11,37 +10,16 @@ from dlt.destinations.exceptions import DatabaseUndefinedRelation
 import json
 from datetime import datetime, timedelta
 from path_config import DBT_DIR, ENV_FILE, REQUEST_CACHE_DIR, DLT_PIPELINE_DIR
-import re
+from helper_functions import write_profiles_yml, sanitize_filename
 
 load_dotenv(dotenv_path=ENV_FILE)
 
-
-def write_profiles_yml(logger) -> bool:
-    """Write dbt/profiles.yml from the DBT_PROFILES_YML environment variable, only in Prefect Cloud."""
-    profiles_content = os.environ.get("DBT_PROFILES_YML")
-    logger.info(f"DBT_PROFILES_YML content: {profiles_content}")
-    if profiles_content:
-        dbt_dir = os.path.join(os.getcwd(), "dbt")
-        os.makedirs(dbt_dir, exist_ok=True)
-        profiles_path = os.path.join(dbt_dir, "profiles.yml")
-        with open(profiles_path, "w") as f:
-            f.write(profiles_content)
-        logger.info(f"Wrote profiles.yml to: {profiles_path}")
-        return True
-    else:
-        logger.info("DBT_PROFILES_YML not set; not overwriting local profiles.yml")
-        return False
 
 
 API_KEY = os.getenv("BEVERAGE_API_KEY")
 if not API_KEY:
     raise ValueError("Environment variable BEVERAGE_API_KEY is not set.")
 
-def sanitize_filename(value: str) -> str:
-    # Replace all non-word characters (anything other than letters, digits, underscore) with underscore
-    no_whitespace = ''.join(value.split())
-    ascii_only = no_whitespace.encode("ascii", errors="ignore").decode()
-    return re.sub(r"[^\w\-_\.]", "_", ascii_only)
 
 
 TABLE_PARAMS = {

@@ -10,27 +10,12 @@ import time as t
 from datetime import datetime, time
 from zoneinfo import ZoneInfo
 from path_config import DBT_DIR, ENV_FILE, CREDENTIALS, DLT_PIPELINE_DIR
+from helper_functions import write_profiles_yml, sanitize_filename
 
 
 # Load environment variables
 load_dotenv(dotenv_path=ENV_FILE)
 
-
-def write_profiles_yml(logger) -> bool:
-    """Write dbt/profiles.yml from the DBT_PROFILES_YML environment variable, only in Prefect Cloud."""
-    profiles_content = os.environ.get("DBT_PROFILES_YML")
-    logger.info(f"DBT_PROFILES_YML content: {profiles_content}")
-    if profiles_content:
-        dbt_dir = os.path.join(os.getcwd(), "dbt")
-        os.makedirs(dbt_dir, exist_ok=True)
-        profiles_path = os.path.join(dbt_dir, "profiles.yml")
-        with open(profiles_path, "w") as f:
-            f.write(profiles_content)
-        logger.info(f"Wrote profiles.yml to: {profiles_path}")
-        return True
-    else:
-        logger.info("DBT_PROFILES_YML not set; not overwriting local profiles.yml")
-        return False
 
 
 
