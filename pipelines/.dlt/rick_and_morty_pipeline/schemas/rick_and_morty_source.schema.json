@@ -1,0 +1,491 @@
+{
+  "version": 2,
+  "version_hash": "axw9R1B2zvl8Q1RX+zJA/Myf/ey8JGTNpNrtRbBxJbE=",
+  "engine_version": 11,
+  "name": "rick_and_morty_source",
+  "tables": {
+    "_dlt_version": {
+      "name": "_dlt_version",
+      "columns": {
+        "version": {
+          "name": "version",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "engine_version": {
+          "name": "engine_version",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "inserted_at": {
+          "name": "inserted_at",
+          "data_type": "timestamp",
+          "nullable": false
+        },
+        "schema_name": {
+          "name": "schema_name",
+          "data_type": "text",
+          "nullable": false
+        },
+        "version_hash": {
+          "name": "version_hash",
+          "data_type": "text",
+          "nullable": false
+        },
+        "schema": {
+          "name": "schema",
+          "data_type": "text",
+          "nullable": false
+        }
+      },
+      "write_disposition": "skip",
+      "resource": "_dlt_version",
+      "description": "Created by DLT. Tracks schema updates"
+    },
+    "_dlt_loads": {
+      "name": "_dlt_loads",
+      "columns": {
+        "load_id": {
+          "name": "load_id",
+          "data_type": "text",
+          "nullable": false
+        },
+        "schema_name": {
+          "name": "schema_name",
+          "data_type": "text",
+          "nullable": true
+        },
+        "status": {
+          "name": "status",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "inserted_at": {
+          "name": "inserted_at",
+          "data_type": "timestamp",
+          "nullable": false
+        },
+        "schema_version_hash": {
+          "name": "schema_version_hash",
+          "data_type": "text",
+          "nullable": true
+        }
+      },
+      "write_disposition": "skip",
+      "resource": "_dlt_loads",
+      "description": "Created by DLT. Tracks completed loads"
+    },
+    "character": {
+      "columns": {
+        "id": {
+          "name": "id",
+          "nullable": false,
+          "primary_key": true,
+          "data_type": "bigint"
+        },
+        "name": {
+          "name": "name",
+          "data_type": "text",
+          "nullable": true
+        },
+        "status": {
+          "name": "status",
+          "data_type": "text",
+          "nullable": true
+        },
+        "species": {
+          "name": "species",
+          "data_type": "text",
+          "nullable": true
+        },
+        "type": {
+          "name": "type",
+          "data_type": "text",
+          "nullable": true
+        },
+        "gender": {
+          "name": "gender",
+          "data_type": "text",
+          "nullable": true
+        },
+        "origin__name": {
+          "name": "origin__name",
+          "data_type": "text",
+          "nullable": true
+        },
+        "origin__url": {
+          "name": "origin__url",
+          "data_type": "text",
+          "nullable": true
+        },
+        "location__name": {
+          "name": "location__name",
+          "data_type": "text",
+          "nullable": true
+        },
+        "location__url": {
+          "name": "location__url",
+          "data_type": "text",
+          "nullable": true
+        },
+        "image": {
+          "name": "image",
+          "data_type": "text",
+          "nullable": true
+        },
+        "url": {
+          "name": "url",
+          "data_type": "text",
+          "nullable": true
+        },
+        "created": {
+          "name": "created",
+          "data_type": "timestamp",
+          "nullable": true
+        },
+        "_dlt_load_id": {
+          "name": "_dlt_load_id",
+          "data_type": "text",
+          "nullable": false
+        },
+        "_dlt_id": {
+          "name": "_dlt_id",
+          "data_type": "text",
+          "nullable": false,
+          "unique": true,
+          "row_key": true
+        }
+      },
+      "write_disposition": "merge",
+      "name": "character",
+      "resource": "character",
+      "x-normalizer": {
+        "seen-data": true
+      }
+    },
+    "episode": {
+      "columns": {
+        "id": {
+          "name": "id",
+          "nullable": false,
+          "primary_key": true,
+          "data_type": "bigint"
+        },
+        "name": {
+          "name": "name",
+          "data_type": "text",
+          "nullable": true
+        },
+        "air_date": {
+          "name": "air_date",
+          "data_type": "text",
+          "nullable": true
+        },
+        "episode": {
+          "name": "episode",
+          "data_type": "text",
+          "nullable": true
+        },
+        "url": {
+          "name": "url",
+          "data_type": "text",
+          "nullable": true
+        },
+        "created": {
+          "name": "created",
+          "data_type": "timestamp",
+          "nullable": true
+        },
+        "_dlt_load_id": {
+          "name": "_dlt_load_id",
+          "data_type": "text",
+          "nullable": false
+        },
+        "_dlt_id": {
+          "name": "_dlt_id",
+          "data_type": "text",
+          "nullable": false,
+          "unique": true,
+          "row_key": true
+        }
+      },
+      "write_disposition": "merge",
+      "name": "episode",
+      "resource": "episode",
+      "x-normalizer": {
+        "seen-data": true
+      }
+    },
+    "location": {
+      "columns": {
+        "id": {
+          "name": "id",
+          "nullable": false,
+          "primary_key": true,
+          "data_type": "bigint"
+        },
+        "name": {
+          "name": "name",
+          "data_type": "text",
+          "nullable": true
+        },
+        "type": {
+          "name": "type",
+          "data_type": "text",
+          "nullable": true
+        },
+        "dimension": {
+          "name": "dimension",
+          "data_type": "text",
+          "nullable": true
+        },
+        "url": {
+          "name": "url",
+          "data_type": "text",
+          "nullable": true
+        },
+        "created": {
+          "name": "created",
+          "data_type": "timestamp",
+          "nullable": true
+        },
+        "_dlt_load_id": {
+          "name": "_dlt_load_id",
+          "data_type": "text",
+          "nullable": false
+        },
+        "_dlt_id": {
+          "name": "_dlt_id",
+          "data_type": "text",
+          "nullable": false,
+          "unique": true,
+          "row_key": true
+        }
+      },
+      "write_disposition": "merge",
+      "name": "location",
+      "resource": "location",
+      "x-normalizer": {
+        "seen-data": true
+      }
+    },
+    "_dlt_pipeline_state": {
+      "columns": {
+        "version": {
+          "name": "version",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "engine_version": {
+          "name": "engine_version",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "pipeline_name": {
+          "name": "pipeline_name",
+          "data_type": "text",
+          "nullable": false
+        },
+        "state": {
+          "name": "state",
+          "data_type": "text",
+          "nullable": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "data_type": "timestamp",
+          "nullable": false
+        },
+        "version_hash": {
+          "name": "version_hash",
+          "data_type": "text",
+          "nullable": true
+        },
+        "_dlt_load_id": {
+          "name": "_dlt_load_id",
+          "data_type": "text",
+          "nullable": false
+        },
+        "_dlt_id": {
+          "name": "_dlt_id",
+          "data_type": "text",
+          "nullable": false,
+          "unique": true,
+          "row_key": true
+        }
+      },
+      "write_disposition": "append",
+      "file_format": "preferred",
+      "name": "_dlt_pipeline_state",
+      "resource": "_dlt_pipeline_state",
+      "x-normalizer": {
+        "seen-data": true
+      }
+    },
+    "character__episode": {
+      "name": "character__episode",
+      "columns": {
+        "value": {
+          "name": "value",
+          "data_type": "text",
+          "nullable": true
+        },
+        "_dlt_root_id": {
+          "name": "_dlt_root_id",
+          "data_type": "text",
+          "nullable": false,
+          "root_key": true
+        },
+        "_dlt_parent_id": {
+          "name": "_dlt_parent_id",
+          "data_type": "text",
+          "nullable": false,
+          "parent_key": true
+        },
+        "_dlt_list_idx": {
+          "name": "_dlt_list_idx",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "_dlt_id": {
+          "name": "_dlt_id",
+          "data_type": "text",
+          "nullable": false,
+          "unique": true,
+          "row_key": true
+        }
+      },
+      "parent": "character",
+      "x-normalizer": {
+        "seen-data": true
+      }
+    },
+    "location__residents": {
+      "name": "location__residents",
+      "columns": {
+        "value": {
+          "name": "value",
+          "data_type": "text",
+          "nullable": true
+        },
+        "_dlt_root_id": {
+          "name": "_dlt_root_id",
+          "data_type": "text",
+          "nullable": false,
+          "root_key": true
+        },
+        "_dlt_parent_id": {
+          "name": "_dlt_parent_id",
+          "data_type": "text",
+          "nullable": false,
+          "parent_key": true
+        },
+        "_dlt_list_idx": {
+          "name": "_dlt_list_idx",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "_dlt_id": {
+          "name": "_dlt_id",
+          "data_type": "text",
+          "nullable": false,
+          "unique": true,
+          "row_key": true
+        }
+      },
+      "parent": "location",
+      "x-normalizer": {
+        "seen-data": true
+      }
+    },
+    "episode__characters": {
+      "name": "episode__characters",
+      "columns": {
+        "value": {
+          "name": "value",
+          "data_type": "text",
+          "nullable": true
+        },
+        "_dlt_root_id": {
+          "name": "_dlt_root_id",
+          "data_type": "text",
+          "nullable": false,
+          "root_key": true
+        },
+        "_dlt_parent_id": {
+          "name": "_dlt_parent_id",
+          "data_type": "text",
+          "nullable": false,
+          "parent_key": true
+        },
+        "_dlt_list_idx": {
+          "name": "_dlt_list_idx",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "_dlt_id": {
+          "name": "_dlt_id",
+          "data_type": "text",
+          "nullable": false,
+          "unique": true,
+          "row_key": true
+        }
+      },
+      "parent": "episode",
+      "x-normalizer": {
+        "seen-data": true
+      }
+    }
+  },
+  "settings": {
+    "detections": [
+      "iso_timestamp"
+    ],
+    "default_hints": {
+      "not_null": [
+        "_dlt_id",
+        "_dlt_root_id",
+        "_dlt_parent_id",
+        "_dlt_list_idx",
+        "_dlt_load_id"
+      ],
+      "parent_key": [
+        "_dlt_parent_id"
+      ],
+      "root_key": [
+        "_dlt_root_id"
+      ],
+      "unique": [
+        "_dlt_id"
+      ],
+      "row_key": [
+        "_dlt_id"
+      ]
+    }
+  },
+  "normalizers": {
+    "names": "snake_case",
+    "json": {
+      "module": "dlt.common.normalizers.json.relational",
+      "config": {
+        "propagation": {
+          "tables": {
+            "character": {
+              "_dlt_id": "_dlt_root_id"
+            },
+            "episode": {
+              "_dlt_id": "_dlt_root_id"
+            },
+            "location": {
+              "_dlt_id": "_dlt_root_id"
+            }
+          }
+        }
+      }
+    }
+  },
+  "previous_hashes": [
+    "iUv/b4FjTo70AWc/wI+yw3TsEhJV1ulrxDaroQqPWcQ=",
+    "ddF63zGo0VJ55A5GBVRz0F5Z3Mmk11lYtgnuao5h1c4="
+  ]
+}

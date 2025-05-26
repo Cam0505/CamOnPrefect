@@ -9,7 +9,7 @@ import subprocess
 from dlt.sources.helpers.rest_client.paginators import JSONLinkPaginator
 from dlt.sources.helpers.rest_client.client import RESTClient
 from dlt.pipeline.exceptions import PipelineNeverRan
-from path_config import DBT_DIR, ENV_FILE
+from path_config import DBT_DIR, ENV_FILE, DLT_PIPELINE_DIR
 
 load_dotenv(dotenv_path="/workspaces/CamOnPrefect/.env")
 
@@ -106,7 +106,9 @@ def rick_and_morty_task(logger) -> bool:
     pipeline = dlt.pipeline(
         pipeline_name="rick_and_morty_pipeline",
         destination=os.getenv("DLT_DESTINATION", "duckdb"),
-        dataset_name="rick_and_morty_data"
+        dataset_name="rick_and_morty_data",
+        dev_mode=False,
+        pipelines_dir=str(DLT_PIPELINE_DIR)
     )
     try:
         row_counts = pipeline.dataset().row_counts().df()

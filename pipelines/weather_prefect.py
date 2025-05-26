@@ -13,7 +13,7 @@ from dlt.sources.helpers import requests
 from prefect import flow, task, get_run_logger
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dlt.pipeline.exceptions import PipelineNeverRan
-from path_config import DBT_DIR, ENV_FILE
+from path_config import DBT_DIR, ENV_FILE, DLT_PIPELINE_DIR
 
 def write_profiles_yml(logger) -> bool:
     """Write dbt/profiles.yml from the DBT_PROFILES_YML environment variable, only in Prefect Cloud."""
@@ -243,7 +243,9 @@ def openmeteo_task(logger) -> bool:
     pipeline = dlt.pipeline(
         pipeline_name="openmeteo_pipeline",
         destination=os.getenv("DLT_DESTINATION", "duckdb"),
-        dataset_name="weather_data"
+        dataset_name="weather_data",
+        dev_mode=False,
+        pipelines_dir=str(DLT_PIPELINE_DIR)
     )
 
     try:

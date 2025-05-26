@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 import time as t
 from datetime import datetime, time
 from zoneinfo import ZoneInfo
-from path_config import DBT_DIR, ENV_FILE, CREDENTIALS
+from path_config import DBT_DIR, ENV_FILE, CREDENTIALS, DLT_PIPELINE_DIR
 
 
 # Load environment variables
@@ -141,9 +141,10 @@ def gsheet_finance_source(logger=None):
 def extract_data_from_gsheet(logger) -> bool:
     """Extract data from Google Sheets and return as DataFrame"""
     pipeline = dlt.pipeline(
-        pipeline_name="gsheets_to_duckdb",
-        destination=os.getenv("DLT_DESTINATION", "duckdb"),
-        dataset_name="google_sheets_data", dev_mode=False
+        pipeline_name="gsheets_pipeline",
+        destination=os.environ.get("DLT_DESTINATION") or os.getenv("DLT_DESTINATION"),
+        dataset_name="google_sheets_data", dev_mode=False,
+        pipelines_dir=str(DLT_PIPELINE_DIR)
     )
 
     # Get the source

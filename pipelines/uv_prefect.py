@@ -9,7 +9,7 @@ import json
 from dlt.sources.helpers import requests
 from prefect import flow, task, get_run_logger
 from dlt.pipeline.exceptions import PipelineNeverRan
-from path_config import DBT_DIR, ENV_FILE
+from path_config import DBT_DIR, ENV_FILE, DLT_PIPELINE_DIR
 
 load_dotenv(dotenv_path=ENV_FILE)
 BASE_URL = "https://api.openuv.io/api/v1/uv"
@@ -83,7 +83,6 @@ def openuv_source(cities: list[dict], dates: list[datetime], logger):
 
     @dlt.resource(name="uv_index", write_disposition="merge", primary_key=["uv_time", "City"])
     def uv_resource():
-        logger.info(f"Using UV_API_KEY: {os.getenv('UV_API_KEY')}")
         for dt in dates:
             for city_info in cities:
                 logger.info(
@@ -116,7 +115,8 @@ def uv_task(logger) -> bool:
         pipeline_name="openuv_pipeline",
         destination=os.environ.get("DLT_DESTINATION") or os.getenv("DLT_DESTINATION"),
         dataset_name="uv_data",
-        dev_mode=False
+        dev_mode=False,
+        pipelines_dir=str(DLT_PIPELINE_DIR)
     )
 
     try:
