@@ -8,7 +8,7 @@ import time
 from dlt.sources.helpers import requests
 from typing import Iterator, Dict
 from path_config import DBT_DIR, ENV_FILE, REQUEST_CACHE_DIR, DLT_PIPELINE_DIR
-from helper_functions import write_profiles_yml, sanitize_filename, parse_dbt_output_metadata, flow_summary
+from helper_functions import write_profiles_yml, sanitize_filename, flow_summary
 from dlt.destinations.exceptions import DatabaseUndefinedRelation
 
 BASE_URL = "https://openlibrary.org/search.json"
@@ -200,8 +200,7 @@ def dbt_openlibrary_data(logger, openlibrary_books_asset: bool):
 
         duration = round(time.time() - start, 2)
         logger.info(f"dbt build completed in {duration}s")
-        metadata = parse_dbt_output_metadata(result, command="dbt run")
-        return metadata
+        return result if result else deps_result
     except subprocess.CalledProcessError as e:
         logger.error(f"dbt build failed:\n{e.stdout}\n{e.stderr}")
         return result if result else deps_result
