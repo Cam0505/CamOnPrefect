@@ -3,12 +3,6 @@
 This project orchestrates data extraction from the CocktailDB API using **Prefect**, transforms it with **DBT**, and stores it in a MotherDuck Data Warehouse. It serves as a learning platform for integrating data engineering tools like Prefect, dbt, and DLT.
 
 
-## 📁 Project Structure
-**.devcontainer/**: Configuration for VS Code's Remote - Containers extension.
-**pipelines/**: Contains Prefect flows and tasks for data orchestration.
-**dbt/**: Houses dbt models and configurations for data transformation.
-**requirements.txt**: Lists Python dependencies.
-
 ## 🧱 Project Structure
 
 <details>
