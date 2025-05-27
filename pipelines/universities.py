@@ -8,7 +8,7 @@ import json
 from dlt.sources.helpers import requests
 from path_config import DBT_DIR, ENV_FILE, REQUEST_CACHE_DIR, DLT_PIPELINE_DIR
 from helper_functions import write_profiles_yml, sanitize_filename
-
+from dlt.destinations.exceptions import DatabaseUndefinedRelation
 
 # Constants
 API_BASE_URL = "http://universities.hipolabs.com/search"
@@ -102,6 +102,10 @@ def university_task(logger) -> bool:
     except PipelineNeverRan:
         logger.warning(
             "⚠️ No previous runs found for this pipeline. Assuming first run.")
+        row_counts = None
+    except DatabaseUndefinedRelation:
+        logger.warning(
+            "⚠️ Table Doesn't Exist. Assuming truncation.")
         row_counts = None
 
     if row_counts is not None:
