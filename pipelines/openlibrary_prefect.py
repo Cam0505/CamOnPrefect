@@ -159,7 +159,7 @@ def openlibrary_books_task(logger) -> bool:
 
 
 @task
-def dbt_openlibrary_data(logger, openlibrary_books_asset: bool):
+def dbt_openlibrary_data(logger, openlibrary_books_asset: bool) -> subprocess.CompletedProcess:
     """Runs the dbt command after loading the data from Geo API."""
 
     if not openlibrary_books_asset:
@@ -170,7 +170,11 @@ def dbt_openlibrary_data(logger, openlibrary_books_asset: bool):
             "----------------------------------------"
         )
 
-        return
+        return subprocess.CompletedProcess(
+            args="dbt build --select source:fbi+ --profiles-dir .",
+            returncode=0,
+            stdout="DBT run skipped due to no new data.",
+            stderr="")
     
     iscloudrun = write_profiles_yml(logger=logger)
 
@@ -218,5 +222,4 @@ def openlibrary_prefect_flow():
 
 
 if __name__ == "__main__":
-    os.environ["PREFECT_API_URL"] = ""
     openlibrary_prefect_flow()

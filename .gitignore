@@ -43,5 +43,8 @@ dbt/dbt_packages/
 
 request_cache/*.json
 
+request_cache/*
+!request_cache/.gitkeep
+
 # Misc
 *.log

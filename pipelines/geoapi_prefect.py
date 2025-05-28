@@ -9,7 +9,7 @@ from dlt.sources.helpers.requests import get
 from prefect import flow, task, get_run_logger
 from dlt.pipeline.exceptions import PipelineNeverRan
 from path_config import DBT_DIR, ENV_FILE, DLT_PIPELINE_DIR
-from helper_functions import write_profiles_yml, sanitize_filename
+from helper_functions import write_profiles_yml, sanitize_filename, flow_summary
 
 load_dotenv(dotenv_path=ENV_FILE)
 COUNTRIES = ["NZ", "AU", "GB", "CA"]
@@ -191,7 +191,7 @@ def get_geo_data(logger) -> bool:
 
 
 @task
-def dbt_geo_data(logger, get_geo_data: bool) -> None:
+def dbt_geo_data(logger, get_geo_data: bool) -> subprocess.CompletedProcess:
     """Runs the dbt command after loading the data from Geo API."""
 
     if not get_geo_data:
@@ -201,7 +201,11 @@ def dbt_geo_data(logger, get_geo_data: bool) -> None:
             "🚫 Skipping dbt run.\n"
             "----------------------------------------"
         )
-        return
+        return subprocess.CompletedProcess(
+            args="dbt build --select source:fbi+ --profiles-dir .",
+            returncode=0,
+            stdout="DBT run skipped due to no new data.",
+            stderr="")
     
     iscloudrun = write_profiles_yml(logger=logger)
 
@@ -210,7 +214,7 @@ def dbt_geo_data(logger, get_geo_data: bool) -> None:
     start = time.time()
     try:
         if iscloudrun:
-            subprocess.run(
+            deps_result = subprocess.run(
                 "dbt deps",
                 shell=True,
                 cwd=DBT_DIR,
@@ -229,13 +233,13 @@ def dbt_geo_data(logger, get_geo_data: bool) -> None:
         )
         duration = round(time.time() - start, 2)
         logger.info(f"dbt build completed in {duration}s")
-        logger.info(result.stdout)
+        return result if result else deps_result
     except subprocess.CalledProcessError as e:
         logger.error(f"dbt build failed:\n{e.stdout}\n{e.stderr}")
-        raise
+        return result if result else deps_result
 
 
-@flow(name="geo-flow")
+@flow(name="geo-flow", on_completion=[flow_summary], on_failure=[flow_summary])
 def Geo_Flow():
     """
     Main flow to run the pipeline and dbt transformations.
@@ -247,7 +251,7 @@ def Geo_Flow():
     should_run = get_geo_data(logger=logger)
 
     # Run dbt transformations
-    dbt_geo_data(logger, get_geo_data=should_run)
+    return dbt_geo_data(logger, get_geo_data=should_run)
 
 
 if __name__ == "__main__":

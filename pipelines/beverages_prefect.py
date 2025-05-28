@@ -10,7 +10,7 @@ from dlt.destinations.exceptions import DatabaseUndefinedRelation
 import json
 from datetime import datetime, timedelta
 from path_config import DBT_DIR, ENV_FILE, REQUEST_CACHE_DIR, DLT_PIPELINE_DIR
-from helper_functions import write_profiles_yml, sanitize_filename
+from helper_functions import write_profiles_yml, sanitize_filename, flow_summary
 
 load_dotenv(dotenv_path=ENV_FILE)
 
@@ -345,33 +345,31 @@ def dbt_beverage_data(logger, beverage_fact_data: bool):
     iscloudrun = write_profiles_yml(logger=logger)
 
     logger.info(f"DBT Project Directory: {DBT_DIR}")
+    try:
+        if iscloudrun:
+                deps_result = subprocess.run(
+                    "dbt deps",
+                    shell=True,
+                    cwd=DBT_DIR,
+                    capture_output=True,
+                    text=True,
+                    check=True
+                )
+        result = subprocess.run(
+            "dbt build --select source:beverages+",
+            shell=True,
+            cwd=DBT_DIR,
+            capture_output=True,
+            text=True
+        )
 
-    if iscloudrun:
-            subprocess.run(
-                "dbt deps",
-                shell=True,
-                cwd=DBT_DIR,
-                capture_output=True,
-                text=True,
-                check=True
-            )
-    result = subprocess.run(
-        "dbt build --select source:beverages+",
-        shell=True,
-        cwd=DBT_DIR,
-        capture_output=True,
-        text=True
-    )
-
-    logger.info(result.stdout)
-    if result.stderr:
-        logger.error(result.stderr)
-
-    if result.returncode != 0:
-        raise Exception(f"dbt build failed with code {result.returncode}")
+        return result if result else deps_result
+    except subprocess.CalledProcessError as e:
+        logger.error(f"dbt build failed:\n{e.stdout}\n{e.stderr}")
+        return result if result else deps_result
 
 
-@flow(name="beverages-flow")
+@flow(name="beverages-flow", on_completion=[flow_summary], on_failure=[flow_summary])
 def beverages_flow():
     """Main flow to load data from Beverages API and run dbt models."""
     logger = get_run_logger()
@@ -385,7 +383,7 @@ def beverages_flow():
         beverage_fact_result = beverage_fact_data(logger, beverages_task_result)
 
         # Run dbt models
-        dbt_beverage_data(logger, beverage_fact_result)
+        return dbt_beverage_data(logger, beverage_fact_result)
     except Exception as e:
         logger.error(f"Pipeline failed: {e}")
         raise
