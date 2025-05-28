@@ -1,6 +1,6 @@
 {
-  "version": 2,
-  "version_hash": "cgCIquAOE3MYZYf+zVcWe+UKa5Wk/ntTQFNqbqRlz/o=",
+  "version": 3,
+  "version_hash": "/JbbVy9PAN7c141caTrOlqwCaVfCwrjf2cvX1kYIfeg=",
   "engine_version": 11,
   "name": "openlibrary_dim_source",
   "tables": {
@@ -75,36 +75,41 @@
       "resource": "_dlt_loads",
       "description": "Created by DLT. Tracks completed loads"
     },
-    "python_books": {
+    "books": {
       "columns": {
-        "search_term": {
-          "name": "search_term",
+        "cover_edition_key": {
+          "name": "cover_edition_key",
           "data_type": "text",
           "nullable": true
         },
-        "topic_filter": {
-          "name": "topic_filter",
-          "data_type": "text",
-          "nullable": true
-        },
-        "title": {
-          "name": "title",
-          "data_type": "text",
-          "nullable": true
-        },
-        "author_name": {
-          "name": "author_name",
-          "data_type": "text",
-          "nullable": true
-        },
-        "publish_year": {
-          "name": "publish_year",
+        "cover_i": {
+          "name": "cover_i",
           "data_type": "bigint",
+          "nullable": true
+        },
+        "ebook_access": {
+          "name": "ebook_access",
+          "data_type": "text",
           "nullable": true
         },
         "edition_count": {
           "name": "edition_count",
           "data_type": "bigint",
+          "nullable": true
+        },
+        "first_publish_year": {
+          "name": "first_publish_year",
+          "data_type": "bigint",
+          "nullable": true
+        },
+        "has_fulltext": {
+          "name": "has_fulltext",
+          "data_type": "bool",
+          "nullable": true
+        },
+        "ia_collection_s": {
+          "name": "ia_collection_s",
+          "data_type": "text",
           "nullable": true
         },
         "key": {
@@ -113,8 +118,23 @@
           "primary_key": true,
           "data_type": "text"
         },
-        "subject_str": {
-          "name": "subject_str",
+        "lending_edition_s": {
+          "name": "lending_edition_s",
+          "data_type": "text",
+          "nullable": true
+        },
+        "lending_identifier_s": {
+          "name": "lending_identifier_s",
+          "data_type": "text",
+          "nullable": true
+        },
+        "public_scan_b": {
+          "name": "public_scan_b",
+          "data_type": "bool",
+          "nullable": true
+        },
+        "title": {
+          "name": "title",
           "data_type": "text",
           "nullable": true
         },
@@ -129,263 +149,21 @@
           "nullable": false,
           "unique": true,
           "row_key": true
-        }
-      },
-      "write_disposition": "merge",
-      "name": "python_books",
-      "resource": "python_books",
-      "x-normalizer": {
-        "seen-data": true
-      }
-    },
-    "apache_airflow_books": {
-      "columns": {
+        },
+        "subtitle": {
+          "name": "subtitle",
+          "data_type": "text",
+          "nullable": true
+        },
         "search_term": {
           "name": "search_term",
           "data_type": "text",
           "nullable": true
-        },
-        "topic_filter": {
-          "name": "topic_filter",
-          "data_type": "text",
-          "nullable": true
-        },
-        "title": {
-          "name": "title",
-          "data_type": "text",
-          "nullable": true
-        },
-        "author_name": {
-          "name": "author_name",
-          "data_type": "text",
-          "nullable": true
-        },
-        "publish_year": {
-          "name": "publish_year",
-          "data_type": "bigint",
-          "nullable": true
-        },
-        "edition_count": {
-          "name": "edition_count",
-          "data_type": "bigint",
-          "nullable": true
-        },
-        "key": {
-          "name": "key",
-          "nullable": false,
-          "primary_key": true,
-          "data_type": "text"
-        },
-        "subject_str": {
-          "name": "subject_str",
-          "data_type": "text",
-          "nullable": true
-        },
-        "_dlt_load_id": {
-          "name": "_dlt_load_id",
-          "data_type": "text",
-          "nullable": false
-        },
-        "_dlt_id": {
-          "name": "_dlt_id",
-          "data_type": "text",
-          "nullable": false,
-          "unique": true,
-          "row_key": true
         }
       },
       "write_disposition": "merge",
-      "name": "apache_airflow_books",
-      "resource": "apache_airflow_books",
-      "x-normalizer": {
-        "seen-data": true
-      }
-    },
-    "data_engineering_books": {
-      "columns": {
-        "search_term": {
-          "name": "search_term",
-          "data_type": "text",
-          "nullable": true
-        },
-        "topic_filter": {
-          "name": "topic_filter",
-          "data_type": "text",
-          "nullable": true
-        },
-        "title": {
-          "name": "title",
-          "data_type": "text",
-          "nullable": true
-        },
-        "author_name": {
-          "name": "author_name",
-          "data_type": "text",
-          "nullable": true
-        },
-        "publish_year": {
-          "name": "publish_year",
-          "data_type": "bigint",
-          "nullable": true
-        },
-        "edition_count": {
-          "name": "edition_count",
-          "data_type": "bigint",
-          "nullable": true
-        },
-        "key": {
-          "name": "key",
-          "nullable": false,
-          "primary_key": true,
-          "data_type": "text"
-        },
-        "subject_str": {
-          "name": "subject_str",
-          "data_type": "text",
-          "nullable": true
-        },
-        "_dlt_load_id": {
-          "name": "_dlt_load_id",
-          "data_type": "text",
-          "nullable": false
-        },
-        "_dlt_id": {
-          "name": "_dlt_id",
-          "data_type": "text",
-          "nullable": false,
-          "unique": true,
-          "row_key": true
-        }
-      },
-      "write_disposition": "merge",
-      "name": "data_engineering_books",
-      "resource": "data_engineering_books",
-      "x-normalizer": {
-        "seen-data": true
-      }
-    },
-    "data_warehousing_books": {
-      "columns": {
-        "search_term": {
-          "name": "search_term",
-          "data_type": "text",
-          "nullable": true
-        },
-        "topic_filter": {
-          "name": "topic_filter",
-          "data_type": "text",
-          "nullable": true
-        },
-        "title": {
-          "name": "title",
-          "data_type": "text",
-          "nullable": true
-        },
-        "author_name": {
-          "name": "author_name",
-          "data_type": "text",
-          "nullable": true
-        },
-        "publish_year": {
-          "name": "publish_year",
-          "data_type": "bigint",
-          "nullable": true
-        },
-        "edition_count": {
-          "name": "edition_count",
-          "data_type": "bigint",
-          "nullable": true
-        },
-        "key": {
-          "name": "key",
-          "nullable": false,
-          "primary_key": true,
-          "data_type": "text"
-        },
-        "subject_str": {
-          "name": "subject_str",
-          "data_type": "text",
-          "nullable": true
-        },
-        "_dlt_load_id": {
-          "name": "_dlt_load_id",
-          "data_type": "text",
-          "nullable": false
-        },
-        "_dlt_id": {
-          "name": "_dlt_id",
-          "data_type": "text",
-          "nullable": false,
-          "unique": true,
-          "row_key": true
-        }
-      },
-      "write_disposition": "merge",
-      "name": "data_warehousing_books",
-      "resource": "data_warehousing_books",
-      "x-normalizer": {
-        "seen-data": true
-      }
-    },
-    "sql_books": {
-      "columns": {
-        "search_term": {
-          "name": "search_term",
-          "data_type": "text",
-          "nullable": true
-        },
-        "topic_filter": {
-          "name": "topic_filter",
-          "data_type": "text",
-          "nullable": true
-        },
-        "title": {
-          "name": "title",
-          "data_type": "text",
-          "nullable": true
-        },
-        "author_name": {
-          "name": "author_name",
-          "data_type": "text",
-          "nullable": true
-        },
-        "publish_year": {
-          "name": "publish_year",
-          "data_type": "bigint",
-          "nullable": true
-        },
-        "edition_count": {
-          "name": "edition_count",
-          "data_type": "bigint",
-          "nullable": true
-        },
-        "key": {
-          "name": "key",
-          "nullable": false,
-          "primary_key": true,
-          "data_type": "text"
-        },
-        "subject_str": {
-          "name": "subject_str",
-          "data_type": "text",
-          "nullable": true
-        },
-        "_dlt_load_id": {
-          "name": "_dlt_load_id",
-          "data_type": "text",
-          "nullable": false
-        },
-        "_dlt_id": {
-          "name": "_dlt_id",
-          "data_type": "text",
-          "nullable": false,
-          "unique": true,
-          "row_key": true
-        }
-      },
-      "write_disposition": "merge",
-      "name": "sql_books",
-      "resource": "sql_books",
+      "name": "books",
+      "resource": "books",
       "x-normalizer": {
         "seen-data": true
       }
@@ -442,6 +220,272 @@
       "x-normalizer": {
         "seen-data": true
       }
+    },
+    "books__author_key": {
+      "name": "books__author_key",
+      "columns": {
+        "value": {
+          "name": "value",
+          "data_type": "text",
+          "nullable": true
+        },
+        "_dlt_root_id": {
+          "name": "_dlt_root_id",
+          "data_type": "text",
+          "nullable": false,
+          "root_key": true
+        },
+        "_dlt_parent_id": {
+          "name": "_dlt_parent_id",
+          "data_type": "text",
+          "nullable": false,
+          "parent_key": true
+        },
+        "_dlt_list_idx": {
+          "name": "_dlt_list_idx",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "_dlt_id": {
+          "name": "_dlt_id",
+          "data_type": "text",
+          "nullable": false,
+          "unique": true,
+          "row_key": true
+        }
+      },
+      "parent": "books",
+      "x-normalizer": {
+        "seen-data": true
+      }
+    },
+    "books__author_name": {
+      "name": "books__author_name",
+      "columns": {
+        "value": {
+          "name": "value",
+          "data_type": "text",
+          "nullable": true
+        },
+        "_dlt_root_id": {
+          "name": "_dlt_root_id",
+          "data_type": "text",
+          "nullable": false,
+          "root_key": true
+        },
+        "_dlt_parent_id": {
+          "name": "_dlt_parent_id",
+          "data_type": "text",
+          "nullable": false,
+          "parent_key": true
+        },
+        "_dlt_list_idx": {
+          "name": "_dlt_list_idx",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "_dlt_id": {
+          "name": "_dlt_id",
+          "data_type": "text",
+          "nullable": false,
+          "unique": true,
+          "row_key": true
+        }
+      },
+      "parent": "books",
+      "x-normalizer": {
+        "seen-data": true
+      }
+    },
+    "books__ia": {
+      "name": "books__ia",
+      "columns": {
+        "value": {
+          "name": "value",
+          "data_type": "text",
+          "nullable": true
+        },
+        "_dlt_root_id": {
+          "name": "_dlt_root_id",
+          "data_type": "text",
+          "nullable": false,
+          "root_key": true
+        },
+        "_dlt_parent_id": {
+          "name": "_dlt_parent_id",
+          "data_type": "text",
+          "nullable": false,
+          "parent_key": true
+        },
+        "_dlt_list_idx": {
+          "name": "_dlt_list_idx",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "_dlt_id": {
+          "name": "_dlt_id",
+          "data_type": "text",
+          "nullable": false,
+          "unique": true,
+          "row_key": true
+        }
+      },
+      "parent": "books",
+      "x-normalizer": {
+        "seen-data": true
+      }
+    },
+    "books__language": {
+      "name": "books__language",
+      "columns": {
+        "value": {
+          "name": "value",
+          "data_type": "text",
+          "nullable": true
+        },
+        "_dlt_root_id": {
+          "name": "_dlt_root_id",
+          "data_type": "text",
+          "nullable": false,
+          "root_key": true
+        },
+        "_dlt_parent_id": {
+          "name": "_dlt_parent_id",
+          "data_type": "text",
+          "nullable": false,
+          "parent_key": true
+        },
+        "_dlt_list_idx": {
+          "name": "_dlt_list_idx",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "_dlt_id": {
+          "name": "_dlt_id",
+          "data_type": "text",
+          "nullable": false,
+          "unique": true,
+          "row_key": true
+        }
+      },
+      "parent": "books",
+      "x-normalizer": {
+        "seen-data": true
+      }
+    },
+    "books__id_project_gutenberg": {
+      "name": "books__id_project_gutenberg",
+      "columns": {
+        "value": {
+          "name": "value",
+          "data_type": "text",
+          "nullable": true
+        },
+        "_dlt_root_id": {
+          "name": "_dlt_root_id",
+          "data_type": "text",
+          "nullable": false,
+          "root_key": true
+        },
+        "_dlt_parent_id": {
+          "name": "_dlt_parent_id",
+          "data_type": "text",
+          "nullable": false,
+          "parent_key": true
+        },
+        "_dlt_list_idx": {
+          "name": "_dlt_list_idx",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "_dlt_id": {
+          "name": "_dlt_id",
+          "data_type": "text",
+          "nullable": false,
+          "unique": true,
+          "row_key": true
+        }
+      },
+      "parent": "books",
+      "x-normalizer": {
+        "seen-data": true
+      }
+    },
+    "books__id_librivox": {
+      "name": "books__id_librivox",
+      "columns": {
+        "value": {
+          "name": "value",
+          "data_type": "text",
+          "nullable": true
+        },
+        "_dlt_root_id": {
+          "name": "_dlt_root_id",
+          "data_type": "text",
+          "nullable": false,
+          "root_key": true
+        },
+        "_dlt_parent_id": {
+          "name": "_dlt_parent_id",
+          "data_type": "text",
+          "nullable": false,
+          "parent_key": true
+        },
+        "_dlt_list_idx": {
+          "name": "_dlt_list_idx",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "_dlt_id": {
+          "name": "_dlt_id",
+          "data_type": "text",
+          "nullable": false,
+          "unique": true,
+          "row_key": true
+        }
+      },
+      "parent": "books",
+      "x-normalizer": {
+        "seen-data": true
+      }
+    },
+    "books__id_standard_ebooks": {
+      "name": "books__id_standard_ebooks",
+      "columns": {
+        "value": {
+          "name": "value",
+          "data_type": "text",
+          "nullable": true
+        },
+        "_dlt_root_id": {
+          "name": "_dlt_root_id",
+          "data_type": "text",
+          "nullable": false,
+          "root_key": true
+        },
+        "_dlt_parent_id": {
+          "name": "_dlt_parent_id",
+          "data_type": "text",
+          "nullable": false,
+          "parent_key": true
+        },
+        "_dlt_list_idx": {
+          "name": "_dlt_list_idx",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "_dlt_id": {
+          "name": "_dlt_id",
+          "data_type": "text",
+          "nullable": false,
+          "unique": true,
+          "row_key": true
+        }
+      },
+      "parent": "books",
+      "x-normalizer": {
+        "seen-data": true
+      }
     }
   },
   "settings": {
@@ -477,19 +521,7 @@
       "config": {
         "propagation": {
           "tables": {
-            "python_books": {
-              "_dlt_id": "_dlt_root_id"
-            },
-            "apache_airflow_books": {
-              "_dlt_id": "_dlt_root_id"
-            },
-            "data_engineering_books": {
-              "_dlt_id": "_dlt_root_id"
-            },
-            "data_warehousing_books": {
-              "_dlt_id": "_dlt_root_id"
-            },
-            "sql_books": {
+            "books": {
               "_dlt_id": "_dlt_root_id"
             }
           }
@@ -498,7 +530,8 @@
     }
   },
   "previous_hashes": [
-    "GeMFeCqg4zmnLWILqfNR6pmTC7DfobsQ26ZU9Xvu+yw=",
-    "WRCpXFbsYbjQj9HtXSqldd6ThxrnjBsOMQhEKonY3jc="
+    "fN0NkJwPsqHB7II1FrpECM95no9nMXXkqAPggeUIFFA=",
+    "ibz1+h4wxNMDkDDX4cIMecJZeqDd4JxV8jFfMp3dotg=",
+    "y4JRtOEtlYu5s8tWOoPLbMIVLhBhcOvsUYjAgQyJ2+o="
   ]
 }

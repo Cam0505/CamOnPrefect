@@ -10,94 +10,100 @@ from typing import Iterator, Dict
 from path_config import DBT_DIR, ENV_FILE, REQUEST_CACHE_DIR, DLT_PIPELINE_DIR
 from helper_functions import write_profiles_yml, sanitize_filename, flow_summary
 from dlt.destinations.exceptions import DatabaseUndefinedRelation
+from dlt.sources.helpers.rest_client.client import RESTClient
+from dlt.sources.helpers.rest_client.paginators import PageNumberPaginator
 
 BASE_URL = "https://openlibrary.org/search.json"
 
 # Define your search terms and topics
-SEARCH_TOPICS: dict[str, list[str]] = {
-    "Python": ["Python", "python_books"],
-    "Apache Airflow": ["Apache Airflow", "apache_airflow_books"],
-    "Data Engineering": ["Data Engineering", "data_engineering_books"],
-    "Data Warehousing": ["Data Warehousing", "data_warehousing_books"],
-    "SQL": ["SQL", "sql_books"]
-}
+SEARCH_TOPICS = [
+    "Python",
+    "Apache Airflow",
+    "Data Engineering",
+    "Data Warehousing",
+    "SQL",
+    "Dbt",
+    "JavaScript",
+]
 
-def create_resource(term: str, topic: str, resource_name: str, current_table_count: int, logger):
-
-    @dlt.resource(name=resource_name, write_disposition="merge", primary_key="key")
-    def resource_func() -> Iterator[Dict]:
-        state = dlt.current.source_state().setdefault(resource_name, {
-            "count": 0,
-            "last_run_status": None
-        })
-
-        try: 
-            response = requests.get(BASE_URL, params={"q": term, "limit": 100})
-            data = response.json()
-        except Exception as e:
-            logger.error(f"❌ Fetch failed for '{term}': {e}")
-            state["last_run_status"] = "failed"
-            return
-
-        # Prepare filtered rows first
-        filtered_rows = []
-        for book in data["docs"]:
-            subject_list = book.get("subject", [])
-            subject_str = " ".join(
-                subject_list).lower() if subject_list else ""
-            title = book.get("title", "").lower()
-
-            if topic.lower() in title or topic.lower() in subject_str:
-                filtered_rows.append({
-                    "search_term": term,
-                    "topic_filter": topic,
-                    "title": book.get("title"),
-                    "author_name": ", ".join(book.get("author_name", [])),
-                    "publish_year": book.get("first_publish_year"),
-                    "isbn": ", ".join(book.get("isbn", [])) if book.get("isbn") else None,
-                    "edition_count": book.get("edition_count"),
-                    "key": book.get("key"),
-                    "subject_raw": subject_list,
-                    "subject_str": subject_str
-                })
-
-        filtered_count = len(filtered_rows)
-        previous_count = state["count"]
-
-        if current_table_count < previous_count:
-            logger.info(
-                f"⚠️ Detected fewer rows in DuckDB table '{resource_name}' ({current_table_count}) "
-                f"than previous filtered count ({previous_count}). Forcing reload."
-            )
-        elif filtered_count == previous_count:
-            logger.info(
-                f"🔁 SKIPPED LOAD for {term}:\n"
-                f"📅 Previous filtered count: {previous_count}\n"
-                f"📦 Current filtered count: {filtered_count}\n"
-                f"⏳ No new data. Skipping..."
-            )
-            state["last_run_status"] = "skipped_no_new_data"
-            return
-
-        logger.info(
-            f"✅ New filtered data for '{term}': {previous_count} ➝ {filtered_count}"
-        )
-        state["count"] = filtered_count
-        state["last_run_status"] = "success"
-
-        try:
-            yield from filtered_rows
-        except Exception as e:
-            logger.error(f"❌ Failed to yield data for {term}: {e}")
-            state["last_run_status"] = "failed"
-
-    return resource_func
+PAGE_LIMIT = 100  # Number of results per page
 
 
 @dlt.source
-def openlibrary_dim_source(logger, current_counts: Dict[str, int]):
-    for term, (topic, resource_name) in SEARCH_TOPICS.items():
-        yield create_resource(term, topic, resource_name, current_counts.get(resource_name, 0), logger)
+def openlibrary_dim_source(logger, current_table):
+
+    @dlt.resource(name="books", write_disposition="merge", primary_key="key")
+    def resource_func():
+        state = dlt.current.source_state().setdefault("books", {
+            "count": {},
+            "last_run_status": {}
+        })
+        
+        for term in SEARCH_TOPICS:
+            
+            if current_table is None:
+                current_table_count = 0
+            else:
+                current_table_count = current_table.get(term, 0)
+            logger.info(f"📊 Current table count for '{term}': {current_table_count}")
+            try: 
+                
+                initial_response = requests.get(BASE_URL, params={"q": term, "limit": PAGE_LIMIT}, timeout=15)
+                initial_response.raise_for_status()
+                count = initial_response.json().get("numFound", 0)
+
+                # Step 2: Calculate max pages
+                max_pages = (count + PAGE_LIMIT - 1) // PAGE_LIMIT
+
+                previous_count = state["count"].get(term, 0)
+                
+
+                if previous_count < count:
+                    logger.info(
+                        f"⚠️ Detected more data from API ({count})"
+                        f" than previous count ({previous_count}). Forcing reload."
+                    )
+                    # Need to fix this, to tired, merge is preventing duplicate rows
+                elif current_table_count > 0 and count == previous_count:
+                    logger.info(
+                        f"🔁 SKIPPED LOAD for {term}:\n"
+                        f"📊 Current table count: {current_table_count}\n"
+                        f"📅 Previous filtered count: {previous_count}\n"
+                        f"📦 Current filtered count: {count}\n"
+                        f"⏳ No new data. Skipping..."
+                    )
+                    state["last_run_status"][term] = "skipped_no_new_data"
+                    continue
+
+
+                client = RESTClient(
+                    base_url="https://openlibrary.org/search.json?",
+                    paginator=PageNumberPaginator(
+                        base_page=1,
+                        page=1,
+                        total_path=None,
+                        page_param="page",
+                        stop_after_empty_page=True,
+                        maximum_page=max_pages,
+                    ), data_selector="docs"
+                )
+
+                logger.info(f"📚 Loading paginated data for '{term}' ({current_table_count} ➝ {count})")
+
+                for page in client.paginate(params={"q": term, "limit": 100}, data_selector="docs"):
+                    for doc in page.response.json()["docs"]:
+                        doc["search_term"] = term
+                        yield doc
+
+                state["count"][term] = count
+                state["last_run_status"][term] = "success"
+                
+            except Exception as e:
+                logger.error(f"❌ Fetch failed for '{term}': {e}")
+                state["last_run_status"][term] = "failed"
+                return
+
+    return resource_func
 
 
 @task
@@ -112,32 +118,26 @@ def openlibrary_books_task(logger) -> bool:
     )
 
     try:
-        row_counts = pipeline.dataset().row_counts().df()
+        dataset = pipeline.dataset()["books"].df()
+        if dataset is not None:
+            row_count = dataset.groupby("search_term").size().to_dict()
+            logger.info(f"Grouped Row Counts:\n{row_count}")
     except PipelineNeverRan:
         logger.warning(
             "⚠️ No previous runs found for this pipeline. Assuming first run.")
-        row_counts = None
+        row_count = None
     except DatabaseUndefinedRelation:
         logger.warning(
             "⚠️ Table Doesn't Exist. Assuming truncation.")
-        row_counts = None
+        row_count = None
 
-
-    if row_counts is not None:
-        row_counts_dict = dict(
-            zip(row_counts["table_name"], row_counts["row_count"]))
-    else:
-        logger.warning(
-            "⚠️ No tables found yet in dataset — assuming first run.")
-        row_counts_dict = {}
-
-    source = openlibrary_dim_source(logger, row_counts_dict)
+    source = openlibrary_dim_source(logger, row_count)
 
     try:
         load_info = pipeline.run(source)
 
-        statuses = [source.state.get(resource, {}).get(
-            "last_run_status") for (junk, resource) in SEARCH_TOPICS.values()]
+        statuses = [source.state.get("books", {}).get(
+            "last_run_status", {}).get(term, '') for term in SEARCH_TOPICS]
 
         if all(s == "skipped_no_new_data" for s in statuses):
             logger.info(

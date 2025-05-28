@@ -5,8 +5,4 @@ sources:
     database: camonprefect
     schema: openlibrary_data
     tables:
-      - name: python_books
-      - name: apache_airflow_books
-      - name: data_engineering_books
-      - name: data_warehousing_books
-      - name: sql_books
+      - name: books
