@@ -10,7 +10,7 @@ from dlt.sources.helpers import requests
 from prefect import flow, task, get_run_logger
 from dlt.pipeline.exceptions import PipelineNeverRan
 from path_config import DBT_DIR, ENV_FILE, DLT_PIPELINE_DIR
-from helper_functions import write_profiles_yml
+from helper_functions import write_profiles_yml, flow_summary
 
 load_dotenv(dotenv_path=ENV_FILE)
 BASE_URL = "https://api.openuv.io/api/v1/uv"
@@ -118,7 +118,7 @@ def uv_task(logger) -> bool:
 
 
 @task
-def dbt_uv_data(logger, uv_task: bool) -> None:
+def dbt_uv_data(logger, uv_task: bool) -> subprocess.CompletedProcess:
     """Runs the dbt command after loading the data from UV API."""
 
     if not uv_task:
@@ -128,7 +128,12 @@ def dbt_uv_data(logger, uv_task: bool) -> None:
             "🚫 Skipping dbt run.\n"
             "----------------------------------------"
         )
-        return
+        return subprocess.CompletedProcess(
+            args="dbt build --select source:uv+ --profiles-dir .",
+            returncode=0,
+            stdout="DBT run skipped due to no new data.",
+            stderr=""
+        )
     
     iscloudrun = write_profiles_yml(logger=logger)
 
@@ -137,7 +142,7 @@ def dbt_uv_data(logger, uv_task: bool) -> None:
     start = time.time()
     try:
         if iscloudrun:
-            subprocess.run(
+            deps_result = subprocess.run(
                 "dbt deps",
                 shell=True,
                 cwd=DBT_DIR,
@@ -156,20 +161,13 @@ def dbt_uv_data(logger, uv_task: bool) -> None:
         )
         duration = round(time.time() - start, 2)
         logger.info(f"dbt build completed in {duration}s")
-        logger.info(result.stdout)
+        return result if result else deps_result
     except subprocess.CalledProcessError as e:
         logger.error(f"dbt build failed:\n{e.stdout}\n{e.stderr}")
-        raise
-    finally:
-        import sys
-        sys.stdout.flush()
-        sys.stderr.flush()
+        return result if result else deps_result
 
 
-
-
-
-@flow(name="uv-flow")
+@flow(name="uv-flow", on_completion=[flow_summary], on_failure=[flow_summary])
 def uv_flow():
     """
     Main flow to run the pipeline and dbt transformations.
@@ -181,9 +179,8 @@ def uv_flow():
     should_run = uv_task(logger=logger)
 
     # Run dbt transformations
-    dbt_uv_data(logger, uv_task=should_run)
+    return dbt_uv_data(logger, should_run)
 
 
 if __name__ == "__main__":
-    os.environ["PREFECT_API_URL"] = ""
     uv_flow()

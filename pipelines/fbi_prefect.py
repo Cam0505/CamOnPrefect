@@ -9,7 +9,7 @@ from dlt.destinations.exceptions import DatabaseUndefinedRelation
 import subprocess
 import time
 from path_config import DBT_DIR, ENV_FILE, DLT_PIPELINE_DIR
-from helper_functions import write_profiles_yml, sanitize_filename
+from helper_functions import write_profiles_yml, sanitize_filename, flow_summary
 
 # load_dotenv(ENV_FILE)
 
@@ -136,7 +136,7 @@ def run_dlt_pipeline(logger):
 
 
 @task
-def dbt_fbi(logger, run_dlt_pipeline: bool) -> None:
+def dbt_fbi(logger, run_dlt_pipeline: bool) -> subprocess.CompletedProcess:
     """Runs dbt models for FBI data after loading data."""
 
     if not run_dlt_pipeline:
@@ -145,7 +145,11 @@ def dbt_fbi(logger, run_dlt_pipeline: bool) -> None:
             "📉 No data was loaded from Rick and Morty API.\n"
             "🚫 Skipping dbt run.\n"
         )
-        return
+        return subprocess.CompletedProcess(
+            args="dbt build --select source:fbi+ --profiles-dir .",
+            returncode=0,
+            stdout="DBT run skipped due to no new data.",
+            stderr="")
     
     iscloudrun = write_profiles_yml(logger=logger)
 
@@ -154,7 +158,7 @@ def dbt_fbi(logger, run_dlt_pipeline: bool) -> None:
     try:
         start = time.time()
         if iscloudrun:
-            subprocess.run(
+            deps_result = subprocess.run(
                 "dbt deps",
                 shell=True,
                 cwd=DBT_DIR,
@@ -163,7 +167,7 @@ def dbt_fbi(logger, run_dlt_pipeline: bool) -> None:
                 check=True
             )
 
-        subprocess.run(
+        result = subprocess.run(
             "dbt build --select source:fbi+ --profiles-dir .",
             shell=True,
             cwd=DBT_DIR,
@@ -173,20 +177,20 @@ def dbt_fbi(logger, run_dlt_pipeline: bool) -> None:
         )
         duration = round(time.time() - start, 2)
         logger.info(f"✅ dbt build completed in {duration}s")
+        return result if result else deps_result
     except subprocess.CalledProcessError as e:
         logger.error(f"❌ dbt build failed:\n{e.stdout}\n{e.stderr}")
-        raise
+        return result if result else deps_result
 
 
 
-@flow(name="fbi_flow")
+@flow(name="fbi_flow", on_completion=[flow_summary], on_failure=[flow_summary])
 def fbi_flow():
     logger = get_run_logger()
     pipeline_outcome = run_dlt_pipeline(logger=logger)
 
-    dbt_fbi(run_dlt_pipeline=pipeline_outcome, logger=logger)
+    return dbt_fbi(logger, pipeline_outcome)
 
 
 if __name__ == "__main__":
-    # os.environ["PREFECT_API_URL"] = ""
     fbi_flow()
