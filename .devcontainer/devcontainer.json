@@ -38,7 +38,7 @@
       "extensions": [
         "ms-python.python",
         "ms-python.vscode-pylance",
-        "dbt-labs.dbt",
+        "dbtlabsinc.dbt",
         "ms-azuretools.vscode-docker"  // Docker extension
       ]
     }
@@ -53,7 +53,8 @@
     "GOOGLE_API_KEY": "${localEnv:GOOGLE_API_KEY}",
     "MD": "${localEnv:MD}",
     "PYTHONPATH": "/workspaces/CamOnPrefect",
-    "DOCKER_BUILDKIT": "1"  // Enable Docker buildkit
+    "DOCKER_BUILDKIT": "1",  // Enable Docker buildkit
+    "DBT_PROFILES_DIR": "/workspaces/CamOnPrefect/dbt"
   },
   "remoteUser": "vscode",
   "updateRemoteUserUID": true,
