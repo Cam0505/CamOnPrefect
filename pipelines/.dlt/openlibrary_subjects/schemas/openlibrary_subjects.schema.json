@@ -1,0 +1,283 @@
+{
+  "version": 5,
+  "version_hash": "wlHAW9z/2GiEMfEh08Mbh72RKgSemO/J2tK02Vddemw=",
+  "engine_version": 11,
+  "name": "openlibrary_subjects",
+  "tables": {
+    "_dlt_version": {
+      "name": "_dlt_version",
+      "columns": {
+        "version": {
+          "name": "version",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "engine_version": {
+          "name": "engine_version",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "inserted_at": {
+          "name": "inserted_at",
+          "data_type": "timestamp",
+          "nullable": false
+        },
+        "schema_name": {
+          "name": "schema_name",
+          "data_type": "text",
+          "nullable": false
+        },
+        "version_hash": {
+          "name": "version_hash",
+          "data_type": "text",
+          "nullable": false
+        },
+        "schema": {
+          "name": "schema",
+          "data_type": "text",
+          "nullable": false
+        }
+      },
+      "write_disposition": "skip",
+      "resource": "_dlt_version",
+      "description": "Created by DLT. Tracks schema updates"
+    },
+    "_dlt_loads": {
+      "name": "_dlt_loads",
+      "columns": {
+        "load_id": {
+          "name": "load_id",
+          "data_type": "text",
+          "nullable": false
+        },
+        "schema_name": {
+          "name": "schema_name",
+          "data_type": "text",
+          "nullable": true
+        },
+        "status": {
+          "name": "status",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "inserted_at": {
+          "name": "inserted_at",
+          "data_type": "timestamp",
+          "nullable": false
+        },
+        "schema_version_hash": {
+          "name": "schema_version_hash",
+          "data_type": "text",
+          "nullable": true
+        }
+      },
+      "write_disposition": "skip",
+      "resource": "_dlt_loads",
+      "description": "Created by DLT. Tracks completed loads"
+    },
+    "openlibrary_data": {
+      "columns": {
+        "work_id": {
+          "name": "work_id",
+          "nullable": false,
+          "primary_key": true,
+          "data_type": "text"
+        },
+        "_dlt_load_id": {
+          "name": "_dlt_load_id",
+          "data_type": "text",
+          "nullable": false
+        },
+        "_dlt_id": {
+          "name": "_dlt_id",
+          "data_type": "text",
+          "nullable": false,
+          "unique": true,
+          "row_key": true
+        }
+      },
+      "write_disposition": "merge",
+      "name": "openlibrary_data",
+      "resource": "book_subjects",
+      "x-normalizer": {
+        "seen-data": true
+      }
+    },
+    "_dlt_pipeline_state": {
+      "columns": {
+        "version": {
+          "name": "version",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "engine_version": {
+          "name": "engine_version",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "pipeline_name": {
+          "name": "pipeline_name",
+          "data_type": "text",
+          "nullable": false
+        },
+        "state": {
+          "name": "state",
+          "data_type": "text",
+          "nullable": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "data_type": "timestamp",
+          "nullable": false
+        },
+        "version_hash": {
+          "name": "version_hash",
+          "data_type": "text",
+          "nullable": true
+        },
+        "_dlt_load_id": {
+          "name": "_dlt_load_id",
+          "data_type": "text",
+          "nullable": false
+        },
+        "_dlt_id": {
+          "name": "_dlt_id",
+          "data_type": "text",
+          "nullable": false,
+          "unique": true,
+          "row_key": true
+        }
+      },
+      "write_disposition": "append",
+      "file_format": "preferred",
+      "name": "_dlt_pipeline_state",
+      "resource": "_dlt_pipeline_state",
+      "x-normalizer": {
+        "seen-data": true
+      }
+    },
+    "openlibrary_data__subjects": {
+      "name": "openlibrary_data__subjects",
+      "columns": {
+        "value": {
+          "name": "value",
+          "data_type": "text",
+          "nullable": true
+        },
+        "_dlt_root_id": {
+          "name": "_dlt_root_id",
+          "data_type": "text",
+          "nullable": false,
+          "root_key": true
+        },
+        "_dlt_parent_id": {
+          "name": "_dlt_parent_id",
+          "data_type": "text",
+          "nullable": false,
+          "parent_key": true
+        },
+        "_dlt_list_idx": {
+          "name": "_dlt_list_idx",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "_dlt_id": {
+          "name": "_dlt_id",
+          "data_type": "text",
+          "nullable": false,
+          "unique": true,
+          "row_key": true
+        }
+      },
+      "parent": "openlibrary_data",
+      "x-normalizer": {
+        "seen-data": true
+      }
+    },
+    "subjects": {
+      "columns": {
+        "work_id": {
+          "name": "work_id",
+          "nullable": false,
+          "primary_key": true,
+          "data_type": "text"
+        },
+        "subject": {
+          "name": "subject",
+          "data_type": "text",
+          "nullable": false,
+          "primary_key": true
+        },
+        "_dlt_load_id": {
+          "name": "_dlt_load_id",
+          "data_type": "text",
+          "nullable": false
+        },
+        "_dlt_id": {
+          "name": "_dlt_id",
+          "data_type": "text",
+          "nullable": false,
+          "unique": true,
+          "row_key": true
+        }
+      },
+      "write_disposition": "merge",
+      "name": "subjects",
+      "resource": "book_subjects",
+      "x-normalizer": {
+        "seen-data": true
+      }
+    }
+  },
+  "settings": {
+    "detections": [
+      "iso_timestamp"
+    ],
+    "default_hints": {
+      "not_null": [
+        "_dlt_id",
+        "_dlt_root_id",
+        "_dlt_parent_id",
+        "_dlt_list_idx",
+        "_dlt_load_id"
+      ],
+      "parent_key": [
+        "_dlt_parent_id"
+      ],
+      "root_key": [
+        "_dlt_root_id"
+      ],
+      "unique": [
+        "_dlt_id"
+      ],
+      "row_key": [
+        "_dlt_id"
+      ]
+    }
+  },
+  "normalizers": {
+    "names": "snake_case",
+    "json": {
+      "module": "dlt.common.normalizers.json.relational",
+      "config": {
+        "propagation": {
+          "tables": {
+            "openlibrary_data": {
+              "_dlt_id": "_dlt_root_id"
+            },
+            "subjects": {
+              "_dlt_id": "_dlt_root_id"
+            }
+          }
+        }
+      }
+    }
+  },
+  "previous_hashes": [
+    "hV4r/AVulF94k92xNQK/0QCgQzHiDW5WTAjsSULcJ7o=",
+    "UUcfYr4vp9bnotTHPRQE4docQ38w+5hqxKJJA1yfw28=",
+    "98zA4S8ZgJ96lClSglM9q5c7atBcJWPMQzJtR0UYW4w=",
+    "/DojsYiBSq38R7nxlCzzWVQyihrgRzKq7DsbqcQ7bdY=",
+    "j1LXhEtLmRE2um1ZxkBtGQA4qB6MV5C2wIdKUYO+7VA="
+  ]
+}

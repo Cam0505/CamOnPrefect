@@ -1,6 +1,6 @@
 {
-  "version": 2,
-  "version_hash": "ZFerVSNovwpdjjehCnkTuttylQJHlHomMADAjnolDno=",
+  "version": 3,
+  "version_hash": "pyTPuZbg6nBCfHmxj4mZg+iVmqNYfDf4mfAhuOsHf9A=",
   "engine_version": 11,
   "name": "fbi_wanted",
   "tables": {
@@ -282,6 +282,16 @@
         },
         "complexion": {
           "name": "complexion",
+          "data_type": "text",
+          "nullable": true
+        },
+        "additional_information": {
+          "name": "additional_information",
+          "data_type": "text",
+          "nullable": true
+        },
+        "suspects": {
+          "name": "suspects",
           "data_type": "text",
           "nullable": true
         }
@@ -745,6 +755,44 @@
       "x-normalizer": {
         "seen-data": true
       }
+    },
+    "wanted__legat_names": {
+      "name": "wanted__legat_names",
+      "columns": {
+        "value": {
+          "name": "value",
+          "data_type": "text",
+          "nullable": true
+        },
+        "_dlt_root_id": {
+          "name": "_dlt_root_id",
+          "data_type": "text",
+          "nullable": false,
+          "root_key": true
+        },
+        "_dlt_parent_id": {
+          "name": "_dlt_parent_id",
+          "data_type": "text",
+          "nullable": false,
+          "parent_key": true
+        },
+        "_dlt_list_idx": {
+          "name": "_dlt_list_idx",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "_dlt_id": {
+          "name": "_dlt_id",
+          "data_type": "text",
+          "nullable": false,
+          "unique": true,
+          "row_key": true
+        }
+      },
+      "parent": "wanted",
+      "x-normalizer": {
+        "seen-data": true
+      }
     }
   },
   "settings": {
@@ -789,6 +837,7 @@
     }
   },
   "previous_hashes": [
+    "ZFerVSNovwpdjjehCnkTuttylQJHlHomMADAjnolDno=",
     "xwttnqA1pHEd7N0QHwNpoT2IAJxFTi+JJnCX7IVV7iE=",
     "xxLLdzwat6+Ap4qlf1Rnt5YPIsI+uJIpn76A0QfHEHk="
   ]

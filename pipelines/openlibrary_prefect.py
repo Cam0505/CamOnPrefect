@@ -5,10 +5,11 @@ import dlt
 import json
 import subprocess
 import time
+from pandas import DataFrame
 from dlt.sources.helpers import requests
 from typing import Iterator, Dict
 from path_config import DBT_DIR, ENV_FILE, REQUEST_CACHE_DIR, DLT_PIPELINE_DIR
-from helper_functions import write_profiles_yml, sanitize_filename, flow_summary
+from helper_functions import write_profiles_yml, sanitize_filename, flow_summary, dbt_run_task
 from dlt.destinations.exceptions import DatabaseUndefinedRelation
 from dlt.sources.helpers.rest_client.client import RESTClient
 from dlt.sources.helpers.rest_client.paginators import PageNumberPaginator
@@ -17,13 +18,14 @@ BASE_URL = "https://openlibrary.org/search.json"
 
 # Define your search terms and topics
 SEARCH_TOPICS = [
-    "Python",
+    "Python Programming",
     "Apache Airflow",
-    "Data Engineering",
-    "Data Warehousing",
-    "SQL",
-    "Dbt",
-    "JavaScript",
+    "Prefect Pythonic",
+    "SQL Programming",
+    "Dbtlabs",
+    "Terraform",
+    "DuckDB",
+    "PostgreSQL"
 ]
 
 PAGE_LIMIT = 100  # Number of results per page
@@ -117,7 +119,7 @@ def openlibrary_dim_source(logger, current_table):
 
 
 @task
-def openlibrary_books_task(logger) -> bool:
+def openlibrary_books_task(logger) -> DataFrame | None:
 
     logger.info("Starting DLT pipeline...")
     pipeline = dlt.pipeline(
@@ -147,78 +149,108 @@ def openlibrary_books_task(logger) -> bool:
     try:
         load_info = pipeline.run(source)
 
-        statuses = [source.state.get("books", {}).get(
-            "last_run_status", {}).get(term, '') for term in SEARCH_TOPICS]
+        statuses = {
+            term: source.state.get("books", {}).get("last_run_status", {}).get(term, '')
+            for term in SEARCH_TOPICS
+        }
 
-        if all(s == "skipped_no_new_data" for s in statuses):
-            logger.info(
-                "⏭️ All resources skipped or failed — no data loaded.")
-            return False
-        elif all(s == "failed" for s in statuses):
-            logger.error(
-                "💥 All resources failed to load — check API or network.")
-            return False
+        if all(status == "skipped_no_new_data" for status in statuses.values()):
+            logger.info("⏭️ All resources skipped — no new data.")
+            return None
+        elif all(status == "failed" for status in statuses.values()):
+            logger.error("💥 All resources failed to load.")
+            return None
 
-        loaded_count = sum(1 for s in statuses if s == "success")
-        logger.info(f"✅ Number of resources loaded: {loaded_count}")
+        successful_terms = [term for term, status in statuses.items() if status == "success"]
+        if not successful_terms:
+            return None
 
-        return True
+        logger.info(f"✅ Successfully loaded resources for: {successful_terms}")
+
+        # Fetch dataset again and filter for successful terms
+        full_df = pipeline.dataset()["books"].df()
+        if full_df is not None:
+            filtered_df = full_df[full_df["search_term"].isin(successful_terms)]
+            return DataFrame({
+                "search_term": filtered_df["search_term"],
+                "key": filtered_df["key"]
+            })
+        else:
+            logger.warning("⚠️ No data returned after successful load.")
+            return None
 
     except Exception as e:
         logger.error(f"❌ Pipeline run failed: {e}")
-        return False
+        return None
+
+
+
+@dlt.resource(
+    name="book_subjects",
+    write_disposition="merge",
+    primary_key=["work_id", "subject"],
+    table_name="subjects"
+)
+def openlibrary_work_metadata(logger, books_df) -> Iterator[Dict]:
+    os.makedirs(REQUEST_CACHE_DIR, exist_ok=True)
+
+    for row in books_df.itertuples():
+        work_key = getattr(row, "key", None)
+        if not work_key or not work_key.startswith("/works/"):
+            continue
+
+        work_id = work_key.split("/")[-1]
+        cache_path = REQUEST_CACHE_DIR / f"{sanitize_filename(work_id)}.json"
+        
+        if cache_path.exists():
+            with open(cache_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+        else:
+            try:
+                url = f"https://openlibrary.org/works/{work_id}.json"
+                response = requests.get(url, timeout=10)
+                response.raise_for_status()
+                data = response.json()
+
+                with open(cache_path, "w", encoding="utf-8") as f:
+                    json.dump(data, f, indent=2)
+
+                time.sleep(0.5)  # rate-limiting protection
+            except Exception as e:
+                yield {"work_id": work_id, "subjects": [], "error": str(e)}
+                continue
+
+        subjects = data.get("subjects", [])
+        if subjects:
+            for subject in subjects:
+                if subject:  # filters None, empty strings, etc.
+                    yield {"work_id": work_id, "subject": subject}
+        
+
 
 
 @task
-def dbt_openlibrary_data(logger, openlibrary_books_asset: bool) -> subprocess.CompletedProcess:
-    """Runs the dbt command after loading the data from Geo API."""
+def openlibrary_book_subjects_task(logger, books_df) -> bool:
 
-    if not openlibrary_books_asset:
-        logger.warning(
-            "\n⚠️  WARNING: DBT SKIPPED\n"
-            "📉 No data was loaded from OpenLibrary API.\n"
-            "🚫 Skipping dbt run.\n"
-            "----------------------------------------"
-        )
+    if books_df is None or books_df.empty:
+        logger.warning("📭 Skipping metadata pipeline: books_df is None or empty.")
+        return False
 
-        return subprocess.CompletedProcess(
-            args="dbt build --select source:fbi+ --profiles-dir .",
-            returncode=0,
-            stdout="DBT run skipped due to no new data.",
-            stderr="")
+    logger.info(f"🚀 Running DLT pipeline to fetch and load work metadata...")
 
-    iscloudrun = write_profiles_yml(logger=logger)
+    pipeline = dlt.pipeline(
+        pipeline_name="openlibrary_subjects",
+        destination=os.environ.get(
+            "DLT_DESTINATION") or os.getenv("DLT_DESTINATION"),
+        pipelines_dir=str(DLT_PIPELINE_DIR),
+        dataset_name="openlibrary_data"
+    )
 
-    logger.info(f"DBT Project Directory: {DBT_DIR}")
+    load_info = pipeline.run(openlibrary_work_metadata(logger, books_df))
+    logger.info(f"✅ DLT load complete: {load_info}")
+    return True
 
-    start = time.time()
-    try:
-        start = time.time()
-        if iscloudrun:
-            deps_result = subprocess.run(
-                "dbt deps",
-                shell=True,
-                cwd=DBT_DIR,
-                capture_output=True,
-                text=True,
-                check=True
-            )
 
-        result = subprocess.run(
-            "dbt build --select source:openlibrary+",
-            shell=True,
-            cwd=DBT_DIR,
-            capture_output=True,
-            text=True,
-            check=True
-        )
-
-        duration = round(time.time() - start, 2)
-        logger.info(f"dbt build completed in {duration}s")
-        return result if result else deps_result
-    except subprocess.CalledProcessError as e:
-        logger.error(f"dbt build failed:\n{e.stdout}\n{e.stderr}")
-        return result if result else deps_result
 
 
 @flow(name="openlibrary_prefect_flow", on_completion=[flow_summary], on_failure=[flow_summary])
@@ -226,10 +258,13 @@ def openlibrary_prefect_flow():
     logger = get_run_logger()
 
     # Run the OpenLibrary books task
-    openlibrary_books_task_result = openlibrary_books_task(logger)
+    openlibrary_books_task_df = openlibrary_books_task(logger)
+
+    openlibrary_book_subjects_task_result = openlibrary_book_subjects_task(logger, openlibrary_books_task_df)
 
     # Run the dbt task if data was loaded
-    return dbt_openlibrary_data(logger, openlibrary_books_task_result)
+    return dbt_run_task(logger, dbt_trigger=openlibrary_book_subjects_task_result, select_target="source:openlibrary+")
+    # return dbt_openlibrary_data(logger, openlibrary_book_subjects_task_result)
 
 
 if __name__ == "__main__":

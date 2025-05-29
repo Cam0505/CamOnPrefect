@@ -42,7 +42,8 @@
       "extensions": [
         "ms-python.python",
         "ms-python.vscode-pylance",
-        "dbtlabsinc.dbt",
+        "dbt-labs.dbt",
+        // "dbtlabsinc.dbt",
         "ms-azuretools.vscode-docker"  // Docker extension
       ]
     }
