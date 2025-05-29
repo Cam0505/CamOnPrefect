@@ -1,6 +1,6 @@
 import os
 import re
-from prefect import get_run_logger
+from prefect import get_run_logger, task
 import json
 from prefect.client.schemas.objects import State
 from prefect.flows import Flow
@@ -9,6 +9,9 @@ from prefect.client.schemas.objects import FlowRun
 # from typing import Optional
 from prefect.client.schemas.filters import FlowRunFilter, FlowRunFilterId
 import inspect
+import subprocess
+import time
+from path_config import DBT_DIR
 
 def write_profiles_yml(logger) -> bool:
     """Write dbt/profiles.yml from the DBT_PROFILES_YML environment variable, only in Prefect Cloud."""
@@ -73,3 +76,65 @@ async def flow_summary(flow, flow_run, state):
 
     logger.info("=== End Flow Summary ===")
     return result
+
+
+
+@task
+def dbt_run_task(logger, dbt_trigger: bool, select_target: str = "source:openlibrary+") -> subprocess.CompletedProcess:
+    """
+    Runs a parameterized dbt build command if the dbt_trigger is True.
+    Parameters:
+        logger: Logger object for logging messages.
+        dbt_trigger (bool): Whether to run dbt or skip it.
+        select_target (str): dbt --select target to run.
+    Returns:
+        subprocess.CompletedProcess: The result of the dbt subprocess run.
+    """
+
+    if not dbt_trigger:
+        logger.warning(
+            f"\n⚠️  WARNING: DBT SKIPPED\n"
+            f"📉 No data was loaded for {select_target}.\n"
+            f"🚫 Skipping dbt run.\n"
+            f"----------------------------------------"
+        )
+
+        return subprocess.CompletedProcess(
+            args=f"dbt build --select {select_target} --profiles-dir .",
+            returncode=0,
+            stdout="DBT run skipped due to no new data.",
+            stderr=""
+        )
+
+    iscloudrun = write_profiles_yml(logger=logger)
+
+    logger.info(f"DBT Project Directory: {DBT_DIR}")
+    start = time.time()
+
+    try:
+        if iscloudrun:
+            deps_result = subprocess.run(
+                "dbt deps",
+                shell=True,
+                cwd=DBT_DIR,
+                capture_output=True,
+                text=True,
+                check=True
+            )
+
+        result = subprocess.run(
+            f"dbt build --select {select_target}",
+            shell=True,
+            cwd=DBT_DIR,
+            capture_output=True,
+            text=True,
+            check=True
+        )
+
+        duration = round(time.time() - start, 2)
+        logger.info(f"dbt build for `{select_target}` completed in {duration}s")
+        return result if result else deps_result
+
+    except subprocess.CalledProcessError as e:
+        logger.error(f"dbt build for `{select_target}` failed:\n{e.stdout}\n{e.stderr}")
+        return result if result else deps_result

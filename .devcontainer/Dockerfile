@@ -13,9 +13,9 @@ COPY requirements.txt .
 RUN pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
-USER vscode
-RUN curl -fsSL https://public.cdn.getdbt.com/fs/install/install.sh | sh -s -- --update
-ENV PATH="/home/vscode/.local/bin:${PATH}"
+# USER vscode
+# RUN curl -fsSL https://public.cdn.getdbt.com/fs/install/install.sh | sh -s -- --update
+# ENV PATH="/home/vscode/.local/bin:${PATH}"
 
 
 WORKDIR /workspaces/CamOnPrefect
