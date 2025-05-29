@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 import dlt
 from dlt.sources.helpers.rest_client.paginators import PageNumberPaginator
 from dlt.sources.helpers.rest_client.client import RESTClient
+from dlt.sources.helpers import requests
 from prefect import flow, task, get_run_logger
 from dlt.pipeline.exceptions import PipelineNeverRan
 from dlt.destinations.exceptions import DatabaseUndefinedRelation
@@ -13,43 +14,52 @@ from helper_functions import write_profiles_yml, sanitize_filename, flow_summary
 
 # load_dotenv(ENV_FILE)
 
-BASE_URL = "https://api.fbi.gov/"
-ENDPOINT = "/wanted/v1/list"
+BASE_URL = "https://api.fbi.gov/wanted/v1/list"
+PAGE_LIMIT = 50
 
+
+def get_total_count(base_url, timeout=10):
+    response = requests.get(base_url, timeout=timeout)
+    response.raise_for_status()
+    return int(response.json().get("total", 0))
 
 
 @dlt.resource(name="wanted", write_disposition="merge", primary_key="uid", table_name="wanted")
 def wanted(logger, db_count: int):
     state = dlt.current.source_state().setdefault("wanted", {
-                # we will store tuples like f"{uid}|{status}"
+        # we will store tuples like f"{uid}|{status}"
         "seen_keys": [],
         'last_run_Status': None
     })
     # logger.info(f"Current state: {len(state.get('seen_keys', []))}")
     seen_keys = set(state.setdefault("seen_keys", []))
-    state["seen_keys"] = list(seen_keys) # Testing
+    state["seen_keys"] = list(seen_keys)  # Testing
     # logger.info(f"Current state after deduplication: {len(state.get('seen_keys', []))}")
     new_keys = set()
 
+    count = get_total_count(BASE_URL)
+    max_pages = (count + PAGE_LIMIT - 1) // PAGE_LIMIT
 
     client = RESTClient(
         base_url=BASE_URL,
         paginator=PageNumberPaginator(
-            page_param="page", 
-            page=1, 
-            maximum_page=5,
-            stop_after_empty_page=True
+            base_page=1,
+            page_param="page",
+            page=1,
+            total_path=None,
+            stop_after_empty_page=True,
+            maximum_page=max_pages
         ),
         data_selector="items",
         headers={
-        "Accept": "application/json",
-        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "Accept": "application/json",
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                       "AppleWebKit/537.36 (KHTML, like Gecko) "
                       "Chrome/115.0.0.0 Safari/537.36"
         }
     )
     try:
-        for page in client.paginate(ENDPOINT):
+        for page in client.paginate(data_selector="items"):
             for item in page:
                 # Prevents repeatedly processing the same item while allowing for updates of dbt snapshot columns
                 # Status and Poster Classification
@@ -61,22 +71,22 @@ def wanted(logger, db_count: int):
                 new_keys.add(key)
                 yield item
         # Ok lets troubleshoot why it's not working by seeing all keys
-        
+
         if new_keys:
-            state["seen_keys"] = list(seen_keys.union(new_keys))  # update persistent state with new keys
+            # update persistent state with new keys
+            state["seen_keys"] = list(seen_keys.union(new_keys))
             state["last_run_Status"] = "success"
-        else:   
+        else:
             state["last_run_Status"] = "skipped"
     except Exception as e:
         logger.error(f"❌ Error during resource extraction: {e}")
         state["last_run_Status"] = "failed"
     return
 
+
 @dlt.source(name="fbi_wanted")
 def fbi_wanted_source(logger, db_count):
     return wanted(logger=logger, db_count=db_count)
-
-
 
 
 @task
@@ -84,7 +94,8 @@ def run_dlt_pipeline(logger):
 
     pipeline = dlt.pipeline(
         pipeline_name="fbi_wanted_pipeline",
-        destination=os.environ.get("DLT_DESTINATION") or os.getenv("DLT_DESTINATION"),
+        destination=os.environ.get(
+            "DLT_DESTINATION") or os.getenv("DLT_DESTINATION"),
         dataset_name="fbi_data",
         dev_mode=False,
         pipelines_dir=str(DLT_PIPELINE_DIR)
@@ -111,8 +122,8 @@ def run_dlt_pipeline(logger):
             "⚠️ No tables found yet in dataset — assuming first run.")
         row_counts_dict = {}
 
-
-    source = fbi_wanted_source(logger, db_count=row_counts_dict.get('wanted', -1))
+    source = fbi_wanted_source(
+        logger, db_count=row_counts_dict.get('wanted', -1))
 
     try:
         pipeline.run(source)
@@ -134,7 +145,6 @@ def run_dlt_pipeline(logger):
         return False
 
 
-
 @task
 def dbt_fbi(logger, run_dlt_pipeline: bool) -> subprocess.CompletedProcess:
     """Runs dbt models for FBI data after loading data."""
@@ -150,7 +160,7 @@ def dbt_fbi(logger, run_dlt_pipeline: bool) -> subprocess.CompletedProcess:
             returncode=0,
             stdout="DBT run skipped due to no new data.",
             stderr="")
-    
+
     iscloudrun = write_profiles_yml(logger=logger)
 
     logger.info(f"📁 DBT Project Directory: {DBT_DIR}")
@@ -181,7 +191,6 @@ def dbt_fbi(logger, run_dlt_pipeline: bool) -> subprocess.CompletedProcess:
     except subprocess.CalledProcessError as e:
         logger.error(f"❌ dbt build failed:\n{e.stdout}\n{e.stderr}")
         return result if result else deps_result
-
 
 
 @flow(name="fbi_flow", on_completion=[flow_summary], on_failure=[flow_summary])
