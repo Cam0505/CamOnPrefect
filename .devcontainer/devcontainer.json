@@ -27,7 +27,11 @@
   "customizations": {
     "vscode": {
       "settings": {
+        "dbt.executablePath": "/usr/local/bin/dbt",
+        "dbt.pythonPath": "/usr/local/bin/python",
         "dbt.profilesDir": "${containerWorkspaceFolder}/dbt",
+        "dbt.projectDir": "${containerWorkspaceFolder}",
+        "dbt.enableTelemetry": false,
         "python.linting.enabled": true,
         "terminal.integrated.defaultProfile.linux": "bash",
         "python.envFile": "${containerWorkspaceFolder}/.env",
@@ -38,7 +42,7 @@
       "extensions": [
         "ms-python.python",
         "ms-python.vscode-pylance",
-        "dbt-labs.dbt",
+        "dbtlabsinc.dbt",
         "ms-azuretools.vscode-docker"  // Docker extension
       ]
     }
@@ -53,7 +57,9 @@
     "GOOGLE_API_KEY": "${localEnv:GOOGLE_API_KEY}",
     "MD": "${localEnv:MD}",
     "PYTHONPATH": "/workspaces/CamOnPrefect",
-    "DOCKER_BUILDKIT": "1"  // Enable Docker buildkit
+    "DOCKER_BUILDKIT": "1",  // Enable Docker buildkit
+    "DBT_PROFILES_DIR": "/workspaces/CamOnPrefect/dbt",
+    "DBT_USE_COLORS": "true"
   },
   "remoteUser": "vscode",
   "updateRemoteUserUID": true,

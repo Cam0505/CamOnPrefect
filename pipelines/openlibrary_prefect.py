@@ -38,17 +38,19 @@ def openlibrary_dim_source(logger, current_table):
             "count": {},
             "last_run_status": {}
         })
-        
+
         for term in SEARCH_TOPICS:
-            
+
             if current_table is None:
                 current_table_count = 0
             else:
                 current_table_count = current_table.get(term, 0)
-            logger.info(f"📊 Current table count for '{term}': {current_table_count}")
-            try: 
-                
-                initial_response = requests.get(BASE_URL, params={"q": term, "limit": PAGE_LIMIT}, timeout=15)
+            logger.info(
+                f"📊 Current table count for '{term}': {current_table_count}")
+            try:
+
+                initial_response = requests.get(
+                    BASE_URL, params={"q": term, "limit": PAGE_LIMIT}, timeout=15)
                 initial_response.raise_for_status()
                 count = initial_response.json().get("numFound", 0)
 
@@ -56,7 +58,6 @@ def openlibrary_dim_source(logger, current_table):
                 max_pages = (count + PAGE_LIMIT - 1) // PAGE_LIMIT
 
                 previous_count = state["count"].get(term, 0)
-                
 
                 if previous_count < count:
                     logger.info(
@@ -75,7 +76,6 @@ def openlibrary_dim_source(logger, current_table):
                     state["last_run_status"][term] = "skipped_no_new_data"
                     continue
 
-
                 client = RESTClient(
                     base_url="https://openlibrary.org/search.json?",
                     paginator=PageNumberPaginator(
@@ -88,16 +88,26 @@ def openlibrary_dim_source(logger, current_table):
                     ), data_selector="docs"
                 )
 
-                logger.info(f"📚 Loading paginated data for '{term}' ({current_table_count} ➝ {count})")
+                logger.info(
+                    f"📚 Loading paginated data for '{term}' ({current_table_count} ➝ {count})")
 
                 for page in client.paginate(params={"q": term, "limit": 100}, data_selector="docs"):
                     for doc in page.response.json()["docs"]:
-                        doc["search_term"] = term
-                        yield doc
+                        # Main Table
+                        yield {
+                            "search_term": term,
+                            "key": doc.get("key"),
+                            "title": doc.get("title"),
+                            "ebook_access": doc.get("ebook_access"),
+                            "first_publish_year": doc.get("first_publish_year"),
+                            "has_fulltext": doc.get("has_fulltext", False),
+                            "authors": [{"name": a} for a in doc.get("author_name", [])],
+                            "languages": [{"code": l} for l in doc.get("language", [])]
+                        }
 
                 state["count"][term] = count
                 state["last_run_status"][term] = "success"
-                
+
             except Exception as e:
                 logger.error(f"❌ Fetch failed for '{term}': {e}")
                 state["last_run_status"][term] = "failed"
@@ -112,7 +122,8 @@ def openlibrary_books_task(logger) -> bool:
     logger.info("Starting DLT pipeline...")
     pipeline = dlt.pipeline(
         pipeline_name="openlibrary_incremental",
-        destination=os.environ.get("DLT_DESTINATION") or os.getenv("DLT_DESTINATION"),
+        destination=os.environ.get(
+            "DLT_DESTINATION") or os.getenv("DLT_DESTINATION"),
         pipelines_dir=str(DLT_PIPELINE_DIR),
         dataset_name="openlibrary_data"
     )
@@ -175,7 +186,7 @@ def dbt_openlibrary_data(logger, openlibrary_books_asset: bool) -> subprocess.Co
             returncode=0,
             stdout="DBT run skipped due to no new data.",
             stderr="")
-    
+
     iscloudrun = write_profiles_yml(logger=logger)
 
     logger.info(f"DBT Project Directory: {DBT_DIR}")
@@ -192,7 +203,7 @@ def dbt_openlibrary_data(logger, openlibrary_books_asset: bool) -> subprocess.Co
                 text=True,
                 check=True
             )
-            
+
         result = subprocess.run(
             "dbt build --select source:openlibrary+",
             shell=True,

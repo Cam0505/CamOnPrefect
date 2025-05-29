@@ -3,7 +3,7 @@ import pandas as pd
 import gspread
 from google.oauth2.service_account import Credentials
 from prefect import flow, task, get_run_logger
-import os 
+import os
 import subprocess
 from dotenv import load_dotenv
 import time as t
@@ -15,8 +15,6 @@ from helper_functions import write_profiles_yml, sanitize_filename
 
 # Load environment variables
 load_dotenv(dotenv_path=ENV_FILE)
-
-
 
 
 def is_within_asx_hours() -> bool:
@@ -32,7 +30,7 @@ def is_within_asx_hours() -> bool:
 
 @dlt.source
 def gsheet_finance_source(logger=None):
-    @dlt.resource(write_disposition="append", name="gsheets_finance")
+    @dlt.resource(write_disposition="merge", primary_key='id', name="gsheets_finance")
     def gsheet_finance_resource():
         # Initialize state within the source context
         state = dlt.current.source_state().setdefault("gsheet_finance", {
@@ -127,7 +125,8 @@ def extract_data_from_gsheet(logger) -> bool:
     """Extract data from Google Sheets and return as DataFrame"""
     pipeline = dlt.pipeline(
         pipeline_name="gsheets_pipeline",
-        destination=os.environ.get("DLT_DESTINATION") or os.getenv("DLT_DESTINATION"),
+        destination=os.environ.get(
+            "DLT_DESTINATION") or os.getenv("DLT_DESTINATION"),
         dataset_name="google_sheets_data", dev_mode=False,
         pipelines_dir=str(DLT_PIPELINE_DIR)
     )
@@ -166,7 +165,7 @@ def run_dbt_command(should_run: bool, logger) -> None:
             "----------------------------------------"
         )
         return
-    
+
     iscloudrun = write_profiles_yml(logger=logger)
     logger.info(f"📁 DBT Project Directory: {DBT_DIR}")
 
@@ -191,13 +190,14 @@ def run_dbt_command(should_run: bool, logger) -> None:
             check=True,
             timeout=120
         )
-        
+
         duration = round(t.time() - start, 2)
         logger.info(f"dbt build completed in {duration}s")
         logger.info(result.stdout)
     except subprocess.CalledProcessError as e:
         logger.error(f"dbt build failed:\n{e.stdout}\n{e.stderr}")
         raise
+
 
 @flow(name="gsheets-financial-flow")
 def main_flow() -> None:
@@ -212,6 +212,7 @@ def main_flow() -> None:
     except Exception as e:
         logger.error(f"Pipeline failed: {e}")
         raise
+
 
 if __name__ == "__main__":
     # os.environ["PREFECT_API_URL"] = ""

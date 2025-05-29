@@ -12,6 +12,6 @@
 
 SELECT id as location_id, name as location_name, type as location_type, 
 dimension as location_dimension, url as location_url
-,created AT TIME ZONE 'UTC' AT TIME ZONE 'Australia/Melbourne' AS location_created
+,{{ convert_to_melbourne('created') }} AS location_created
 ,"_dlt_id" as location_dlt_id
 FROM {{ source("rick_and_morty", "location") }}
