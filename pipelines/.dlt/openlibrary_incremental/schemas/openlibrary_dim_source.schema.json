@@ -1,6 +1,6 @@
 {
-  "version": 3,
-  "version_hash": "/JbbVy9PAN7c141caTrOlqwCaVfCwrjf2cvX1kYIfeg=",
+  "version": 2,
+  "version_hash": "rE4/mlgCIiT6FGeg8dtXRDrfh5KFZhlwp25XnvCEJTw=",
   "engine_version": 11,
   "name": "openlibrary_dim_source",
   "tables": {
@@ -77,24 +77,25 @@
     },
     "books": {
       "columns": {
-        "cover_edition_key": {
-          "name": "cover_edition_key",
+        "search_term": {
+          "name": "search_term",
           "data_type": "text",
           "nullable": true
         },
-        "cover_i": {
-          "name": "cover_i",
-          "data_type": "bigint",
+        "key": {
+          "name": "key",
+          "nullable": false,
+          "primary_key": true,
+          "data_type": "text"
+        },
+        "title": {
+          "name": "title",
+          "data_type": "text",
           "nullable": true
         },
         "ebook_access": {
           "name": "ebook_access",
           "data_type": "text",
-          "nullable": true
-        },
-        "edition_count": {
-          "name": "edition_count",
-          "data_type": "bigint",
           "nullable": true
         },
         "first_publish_year": {
@@ -105,37 +106,6 @@
         "has_fulltext": {
           "name": "has_fulltext",
           "data_type": "bool",
-          "nullable": true
-        },
-        "ia_collection_s": {
-          "name": "ia_collection_s",
-          "data_type": "text",
-          "nullable": true
-        },
-        "key": {
-          "name": "key",
-          "nullable": false,
-          "primary_key": true,
-          "data_type": "text"
-        },
-        "lending_edition_s": {
-          "name": "lending_edition_s",
-          "data_type": "text",
-          "nullable": true
-        },
-        "lending_identifier_s": {
-          "name": "lending_identifier_s",
-          "data_type": "text",
-          "nullable": true
-        },
-        "public_scan_b": {
-          "name": "public_scan_b",
-          "data_type": "bool",
-          "nullable": true
-        },
-        "title": {
-          "name": "title",
-          "data_type": "text",
           "nullable": true
         },
         "_dlt_load_id": {
@@ -149,16 +119,6 @@
           "nullable": false,
           "unique": true,
           "row_key": true
-        },
-        "subtitle": {
-          "name": "subtitle",
-          "data_type": "text",
-          "nullable": true
-        },
-        "search_term": {
-          "name": "search_term",
-          "data_type": "text",
-          "nullable": true
         }
       },
       "write_disposition": "merge",
@@ -221,11 +181,11 @@
         "seen-data": true
       }
     },
-    "books__author_key": {
-      "name": "books__author_key",
+    "books__authors": {
+      "name": "books__authors",
       "columns": {
-        "value": {
-          "name": "value",
+        "name": {
+          "name": "name",
           "data_type": "text",
           "nullable": true
         },
@@ -259,201 +219,11 @@
         "seen-data": true
       }
     },
-    "books__author_name": {
-      "name": "books__author_name",
+    "books__languages": {
+      "name": "books__languages",
       "columns": {
-        "value": {
-          "name": "value",
-          "data_type": "text",
-          "nullable": true
-        },
-        "_dlt_root_id": {
-          "name": "_dlt_root_id",
-          "data_type": "text",
-          "nullable": false,
-          "root_key": true
-        },
-        "_dlt_parent_id": {
-          "name": "_dlt_parent_id",
-          "data_type": "text",
-          "nullable": false,
-          "parent_key": true
-        },
-        "_dlt_list_idx": {
-          "name": "_dlt_list_idx",
-          "data_type": "bigint",
-          "nullable": false
-        },
-        "_dlt_id": {
-          "name": "_dlt_id",
-          "data_type": "text",
-          "nullable": false,
-          "unique": true,
-          "row_key": true
-        }
-      },
-      "parent": "books",
-      "x-normalizer": {
-        "seen-data": true
-      }
-    },
-    "books__ia": {
-      "name": "books__ia",
-      "columns": {
-        "value": {
-          "name": "value",
-          "data_type": "text",
-          "nullable": true
-        },
-        "_dlt_root_id": {
-          "name": "_dlt_root_id",
-          "data_type": "text",
-          "nullable": false,
-          "root_key": true
-        },
-        "_dlt_parent_id": {
-          "name": "_dlt_parent_id",
-          "data_type": "text",
-          "nullable": false,
-          "parent_key": true
-        },
-        "_dlt_list_idx": {
-          "name": "_dlt_list_idx",
-          "data_type": "bigint",
-          "nullable": false
-        },
-        "_dlt_id": {
-          "name": "_dlt_id",
-          "data_type": "text",
-          "nullable": false,
-          "unique": true,
-          "row_key": true
-        }
-      },
-      "parent": "books",
-      "x-normalizer": {
-        "seen-data": true
-      }
-    },
-    "books__language": {
-      "name": "books__language",
-      "columns": {
-        "value": {
-          "name": "value",
-          "data_type": "text",
-          "nullable": true
-        },
-        "_dlt_root_id": {
-          "name": "_dlt_root_id",
-          "data_type": "text",
-          "nullable": false,
-          "root_key": true
-        },
-        "_dlt_parent_id": {
-          "name": "_dlt_parent_id",
-          "data_type": "text",
-          "nullable": false,
-          "parent_key": true
-        },
-        "_dlt_list_idx": {
-          "name": "_dlt_list_idx",
-          "data_type": "bigint",
-          "nullable": false
-        },
-        "_dlt_id": {
-          "name": "_dlt_id",
-          "data_type": "text",
-          "nullable": false,
-          "unique": true,
-          "row_key": true
-        }
-      },
-      "parent": "books",
-      "x-normalizer": {
-        "seen-data": true
-      }
-    },
-    "books__id_project_gutenberg": {
-      "name": "books__id_project_gutenberg",
-      "columns": {
-        "value": {
-          "name": "value",
-          "data_type": "text",
-          "nullable": true
-        },
-        "_dlt_root_id": {
-          "name": "_dlt_root_id",
-          "data_type": "text",
-          "nullable": false,
-          "root_key": true
-        },
-        "_dlt_parent_id": {
-          "name": "_dlt_parent_id",
-          "data_type": "text",
-          "nullable": false,
-          "parent_key": true
-        },
-        "_dlt_list_idx": {
-          "name": "_dlt_list_idx",
-          "data_type": "bigint",
-          "nullable": false
-        },
-        "_dlt_id": {
-          "name": "_dlt_id",
-          "data_type": "text",
-          "nullable": false,
-          "unique": true,
-          "row_key": true
-        }
-      },
-      "parent": "books",
-      "x-normalizer": {
-        "seen-data": true
-      }
-    },
-    "books__id_librivox": {
-      "name": "books__id_librivox",
-      "columns": {
-        "value": {
-          "name": "value",
-          "data_type": "text",
-          "nullable": true
-        },
-        "_dlt_root_id": {
-          "name": "_dlt_root_id",
-          "data_type": "text",
-          "nullable": false,
-          "root_key": true
-        },
-        "_dlt_parent_id": {
-          "name": "_dlt_parent_id",
-          "data_type": "text",
-          "nullable": false,
-          "parent_key": true
-        },
-        "_dlt_list_idx": {
-          "name": "_dlt_list_idx",
-          "data_type": "bigint",
-          "nullable": false
-        },
-        "_dlt_id": {
-          "name": "_dlt_id",
-          "data_type": "text",
-          "nullable": false,
-          "unique": true,
-          "row_key": true
-        }
-      },
-      "parent": "books",
-      "x-normalizer": {
-        "seen-data": true
-      }
-    },
-    "books__id_standard_ebooks": {
-      "name": "books__id_standard_ebooks",
-      "columns": {
-        "value": {
-          "name": "value",
+        "code": {
+          "name": "code",
           "data_type": "text",
           "nullable": true
         },
@@ -530,7 +300,6 @@
     }
   },
   "previous_hashes": [
-    "fN0NkJwPsqHB7II1FrpECM95no9nMXXkqAPggeUIFFA=",
     "ibz1+h4wxNMDkDDX4cIMecJZeqDd4JxV8jFfMp3dotg=",
     "y4JRtOEtlYu5s8tWOoPLbMIVLhBhcOvsUYjAgQyJ2+o="
   ]

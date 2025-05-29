@@ -3,7 +3,6 @@ from dotenv import load_dotenv
 import dlt
 import subprocess
 from typing import Dict, Tuple
-from pathlib import Path
 from datetime import datetime, timedelta, date
 from zoneinfo import ZoneInfo
 import json
@@ -14,7 +13,7 @@ from prefect import flow, task, get_run_logger
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dlt.pipeline.exceptions import PipelineNeverRan
 from path_config import DBT_DIR, ENV_FILE, DLT_PIPELINE_DIR
-from helper_functions import write_profiles_yml
+from helper_functions import write_profiles_yml, flow_summary
 
 
 load_dotenv(dotenv_path=ENV_FILE)
@@ -68,19 +67,19 @@ def json_converter(o):
 
 def get_weather_data(lat: float, lng: float, start_date: date, end_date: date, timezone: str):
     return requests.get(BASE_URL,
-                params={
-                    "latitude": lat,
-                    "longitude": lng,
-                    "start_date": start_date.strftime('%Y-%m-%d'),
-                    "end_date": end_date.strftime('%Y-%m-%d'),
-                    "daily": ",".join([
-                        "temperature_2m_max", "temperature_2m_min", "temperature_2m_mean",
-                        "precipitation_sum", "windspeed_10m_max", "windgusts_10m_max",
-                        "sunshine_duration", "uv_index_max"
-                    ]),
-                    "timezone": timezone
-                }
-            )
+                        params={
+                            "latitude": lat,
+                            "longitude": lng,
+                            "start_date": start_date.strftime('%Y-%m-%d'),
+                            "end_date": end_date.strftime('%Y-%m-%d'),
+                            "daily": ",".join([
+                                "temperature_2m_max", "temperature_2m_min", "temperature_2m_mean",
+                                "precipitation_sum", "windspeed_10m_max", "windgusts_10m_max",
+                                "sunshine_duration", "uv_index_max"
+                            ]),
+                            "timezone": timezone
+                        }
+                        )
 
 
 def split_into_yearly_chunks(start_date: date, end_date: date):
@@ -107,11 +106,13 @@ def fetch_city_chunk_data(city: str, city_info: dict, city_start: date, end_date
         )
         response.raise_for_status()
         if response.status_code != 200:
-            logger.error(f"🌐 Failed to fetch data for {city}: {response.status_code} {response.text}")
+            logger.error(
+                f"🌐 Failed to fetch data for {city}: {response.status_code} {response.text}")
             continue
         data = response.json()
         if not data or "daily" not in data:
-            logger.warning(f"⚠️ No data found for {city} between {chunk_start} and {chunk_end}")
+            logger.warning(
+                f"⚠️ No data found for {city} between {chunk_start} and {chunk_end}")
             continue
         daily_data = data["daily"]
         for i in range(len(daily_data["time"])):
@@ -162,7 +163,6 @@ def openmeteo_source(cities: dict, base_start_date: date, end_date: date, row_ma
                     expected_days = (end_date - base_start_date).days + 1
                     # In the DB
                     existing_days = (max_date - min_date).days + 1
-                    
 
                     if existing_days >= expected_days and max_date >= end_date:
                         logger.info(
@@ -173,7 +173,7 @@ def openmeteo_source(cities: dict, base_start_date: date, end_date: date, row_ma
                     city_start = max(
                         max_date + timedelta(days=1), base_start_date)
                     logger.info(
-                         f"🔄 Updating {city}: found {existing_days}/{(end_date - min_date).days + 1} days, starting from {city_start}"
+                        f"🔄 Updating {city}: found {existing_days}/{(end_date - min_date).days + 1} days, starting from {city_start}"
                     )
 
                 else:
@@ -220,7 +220,6 @@ def openmeteo_source(cities: dict, base_start_date: date, end_date: date, row_ma
     return weather_resource()
 
 
-
 @task
 def openmeteo_task(logger) -> bool:
 
@@ -236,9 +235,12 @@ def openmeteo_task(logger) -> bool:
     try:
         dataset = pipeline.dataset()["daily_weather"].df()
         if dataset is not None:
-            row_max_min = dataset.groupby("city").agg(min_date=("date", "min"), max_date=("date", "max")).reset_index()
-            row_max_min["min_date"] = pd.to_datetime(row_max_min["min_date"]).dt.date
-            row_max_min["max_date"] = pd.to_datetime(row_max_min["max_date"]).dt.date
+            row_max_min = dataset.groupby("city").agg(
+                min_date=("date", "min"), max_date=("date", "max")).reset_index()
+            row_max_min["min_date"] = pd.to_datetime(
+                row_max_min["min_date"]).dt.date
+            row_max_min["max_date"] = pd.to_datetime(
+                row_max_min["max_date"]).dt.date
             row_max_min_dict = {
                 str(k): v for k, v in (
                     row_max_min
@@ -252,8 +254,6 @@ def openmeteo_task(logger) -> bool:
             "⚠️ No previous runs found for this pipeline. Assuming first run.")
         row_max_min_dict = {}
 
-
-
     source = openmeteo_source(
         cities=cities,
         base_start_date=start_date,
@@ -266,7 +266,7 @@ def openmeteo_task(logger) -> bool:
         pipeline.run(source)
         outcome_data = source.state.get('Weather', {})
         logger.info("Weather State Metadata:\n" +
-                         json.dumps(outcome_data, indent=2, default=json_converter))
+                    json.dumps(outcome_data, indent=2, default=json_converter))
 
         statuses = [outcome_data.get("city_status", {}).get(
             city, '') for city in cities.keys()]
@@ -287,12 +287,12 @@ def openmeteo_task(logger) -> bool:
     except Exception as e:
         logger.error(f"\n\n ❌ Pipeline run failed: {e}")
         return False
-    
+
 
 @task
-def dbt_meteo_data(logger, openmeteo_task: bool) -> None:
+def dbt_meteo_data(logger, openmeteo_task: bool) -> subprocess.CompletedProcess:
     """Runs the dbt command after loading the data from OpenMeteo API."""
-    
+
     if not openmeteo_task:
         logger.warning(
             "\n⚠️  WARNING: DBT SKIPPED\n"
@@ -300,15 +300,19 @@ def dbt_meteo_data(logger, openmeteo_task: bool) -> None:
             "🚫 Skipping dbt run.\n"
             "----------------------------------------"
         )
-        return
-    
+        return subprocess.CompletedProcess(
+            args="dbt build --select source:fbi+ --profiles-dir .",
+            returncode=0,
+            stdout="DBT run skipped due to no new data.",
+            stderr="")
+
     iscloudrun = write_profiles_yml(logger=logger)
     logger.info(f"📁 DBT Project Directory: {DBT_DIR}")
 
     try:
         start = time.time()
         if iscloudrun:
-            subprocess.run(
+            deps_result = subprocess.run(
                 "dbt deps",
                 shell=True,
                 cwd=DBT_DIR,
@@ -326,13 +330,13 @@ def dbt_meteo_data(logger, openmeteo_task: bool) -> None:
         )
         duration = round(time.time() - start, 2)
         logger.info(f"dbt build completed in {duration}s")
-        logger.info(result.stdout)
+        return result if result else deps_result
     except subprocess.CalledProcessError as e:
         logger.error(f"dbt build failed:\n{e.stdout}\n{e.stderr}")
-        raise
+        return result if result else deps_result
 
 
-@flow(name="meteo-flow", timeout_seconds=35)
+@flow(name="meteo-flow", on_completion=[flow_summary], on_failure=[flow_summary])
 def meteo_flow():
     """
     Main flow to run the pipeline and dbt transformations.
@@ -344,13 +348,14 @@ def meteo_flow():
         # Run the DLT pipeline
         should_run = openmeteo_task(logger=logger)
 
-        # Run dbt transformations
-        dbt_meteo_data(logger, openmeteo_task=should_run)
+        return dbt_meteo_data(logger, should_run)
     except Exception as e:
         logger.error(f"Flow failed: {e}")
         raise
+
+
 if __name__ == "__main__":
     # os.environ["PREFECT_API_URL"] = ""
     meteo_flow()
-    time.sleep(30) # Dev pause
-    os._exit(0) # Dev exit
+    time.sleep(30)  # Dev pause
+    os._exit(0)  # Dev exit
