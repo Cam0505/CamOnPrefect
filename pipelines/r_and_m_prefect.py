@@ -4,16 +4,13 @@ from dotenv import load_dotenv
 from prefect import flow, task, get_run_logger
 import dlt
 import time
-import subprocess
 from dlt.sources.helpers.rest_client.paginators import JSONLinkPaginator
 from dlt.sources.helpers.rest_client.client import RESTClient
 from dlt.pipeline.exceptions import PipelineNeverRan
-from path_config import DBT_DIR, ENV_FILE, DLT_PIPELINE_DIR
-from helper_functions import write_profiles_yml
+from path_config import ENV_FILE, DLT_PIPELINE_DIR
+from helper_functions import flow_summary, dbt_run_task
 
 load_dotenv(dotenv_path="/workspaces/CamOnPrefect/.env")
-
-
 
 
 BASE_URL = "https://rickandmortyapi.com/api"
@@ -135,50 +132,7 @@ def rick_and_morty_task(logger) -> bool:
         return False
 
 
-@task
-def dbt_rick_and_morty_data(logger, rick_and_morty_asset: bool) -> None:
-    """Runs dbt models for Rick and Morty API after loading data."""
-
-    if not rick_and_morty_asset:
-        logger.warning(
-            "\n⚠️  WARNING: DBT SKIPPED\n"
-            "📉 No data was loaded from Rick and Morty API.\n"
-            "🚫 Skipping dbt run.\n"
-        )
-        return
-
-    iscloudrun = write_profiles_yml(logger=logger)
-    logger.info(f"📁 DBT Project Directory: {DBT_DIR}")
-
-    try:
-        start = time.time()
-        if iscloudrun:
-            subprocess.run(
-                "dbt deps",
-                shell=True,
-                cwd=DBT_DIR,
-                capture_output=True,
-                text=True,
-                check=True
-            )
-            
-        result = subprocess.run(
-            "dbt build --select source:rick_and_morty+",
-            shell=True,
-            cwd=DBT_DIR,
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        duration = round(time.time() - start, 2)
-        logger.info(f"✅ dbt build completed in {duration}s")
-        logger.info(result.stdout)
-    except subprocess.CalledProcessError as e:
-        logger.error(f"❌ dbt build failed:\n{e.stdout}\n{e.stderr}")
-        raise
-
-
-@flow(name="rick-and-morty-flow")
+@flow(name="rick-and-morty-flow", on_completion=[flow_summary], on_failure=[flow_summary])
 def rick_and_morty_flow():
     """Main flow to load data from Rick and Morty API and run dbt models."""
     logger = get_run_logger()
@@ -189,13 +143,11 @@ def rick_and_morty_flow():
         rick_and_morty_asset_result = rick_and_morty_task(logger)
 
         # Run dbt models
-        dbt_rick_and_morty_data(logger, rick_and_morty_asset_result)
+        return dbt_run_task(logger, dbt_trigger=rick_and_morty_asset_result, select_target="source:rick_and_morty+")
     except Exception as e:
         logger.error(f"Pipeline failed: {e}")
         raise
 
 
-
 if __name__ == "__main__":
-    os.environ["PREFECT_API_URL"] = ""
     rick_and_morty_flow()

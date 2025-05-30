@@ -1,16 +1,13 @@
 import os
 from dotenv import load_dotenv
 import dlt
-import time
 from datetime import datetime
 from zoneinfo import ZoneInfo
-import subprocess
-import json
 from dlt.sources.helpers import requests
 from prefect import flow, task, get_run_logger
 from dlt.pipeline.exceptions import PipelineNeverRan
-from path_config import DBT_DIR, ENV_FILE, DLT_PIPELINE_DIR
-from helper_functions import write_profiles_yml, flow_summary
+from path_config import ENV_FILE, DLT_PIPELINE_DIR
+from helper_functions import flow_summary, dbt_run_task
 
 load_dotenv(dotenv_path=ENV_FILE)
 BASE_URL = "https://api.openuv.io/api/v1/uv"
@@ -26,7 +23,6 @@ cities = [
     {"city": "Darwin", "lat": -12.4634, "lng": 130.8456}
 ]
 
-    
 
 def get_dates(logger):
     try:
@@ -61,8 +57,6 @@ def get_uv_data(lat: float, lng: float, dt: datetime, logger):
         return []
 
 
-
-
 @dlt.source
 def openuv_source(cities: list[dict], dates: list[datetime], logger):
 
@@ -90,7 +84,6 @@ def openuv_source(cities: list[dict], dates: list[datetime], logger):
     return uv_resource()
 
 
-
 @task
 def uv_task(logger) -> bool:
     """Loads UV data from OpenUV API using DLT."""
@@ -98,7 +91,8 @@ def uv_task(logger) -> bool:
 
     pipeline = dlt.pipeline(
         pipeline_name="openuv_pipeline",
-        destination=os.environ.get("DLT_DESTINATION") or os.getenv("DLT_DESTINATION"),
+        destination=os.environ.get(
+            "DLT_DESTINATION") or os.getenv("DLT_DESTINATION"),
         dataset_name="uv_data",
         dev_mode=False,
         pipelines_dir=str(DLT_PIPELINE_DIR)
@@ -115,58 +109,6 @@ def uv_task(logger) -> bool:
         return False
 
 
-
-
-@task
-def dbt_uv_data(logger, uv_task: bool) -> subprocess.CompletedProcess:
-    """Runs the dbt command after loading the data from UV API."""
-
-    if not uv_task:
-        logger.warning(
-            "\n⚠️  WARNING: DBT SKIPPED\n"
-            "📉 No data was loaded from UV API.\n"
-            "🚫 Skipping dbt run.\n"
-            "----------------------------------------"
-        )
-        return subprocess.CompletedProcess(
-            args="dbt build --select source:uv+ --profiles-dir .",
-            returncode=0,
-            stdout="DBT run skipped due to no new data.",
-            stderr=""
-        )
-    
-    iscloudrun = write_profiles_yml(logger=logger)
-
-    logger.info(f"DBT Project Directory: {DBT_DIR}")
-
-    start = time.time()
-    try:
-        if iscloudrun:
-            deps_result = subprocess.run(
-                "dbt deps",
-                shell=True,
-                cwd=DBT_DIR,
-                capture_output=True,
-                text=True,
-                check=True
-            )
-            
-        result = subprocess.run(
-            "dbt build --select source:uv+",
-            shell=True,
-            cwd=DBT_DIR,
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        duration = round(time.time() - start, 2)
-        logger.info(f"dbt build completed in {duration}s")
-        return result if result else deps_result
-    except subprocess.CalledProcessError as e:
-        logger.error(f"dbt build failed:\n{e.stdout}\n{e.stderr}")
-        return result if result else deps_result
-
-
 @flow(name="uv-flow", on_completion=[flow_summary], on_failure=[flow_summary])
 def uv_flow():
     """
@@ -179,7 +121,7 @@ def uv_flow():
     should_run = uv_task(logger=logger)
 
     # Run dbt transformations
-    return dbt_uv_data(logger, should_run)
+    return dbt_run_task(logger, dbt_trigger=should_run, select_target="source:uv+")
 
 
 if __name__ == "__main__":

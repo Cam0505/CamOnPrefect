@@ -4,13 +4,11 @@ import gspread
 from google.oauth2.service_account import Credentials
 from prefect import flow, task, get_run_logger
 import os
-import subprocess
 from dotenv import load_dotenv
-import time as t
 from datetime import datetime, time
 from zoneinfo import ZoneInfo
-from path_config import DBT_DIR, ENV_FILE, CREDENTIALS, DLT_PIPELINE_DIR
-from helper_functions import write_profiles_yml, sanitize_filename
+from path_config import ENV_FILE, CREDENTIALS, DLT_PIPELINE_DIR
+from helper_functions import dbt_run_task, sanitize_filename, flow_summary
 
 
 # Load environment variables
@@ -154,66 +152,19 @@ def extract_data_from_gsheet(logger) -> bool:
         return False
 
 
-@task
-def run_dbt_command(should_run: bool, logger) -> None:
-    """Execute dbt transformation"""
-    if not should_run:
-        logger.warning(
-            "\n⚠️  WARNING: DBT SKIPPED\n"
-            "📉 No data was loaded from Google Sheets.\n"
-            "🚫 Skipping dbt run.\n"
-            "----------------------------------------"
-        )
-        return
-
-    iscloudrun = write_profiles_yml(logger=logger)
-    logger.info(f"📁 DBT Project Directory: {DBT_DIR}")
-
-    try:
-        start = t.time()
-        if iscloudrun:
-            subprocess.run(
-                "dbt deps",
-                shell=True,
-                cwd=DBT_DIR,
-                capture_output=True,
-                text=True,
-                check=True
-            )
-
-        result = subprocess.run(
-            "dbt run --select source:gsheets+",
-            shell=True,
-            cwd=DBT_DIR,
-            capture_output=True,
-            text=True,
-            check=True,
-            timeout=120
-        )
-
-        duration = round(t.time() - start, 2)
-        logger.info(f"dbt build completed in {duration}s")
-        logger.info(result.stdout)
-    except subprocess.CalledProcessError as e:
-        logger.error(f"dbt build failed:\n{e.stdout}\n{e.stderr}")
-        raise
-
-
-@flow(name="gsheets-financial-flow")
-def main_flow() -> None:
+@flow(name="gsheets-financial-flow", on_completion=[flow_summary], on_failure=[flow_summary])
+def main_flow():
     """Main pipeline flow"""
     logger = get_run_logger()
-    # os.environ["PREFECT_API_URL"] = ""
     try:
         logger.info("Starting gsheets financial pipeline")
         outcome = extract_data_from_gsheet(logger)
-        run_dbt_command(outcome, logger)
-        logger.info("Pipeline completed successfully")
+        return dbt_run_task(logger, dbt_trigger=outcome, select_target="source:gsheets+")
+
     except Exception as e:
         logger.error(f"Pipeline failed: {e}")
         raise
 
 
 if __name__ == "__main__":
-    # os.environ["PREFECT_API_URL"] = ""
     main_flow()

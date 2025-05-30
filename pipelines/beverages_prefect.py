@@ -3,23 +3,20 @@ from dlt.sources.helpers import requests as dlt_requests
 from dotenv import load_dotenv
 import dlt
 import time
-import subprocess
 from prefect import flow, task, get_run_logger
 from dlt.pipeline.exceptions import PipelineNeverRan
 from dlt.destinations.exceptions import DatabaseUndefinedRelation
 import json
 from datetime import datetime, timedelta
-from path_config import DBT_DIR, ENV_FILE, REQUEST_CACHE_DIR, DLT_PIPELINE_DIR
-from helper_functions import write_profiles_yml, sanitize_filename, flow_summary
+from path_config import ENV_FILE, REQUEST_CACHE_DIR, DLT_PIPELINE_DIR
+from helper_functions import dbt_run_task, sanitize_filename, flow_summary
 
 load_dotenv(dotenv_path=ENV_FILE)
-
 
 
 API_KEY = os.getenv("BEVERAGE_API_KEY")
 if not API_KEY:
     raise ValueError("Environment variable BEVERAGE_API_KEY is not set.")
-
 
 
 TABLE_PARAMS = {
@@ -30,37 +27,39 @@ TABLE_PARAMS = {
 }
 
 DIMENSION_CONFIG = {
-        "ingredients": {
-            "sql_column": "strIngredient1",
-            "query_param": "i",
-            "source_key": "source_ingredient",
-            "resource_name": "ingredients_table",
-            "primary_key": ["id_drink", "source_ingredient"]
-        },
-        "alcoholic": {
-            "sql_column": "strAlcoholic",
-            "query_param": "a",
-            "source_key": "source_alcohol_type",
-            "resource_name": "alcoholic_table",
-            "primary_key": ["id_drink"]
-        },
-        "beverages": {
-            "sql_column": "strCategory",
-            "query_param": "c",
-            "source_key": "source_beverage_type",
-            "resource_name": "beverages_table",
-            "primary_key": ["id_drink"]
-        },
-        "glasses": {
-            "sql_column": "strGlass",
-            "query_param": "g",
-            "source_key": "source_glass",
-            "resource_name": "glass_table",
-            "primary_key": ["id_drink"]
-        }
+    "ingredients": {
+        "sql_column": "strIngredient1",
+        "query_param": "i",
+        "source_key": "source_ingredient",
+        "resource_name": "ingredients_table",
+        "primary_key": ["id_drink", "source_ingredient"]
+    },
+    "alcoholic": {
+        "sql_column": "strAlcoholic",
+        "query_param": "a",
+        "source_key": "source_alcohol_type",
+        "resource_name": "alcoholic_table",
+        "primary_key": ["id_drink"]
+    },
+    "beverages": {
+        "sql_column": "strCategory",
+        "query_param": "c",
+        "source_key": "source_beverage_type",
+        "resource_name": "beverages_table",
+        "primary_key": ["id_drink"]
+    },
+    "glasses": {
+        "sql_column": "strGlass",
+        "query_param": "g",
+        "source_key": "source_glass",
+        "resource_name": "glass_table",
+        "primary_key": ["id_drink"]
     }
+}
 
 # Would need to cache these in a Docker Image to work
+
+
 def fetch_and_extract(table: str, logger) -> list:
     # Check if the cache directory exists, if not, create it
     REQUEST_CACHE_DIR.mkdir(parents=True, exist_ok=True)
@@ -74,7 +73,8 @@ def fetch_and_extract(table: str, logger) -> list:
 
     # Check if the cache file exists and is less than 74 hours old
     if cache_file.exists():
-        logger.info(f"✅ Using cached response for table: {table} Param: {param} field: {field}")
+        logger.info(
+            f"✅ Using cached response for table: {table} Param: {param} field: {field}")
         file_mtime = datetime.fromtimestamp(cache_file.stat().st_mtime)
         if datetime.now() - file_mtime < timedelta(hours=72):
             with open(cache_file, "r") as f:
@@ -82,7 +82,6 @@ def fetch_and_extract(table: str, logger) -> list:
                 for key, value in data.items():
                     if isinstance(value, list) and all(isinstance(item, dict) for item in value):
                         return [item.get(field) for item in value if field in item]
-        
 
     url = f"https://www.thecocktaildb.com/api/json/v2/{API_KEY}/list.php?{param}"
 
@@ -105,7 +104,8 @@ def fetch_and_extract(table: str, logger) -> list:
 def resource_dim_request_cache(resource, query_param, value, logger):
     REQUEST_CACHE_DIR.mkdir(parents=True, exist_ok=True)
 
-    cache_file = REQUEST_CACHE_DIR / f"{resource}_{query_param}_{sanitize_filename(value)}.json"
+    cache_file = REQUEST_CACHE_DIR / \
+        f"{resource}_{query_param}_{sanitize_filename(value)}.json"
 
     # Check if the cache file exists and is less than 72 hours old
     if cache_file.exists():
@@ -114,9 +114,10 @@ def resource_dim_request_cache(resource, query_param, value, logger):
         if datetime.now() - file_mtime < timedelta(hours=72):
             with open(cache_file, "r") as f:
                 return json.load(f)
-    else: 
-        logger.info(f"❌ No cache found for {query_param}={value}, fetching from API...")
-    
+    else:
+        logger.info(
+            f"❌ No cache found for {query_param}={value}, fetching from API...")
+
     url = f"https://www.thecocktaildb.com/api/json/v2/{API_KEY}/filter.php?{query_param}={value}"
 
     try:
@@ -132,8 +133,7 @@ def resource_dim_request_cache(resource, query_param, value, logger):
         json.dump(data, f, indent=2)
 
     return data
-                
-                
+
 
 def create_dimension_resource(table_name, config, values, currentdbcount, logger):
     @dlt.resource(name=config["resource_name"], write_disposition="merge", primary_key=config["primary_key"])
@@ -154,12 +154,15 @@ def create_dimension_resource(table_name, config, values, currentdbcount, logger
         #     return
 
         total_records = 0
-        logger.info(f"Processing {len(values)} values for {config['resource_name']}...")
+        logger.info(
+            f"Processing {len(values)} values for {config['resource_name']}...")
         for value in values:
             try:
-                drinks = resource_dim_request_cache(config['resource_name'], config['query_param'], value, logger)
+                drinks = resource_dim_request_cache(
+                    config['resource_name'], config['query_param'], value, logger)
             except Exception as e:
-                logger.error(f"❌ Failed to fetch drinks for {config['query_param']}={value}: {e}")
+                logger.error(
+                    f"❌ Failed to fetch drinks for {config['query_param']}={value}: {e}")
                 continue
 
             if not drinks:
@@ -171,7 +174,7 @@ def create_dimension_resource(table_name, config, values, currentdbcount, logger
                     drink[config["source_key"]] = value
                     yield drink
                     total_records += 1
-      
+
         # Check Previous State:
         previous_value = state.get("processed_records", 0)
         if total_records == previous_value and currentdbcount == previous_value:
@@ -213,11 +216,11 @@ def dimension_data_source(logger, row_counts_dict: dict):
 @task
 def dimension_data(logger) -> bool:
 
-
     logger.info("Starting DLT pipeline...")
     pipeline = dlt.pipeline(
         pipeline_name="beverage_pipeline",
-        destination=os.environ.get("DLT_DESTINATION") or os.getenv("DLT_DESTINATION"),
+        destination=os.environ.get(
+            "DLT_DESTINATION") or os.getenv("DLT_DESTINATION"),
         dataset_name="beverage_data",
         pipelines_dir=str(DLT_PIPELINE_DIR),
         dev_mode=False
@@ -250,11 +253,12 @@ def dimension_data(logger) -> bool:
     try:
         load_info = pipeline.run(source)
         logger.info("Beverage State:\n" +
-                         json.dumps(source.state, indent=2))
-        statuses = [source.state.get(config["resource_name"], {}).get('last_run_status', None) for config in DIMENSION_CONFIG.values()]
+                    json.dumps(source.state, indent=2))
+        statuses = [source.state.get(config["resource_name"], {}).get(
+            'last_run_status', None) for config in DIMENSION_CONFIG.values()]
         logger.info(f"Resource Statuses: {statuses}")
         logger.info(f"Pipeline Load Info: {load_info}")
-      
+
         if any(s == "success" for s in statuses):
             logger.info(f"Pipeline Load Info: {load_info}")
             return True
@@ -329,46 +333,6 @@ def beverage_fact_data(logger, dimension_data: bool) -> bool:
         raise
 
 
-@task
-def dbt_beverage_data(logger, beverage_fact_data: bool):
-    """Runs the dbt command after loading the data from Beverage API."""
-    # return False
-    if not beverage_fact_data:
-        logger.warning(
-            "\n⚠️  WARNING: beverage_fact_data SKIPPED\n"
-            "📉 No data was loaded from beverage_fact_data.\n"
-            "🚫 Skipping DBT Build.\n"
-            "----------------------------------------"
-        )
-        return False
-
-    iscloudrun = write_profiles_yml(logger=logger)
-
-    logger.info(f"DBT Project Directory: {DBT_DIR}")
-    try:
-        if iscloudrun:
-                deps_result = subprocess.run(
-                    "dbt deps",
-                    shell=True,
-                    cwd=DBT_DIR,
-                    capture_output=True,
-                    text=True,
-                    check=True
-                )
-        result = subprocess.run(
-            "dbt build --select source:beverages+",
-            shell=True,
-            cwd=DBT_DIR,
-            capture_output=True,
-            text=True
-        )
-
-        return result if result else deps_result
-    except subprocess.CalledProcessError as e:
-        logger.error(f"dbt build failed:\n{e.stdout}\n{e.stderr}")
-        return result if result else deps_result
-
-
 @flow(name="beverages-flow", on_completion=[flow_summary], on_failure=[flow_summary])
 def beverages_flow():
     """Main flow to load data from Beverages API and run dbt models."""
@@ -380,14 +344,14 @@ def beverages_flow():
         beverages_task_result = dimension_data(logger)
 
         # Load fact data
-        beverage_fact_result = beverage_fact_data(logger, beverages_task_result)
+        beverage_fact_result = beverage_fact_data(
+            logger, beverages_task_result)
 
         # Run dbt models
-        return dbt_beverage_data(logger, beverage_fact_result)
+        return dbt_run_task(logger, dbt_trigger=beverage_fact_result, select_target="source:beverages+")
     except Exception as e:
         logger.error(f"Pipeline failed: {e}")
         raise
-
 
 
 if __name__ == "__main__":

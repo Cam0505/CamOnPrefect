@@ -6,8 +6,8 @@ from dlt.pipeline.exceptions import PipelineNeverRan
 import dlt
 import json
 from dlt.sources.helpers import requests
-from path_config import DBT_DIR, ENV_FILE, REQUEST_CACHE_DIR, DLT_PIPELINE_DIR
-from helper_functions import write_profiles_yml, sanitize_filename
+from path_config import ENV_FILE, REQUEST_CACHE_DIR, DLT_PIPELINE_DIR
+from helper_functions import sanitize_filename
 from dlt.destinations.exceptions import DatabaseUndefinedRelation
 
 # Constants
@@ -15,13 +15,12 @@ API_BASE_URL = "http://universities.hipolabs.com/search"
 CACHE_EXPIRY_HOURS = 72
 
 ALL_COUNTRIES = [
-    # "United States", 
+    # "United States",
     "Canada", "Australia", "New Zealand", "United Kingdom"
     # , "Germany", "France", "Italy",
     # "Spain", "Mexico", "China", "Japan", "South Korea",
     # "Russia", "Netherlands", "Sweden", "Norway", "Finland"
 ]
-
 
 
 def fetch_and_cache_universities(country: str, logger) -> List[Dict]:
@@ -54,7 +53,7 @@ def fetch_and_cache_universities(country: str, logger) -> List[Dict]:
 def university_source(logger):
     @dlt.resource(name="universities", write_disposition="replace")
     def universities_resource(countries: List[str] = ALL_COUNTRIES) -> Iterator[List[Dict]]:
-    
+
         state = dlt.current.source_state().setdefault("universities", {
             "processed_records": 0,
             "last_run_status": None,
@@ -69,14 +68,17 @@ def university_source(logger):
             logger.info(f"🔍 Processing universities for {country}")
             try:
                 universities = fetch_and_cache_universities(country, logger)
-                logger.info(f"✅ Found {len(universities)} universities in {country}")
+                logger.info(
+                    f"✅ Found {len(universities)} universities in {country}")
                 if universities:
                     yield universities  # yield list of dicts as one resource
                     total_processed += len(universities)
                     any_success = True
-                    logger.info(f"✅ Successfully processed {len(universities)} universities for {country}")
+                    logger.info(
+                        f"✅ Successfully processed {len(universities)} universities for {country}")
             except Exception as e:
-                logger.warning(f"⚠️ Failed to fetch universities for {country}: {str(e)}")
+                logger.warning(
+                    f"⚠️ Failed to fetch universities for {country}: {str(e)}")
                 state["failed_countries"].append(country)
 
         state["processed_records"] += total_processed
@@ -84,16 +86,17 @@ def university_source(logger):
         if not any_success:
             logger.warning("🚫 No data yielded — all countries failed.")
             return
-        logger.info(f"✅ {total_processed} records processed. ❌ Failed countries: {state['failed_countries']}")
+        logger.info(
+            f"✅ {total_processed} records processed. ❌ Failed countries: {state['failed_countries']}")
     return universities_resource
-
 
 
 @task
 def university_task(logger) -> bool:
     pipeline = dlt.pipeline(
         pipeline_name="universities_pipeline",
-        destination=os.environ.get("DLT_DESTINATION") or os.getenv("DLT_DESTINATION"),
+        destination=os.environ.get(
+            "DLT_DESTINATION") or os.getenv("DLT_DESTINATION"),
         pipelines_dir=str(DLT_PIPELINE_DIR),
         dev_mode=False
     )
@@ -143,6 +146,7 @@ def university_flow():
     except Exception as e:
         logger.error(f"Pipeline failed: {e}")
         raise
+
 
 if __name__ == "__main__":
     os.environ["PREFECT_API_URL"] = ""
