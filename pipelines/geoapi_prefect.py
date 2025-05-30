@@ -1,15 +1,12 @@
 import os
 from dotenv import load_dotenv
-import pandas as pd
 import dlt
-import time
-import subprocess
 import json
 from dlt.sources.helpers.requests import get
 from prefect import flow, task, get_run_logger
 from dlt.pipeline.exceptions import PipelineNeverRan
-from path_config import DBT_DIR, ENV_FILE, DLT_PIPELINE_DIR
-from helper_functions import write_profiles_yml, sanitize_filename, flow_summary
+from path_config import ENV_FILE, DLT_PIPELINE_DIR
+from helper_functions import dbt_run_task, flow_summary
 
 load_dotenv(dotenv_path=ENV_FILE)
 COUNTRIES = ["NZ", "AU", "GB", "CA"]
@@ -88,12 +85,12 @@ def geo_source(logger, row_counts_dict: dict):
                 logger.info(
                     f"⚠️ GeoAPI data for `{country_code}` row count dropped from {previous_count} to {database_rowcount}. Forcing reload.")
                 state["country_status"][country_code] = "database_row_count"
-            elif (current_count == previous_count): 
+            elif (current_count == previous_count):
                 logger.info(f"\n🔁 SKIPPED LOAD:\n"
-                                 f"📅 Previous Run for {country_code}: {previous_count}\n"
-                                 f"📦 API Cities for {country_code}: {current_count}\n"
-                                 f"⏳ No new data for {country_code}. Skipping... \n"
-                                 f"{'-'*45}")
+                            f"📅 Previous Run for {country_code}: {previous_count}\n"
+                            f"📦 API Cities for {country_code}: {current_count}\n"
+                            f"⏳ No new data for {country_code}. Skipping... \n"
+                            f"{'-'*45}")
                 state["country_status"][country_code] = "skipped_no_new_data"
                 return
 
@@ -148,7 +145,8 @@ def get_geo_data(logger) -> bool:
     try:
         dataset = pipeline.dataset()["geo_cities"].df()
         if dataset is not None:
-            row_counts = dataset.groupby("country_code").size().reset_index(name="count")
+            row_counts = dataset.groupby(
+                "country_code").size().reset_index(name="count")
             logger.info(f"Grouped Row Counts:\n{row_counts}")
     except PipelineNeverRan:
         logger.warning(
@@ -162,7 +160,7 @@ def get_geo_data(logger) -> bool:
         logger.warning(
             "⚠️ No tables found yet in dataset — assuming first run.")
         row_counts_dict = {}
- 
+
     source = geo_source(logger, row_counts_dict)
     try:
         load_info = pipeline.run(source)
@@ -171,7 +169,7 @@ def get_geo_data(logger) -> bool:
             'geo_cities', {}).get("country_status", {})
 
         logger.info("Country Status:\n" +
-                         json.dumps(outcome_data, indent=2))
+                    json.dumps(outcome_data, indent=2))
 
         statuses = [outcome_data.get(resource, 0) for resource in COUNTRIES]
 
@@ -190,55 +188,6 @@ def get_geo_data(logger) -> bool:
         return False
 
 
-@task
-def dbt_geo_data(logger, get_geo_data: bool) -> subprocess.CompletedProcess:
-    """Runs the dbt command after loading the data from Geo API."""
-
-    if not get_geo_data:
-        logger.warning(
-            "\n⚠️  WARNING: DBT SKIPPED\n"
-            "📉 No data was loaded from GeoAPI.\n"
-            "🚫 Skipping dbt run.\n"
-            "----------------------------------------"
-        )
-        return subprocess.CompletedProcess(
-            args="dbt build --select source:fbi+ --profiles-dir .",
-            returncode=0,
-            stdout="DBT run skipped due to no new data.",
-            stderr="")
-    
-    iscloudrun = write_profiles_yml(logger=logger)
-
-    logger.info(f"DBT Project Directory: {DBT_DIR}")
-
-    start = time.time()
-    try:
-        if iscloudrun:
-            deps_result = subprocess.run(
-                "dbt deps",
-                shell=True,
-                cwd=DBT_DIR,
-                capture_output=True,
-                text=True,
-                check=True
-            )
-            
-        result = subprocess.run(
-            "dbt build --select source:geo+",
-            shell=True,
-            cwd=DBT_DIR,
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        duration = round(time.time() - start, 2)
-        logger.info(f"dbt build completed in {duration}s")
-        return result if result else deps_result
-    except subprocess.CalledProcessError as e:
-        logger.error(f"dbt build failed:\n{e.stdout}\n{e.stderr}")
-        return result if result else deps_result
-
-
 @flow(name="geo-flow", on_completion=[flow_summary], on_failure=[flow_summary])
 def Geo_Flow():
     """
@@ -251,7 +200,7 @@ def Geo_Flow():
     should_run = get_geo_data(logger=logger)
 
     # Run dbt transformations
-    return dbt_geo_data(logger, get_geo_data=should_run)
+    return dbt_run_task(logger, dbt_trigger=should_run, select_target="source:geo+")
 
 
 if __name__ == "__main__":

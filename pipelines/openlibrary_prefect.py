@@ -3,13 +3,12 @@ from prefect import flow, task, get_run_logger
 from dlt.pipeline.exceptions import PipelineNeverRan
 import dlt
 import json
-import subprocess
 import time
 from pandas import DataFrame
 from dlt.sources.helpers import requests
 from typing import Iterator, Dict
-from path_config import DBT_DIR, ENV_FILE, REQUEST_CACHE_DIR, DLT_PIPELINE_DIR
-from helper_functions import write_profiles_yml, sanitize_filename, flow_summary, dbt_run_task
+from path_config import ENV_FILE, REQUEST_CACHE_DIR, DLT_PIPELINE_DIR
+from helper_functions import sanitize_filename, flow_summary, dbt_run_task
 from dlt.destinations.exceptions import DatabaseUndefinedRelation
 from dlt.sources.helpers.rest_client.client import RESTClient
 from dlt.sources.helpers.rest_client.paginators import PageNumberPaginator
@@ -150,7 +149,8 @@ def openlibrary_books_task(logger) -> DataFrame | None:
         load_info = pipeline.run(source)
 
         statuses = {
-            term: source.state.get("books", {}).get("last_run_status", {}).get(term, '')
+            term: source.state.get("books", {}).get(
+                "last_run_status", {}).get(term, '')
             for term in SEARCH_TOPICS
         }
 
@@ -161,7 +161,8 @@ def openlibrary_books_task(logger) -> DataFrame | None:
             logger.error("💥 All resources failed to load.")
             return None
 
-        successful_terms = [term for term, status in statuses.items() if status == "success"]
+        successful_terms = [term for term,
+                            status in statuses.items() if status == "success"]
         if not successful_terms:
             return None
 
@@ -170,7 +171,8 @@ def openlibrary_books_task(logger) -> DataFrame | None:
         # Fetch dataset again and filter for successful terms
         full_df = pipeline.dataset()["books"].df()
         if full_df is not None:
-            filtered_df = full_df[full_df["search_term"].isin(successful_terms)]
+            filtered_df = full_df[full_df["search_term"].isin(
+                successful_terms)]
             return DataFrame({
                 "search_term": filtered_df["search_term"],
                 "key": filtered_df["key"]
@@ -182,7 +184,6 @@ def openlibrary_books_task(logger) -> DataFrame | None:
     except Exception as e:
         logger.error(f"❌ Pipeline run failed: {e}")
         return None
-
 
 
 @dlt.resource(
@@ -201,7 +202,7 @@ def openlibrary_work_metadata(logger, books_df) -> Iterator[Dict]:
 
         work_id = work_key.split("/")[-1]
         cache_path = REQUEST_CACHE_DIR / f"{sanitize_filename(work_id)}.json"
-        
+
         if cache_path.exists():
             with open(cache_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
@@ -225,15 +226,14 @@ def openlibrary_work_metadata(logger, books_df) -> Iterator[Dict]:
             for subject in subjects:
                 if subject:  # filters None, empty strings, etc.
                     yield {"work_id": work_id, "subject": subject}
-        
-
 
 
 @task
 def openlibrary_book_subjects_task(logger, books_df) -> bool:
 
     if books_df is None or books_df.empty:
-        logger.warning("📭 Skipping metadata pipeline: books_df is None or empty.")
+        logger.warning(
+            "📭 Skipping metadata pipeline: books_df is None or empty.")
         return False
 
     logger.info(f"🚀 Running DLT pipeline to fetch and load work metadata...")
@@ -251,8 +251,6 @@ def openlibrary_book_subjects_task(logger, books_df) -> bool:
     return True
 
 
-
-
 @flow(name="openlibrary_prefect_flow", on_completion=[flow_summary], on_failure=[flow_summary])
 def openlibrary_prefect_flow():
     logger = get_run_logger()
@@ -260,11 +258,11 @@ def openlibrary_prefect_flow():
     # Run the OpenLibrary books task
     openlibrary_books_task_df = openlibrary_books_task(logger)
 
-    openlibrary_book_subjects_task_result = openlibrary_book_subjects_task(logger, openlibrary_books_task_df)
+    openlibrary_book_subjects_task_result = openlibrary_book_subjects_task(
+        logger, openlibrary_books_task_df)
 
     # Run the dbt task if data was loaded
     return dbt_run_task(logger, dbt_trigger=openlibrary_book_subjects_task_result, select_target="source:openlibrary+")
-    # return dbt_openlibrary_data(logger, openlibrary_book_subjects_task_result)
 
 
 if __name__ == "__main__":
