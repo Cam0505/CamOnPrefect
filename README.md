@@ -1,6 +1,6 @@
 # CamOnPrefect
 
-This project orchestrates data extraction from the CocktailDB API using **Prefect**, transforms it with **DBT**, and stores it in a MotherDuck Data Warehouse. It serves as a learning platform for integrating data engineering tools like Prefect, dbt, and DLT.
+This project orchestrates data extraction from various APIs with **Prefect** and **DLT**, transforms it with **DBT**, and stores it in a MotherDuck Data Warehouse. It serves as a learning platform for integrating data engineering tools like Prefect, dbt, and DLT.
 
 
 ## 🧱 Project Structure
