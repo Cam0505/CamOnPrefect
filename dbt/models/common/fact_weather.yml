@@ -5,6 +5,9 @@ models:
   columns:
   - name: weather_date
     description: ''
+    tests:
+      - dbt_utils.expression_is_true:
+          expression: "{{ column_name }} < current_date"
   - name: city
     description: ''
   - name: temperature_max
@@ -33,3 +36,7 @@ models:
     description: ''
   - name: City_SK
     description: ''
+    tests:
+      - relationships:
+          to: ref('dim_city')
+          field: city_sk
