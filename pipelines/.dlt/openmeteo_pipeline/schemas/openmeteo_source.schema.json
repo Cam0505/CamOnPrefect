@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "version_hash": "Qmv+KgF49MpO2NrL2Imdw48h3Urwh+xVuHyNppIKEAw=",
+  "version_hash": "2dhyPhS1I6u+uGTTwSIfoaVe4zKxcj7UyNPOPos9SIU=",
   "engine_version": 11,
   "name": "openmeteo_source",
   "tables": {
@@ -81,7 +81,7 @@
           "name": "date",
           "nullable": false,
           "primary_key": true,
-          "data_type": "text"
+          "data_type": "date"
         },
         "city": {
           "name": "city",

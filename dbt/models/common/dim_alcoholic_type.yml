@@ -7,3 +7,5 @@ models:
     description: 'Test'
   - name: alcoholic_type_sk
     description: 'Unique key for alcoholic type'
+    data_tests:
+      - unique

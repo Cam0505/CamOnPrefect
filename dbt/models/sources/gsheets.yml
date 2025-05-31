@@ -1,0 +1,30 @@
+version: 2
+
+sources:
+  - name: gsheets
+    database: camonprefect
+    schema: google_sheets_data
+    tables:
+      - name: gsheets_finance
+        loaded_at_field: date_time
+        description: 'Google Sheets Finance Data Source'
+        tags: [gsheets, finance]
+        freshness:
+          warn_after: {count: 2, period: day}
+          error_after: {count: 5, period: day}
+        columns:
+          - name: id
+            description: ''
+            data_tests:
+              - not_null
+              - unique
+          - name: stock
+            description: "{{ doc('gsheets_stock') }}"
+          - name: date_time
+            description: ''
+          - name: price
+            description: "{{ doc('gsheets_price') }}"
+          - name: _dlt_load_id
+            description: "{{ doc('_dlt_load_id') }}"
+          - name: _dlt_id
+            description: "{{ doc('_dlt_id') }}"

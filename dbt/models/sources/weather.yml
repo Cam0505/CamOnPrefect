@@ -4,8 +4,37 @@ sources:
     schema: weather_data
     tables:
       - name: daily_weather
-        loaded_at_field: date
+        loaded_at_field: timestamp
         description: 'Open Meteo API Datasource'
         freshness:
           warn_after: {count: 2, period: day}
           error_after: {count: 5, period: day}
+        columns:
+          - name: date
+            description: ''
+          - name: city
+            description: "{{ doc('city') }}"
+          - name: temperature_max
+            description: "{{ doc('temperature_max') }}" 
+          - name: temperature_min
+            description: "{{ doc('temperature_min') }}"
+          - name: temperature_mean
+            description: "{{ doc('temperature_mean') }}"
+          - name: precipitation_sum
+            description: "{{ doc('precipitation_sum') }}"
+          - name: windspeed_max
+            description: "{{ doc('windspeed_max') }}"
+          - name: windgusts_max
+            description: "{{ doc('windgusts_max') }}"
+          - name: sunshine_duration
+            description: "{{ doc('sunshine_duration') }}"
+          - name: location__lat
+            description: "{{ doc('latitude') }}"
+          - name: location__lng
+            description: "{{ doc('longitude') }}"
+          - name: timestamp
+            description: ''
+          - name: _dlt_load_id
+            description: "{{ doc('_dlt_load_id') }}"
+          - name: _dlt_id
+            description: "{{ doc('_dlt_id') }}"

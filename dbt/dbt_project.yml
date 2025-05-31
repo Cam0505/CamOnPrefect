@@ -5,9 +5,9 @@ config-version: 2
 profile: 'camonprefect'
 
 # dbt run --select dbt_project_evaluator
-vars:
-  dbt_project_evaluator:
-    project_name: 'camonprefect'
+# vars:
+#   dbt_project_evaluator:
+#     project_name: 'camonprefect'
 
 model-paths: ["models"]
 seed-paths: ["seeds"]
