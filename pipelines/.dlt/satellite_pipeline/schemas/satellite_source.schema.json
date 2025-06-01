@@ -1,0 +1,237 @@
+{
+  "version": 4,
+  "version_hash": "GNE7qjtHpHTyNynvlMrltC57JolPVcJBBtvwMYhDSPs=",
+  "engine_version": 11,
+  "name": "satellite_source",
+  "tables": {
+    "_dlt_version": {
+      "name": "_dlt_version",
+      "columns": {
+        "version": {
+          "name": "version",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "engine_version": {
+          "name": "engine_version",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "inserted_at": {
+          "name": "inserted_at",
+          "data_type": "timestamp",
+          "nullable": false
+        },
+        "schema_name": {
+          "name": "schema_name",
+          "data_type": "text",
+          "nullable": false
+        },
+        "version_hash": {
+          "name": "version_hash",
+          "data_type": "text",
+          "nullable": false
+        },
+        "schema": {
+          "name": "schema",
+          "data_type": "text",
+          "nullable": false
+        }
+      },
+      "write_disposition": "skip",
+      "resource": "_dlt_version",
+      "description": "Created by DLT. Tracks schema updates"
+    },
+    "_dlt_loads": {
+      "name": "_dlt_loads",
+      "columns": {
+        "load_id": {
+          "name": "load_id",
+          "data_type": "text",
+          "nullable": false
+        },
+        "schema_name": {
+          "name": "schema_name",
+          "data_type": "text",
+          "nullable": true
+        },
+        "status": {
+          "name": "status",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "inserted_at": {
+          "name": "inserted_at",
+          "data_type": "timestamp",
+          "nullable": false
+        },
+        "schema_version_hash": {
+          "name": "schema_version_hash",
+          "data_type": "text",
+          "nullable": true
+        }
+      },
+      "write_disposition": "skip",
+      "resource": "_dlt_loads",
+      "description": "Created by DLT. Tracks completed loads"
+    },
+    "satellite_positions": {
+      "columns": {
+        "satellite_id": {
+          "name": "satellite_id",
+          "data_type": "bigint",
+          "nullable": true
+        },
+        "satellite_name": {
+          "name": "satellite_name",
+          "data_type": "text",
+          "nullable": true
+        },
+        "timestamp": {
+          "name": "timestamp",
+          "data_type": "timestamp",
+          "nullable": true
+        },
+        "tle_line1": {
+          "name": "tle_line1",
+          "data_type": "text",
+          "nullable": true
+        },
+        "tle_line2": {
+          "name": "tle_line2",
+          "data_type": "text",
+          "nullable": true
+        },
+        "x_km": {
+          "name": "x_km",
+          "data_type": "double",
+          "nullable": true
+        },
+        "y_km": {
+          "name": "y_km",
+          "data_type": "double",
+          "nullable": true
+        },
+        "z_km": {
+          "name": "z_km",
+          "data_type": "double",
+          "nullable": true
+        },
+        "_dlt_load_id": {
+          "name": "_dlt_load_id",
+          "data_type": "text",
+          "nullable": false
+        },
+        "_dlt_id": {
+          "name": "_dlt_id",
+          "data_type": "text",
+          "nullable": false,
+          "unique": true,
+          "row_key": true
+        },
+        "distance_km": {
+          "name": "distance_km",
+          "data_type": "double",
+          "nullable": true
+        }
+      },
+      "write_disposition": "replace",
+      "name": "satellite_positions",
+      "resource": "satellite_positions",
+      "x-normalizer": {
+        "seen-data": true
+      }
+    },
+    "_dlt_pipeline_state": {
+      "columns": {
+        "version": {
+          "name": "version",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "engine_version": {
+          "name": "engine_version",
+          "data_type": "bigint",
+          "nullable": false
+        },
+        "pipeline_name": {
+          "name": "pipeline_name",
+          "data_type": "text",
+          "nullable": false
+        },
+        "state": {
+          "name": "state",
+          "data_type": "text",
+          "nullable": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "data_type": "timestamp",
+          "nullable": false
+        },
+        "version_hash": {
+          "name": "version_hash",
+          "data_type": "text",
+          "nullable": true
+        },
+        "_dlt_load_id": {
+          "name": "_dlt_load_id",
+          "data_type": "text",
+          "nullable": false
+        },
+        "_dlt_id": {
+          "name": "_dlt_id",
+          "data_type": "text",
+          "nullable": false,
+          "unique": true,
+          "row_key": true
+        }
+      },
+      "write_disposition": "append",
+      "file_format": "preferred",
+      "name": "_dlt_pipeline_state",
+      "resource": "_dlt_pipeline_state",
+      "x-normalizer": {
+        "seen-data": true
+      }
+    }
+  },
+  "settings": {
+    "detections": [
+      "iso_timestamp"
+    ],
+    "default_hints": {
+      "not_null": [
+        "_dlt_id",
+        "_dlt_root_id",
+        "_dlt_parent_id",
+        "_dlt_list_idx",
+        "_dlt_load_id"
+      ],
+      "parent_key": [
+        "_dlt_parent_id"
+      ],
+      "root_key": [
+        "_dlt_root_id"
+      ],
+      "unique": [
+        "_dlt_id"
+      ],
+      "row_key": [
+        "_dlt_id"
+      ]
+    }
+  },
+  "normalizers": {
+    "names": "snake_case",
+    "json": {
+      "module": "dlt.common.normalizers.json.relational"
+    }
+  },
+  "previous_hashes": [
+    "WEZONM/+w/qERhvrUQIx+Q1hcLL2t7XldZys2oXEFbI=",
+    "d+1w16og8nWXNwByKEagHh7H2P9WPiO2PnZhvVzTuVE=",
+    "BJ82TNtnu3xequuPeGNTC5EskM/A7d6mDaLkPp14w24=",
+    "OTsGb713HGdfBEdoUAq0kTCOvGpRQaOsHiJe7IPzwa4="
+  ]
+}

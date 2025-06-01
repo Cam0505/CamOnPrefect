@@ -15,4 +15,5 @@ pyarrow==17.0.0
 dlt[motherduck]
 # prefect-docker==0.6.5
 rapidfuzz==3.13.0
-pydantic==2.11.5
+pydantic==2.11.5 
+sgp4==2.24

@@ -5,6 +5,7 @@ import json
 from dlt.sources.helpers.requests import get
 from prefect import flow, task, get_run_logger
 from dlt.pipeline.exceptions import PipelineNeverRan
+from dlt.destinations.exceptions import DatabaseUndefinedRelation
 from path_config import ENV_FILE, DLT_PIPELINE_DIR
 from helper_functions import dbt_run_task, flow_summary
 
@@ -152,6 +153,10 @@ def get_geo_data(logger) -> bool:
         logger.warning(
             "⚠️ No previous runs found for this pipeline. Assuming first run.")
         row_counts = None
+    except DatabaseUndefinedRelation:
+        logger.warning(
+            "⚠️ Table Doesn't Exist. Assuming truncation.")
+        row_counts = None
 
     if row_counts is not None:
         row_counts_dict = dict(
@@ -194,7 +199,6 @@ def Geo_Flow():
     Main flow to run the pipeline and dbt transformations.
     """
     logger = get_run_logger()
-    logger.info("Starting the Geo Flow...")
 
     # Run the DLT pipeline
     should_run = get_geo_data(logger=logger)
