@@ -1,0 +1,9 @@
+version: 2
+
+sources:
+  - name: satellite
+    description: "Source for satellite data"
+    database: camonprefect
+    schema: satellite_data
+    tables:
+      - name: satellite_positions
