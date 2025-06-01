@@ -11,7 +11,7 @@
 select
     satellite_id,
     satellite_name,
-    timestamp,
+    {{ convert_to_timezone(column_name='timestamp') }} AS timestamp,
     tle_line1,
     tle_line2,
     x_km,

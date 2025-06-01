@@ -26,7 +26,7 @@ models:
     data_type: varchar
   - name: location_created
     description: "{{ doc('location_created') }}"
-    data_type: TIMESTAMP WITH TIME ZONE
+    data_type: TIMESTAMP
   - name: location_dlt_id
     description: "{{ doc('location_dlt_id') }}"
     data_type: varchar
