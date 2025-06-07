@@ -6,9 +6,18 @@ from dlt.pipeline.exceptions import PipelineNeverRan
 import dlt
 import json
 from dlt.sources.helpers import requests
-from path_config import ENV_FILE, REQUEST_CACHE_DIR, DLT_PIPELINE_DIR
 from helper_functions import sanitize_filename
 from dlt.destinations.exceptions import DatabaseUndefinedRelation
+from path_config import get_project_root, set_dlt_env_vars
+
+# Load environment variables and set DLT config
+paths = get_project_root()
+set_dlt_env_vars(paths)
+
+DLT_PIPELINE_DIR = paths["DLT_PIPELINE_DIR"]
+ENV_FILE = paths["ENV_FILE"]
+REQUEST_CACHE_DIR = paths["REQUEST_CACHE_DIR"]
+DBT_DIR = paths["DBT_DIR"]
 
 # Constants
 API_BASE_URL = "http://universities.hipolabs.com/search"

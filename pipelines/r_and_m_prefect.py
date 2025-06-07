@@ -6,8 +6,16 @@ import dlt
 from dlt.sources.helpers.rest_client.paginators import JSONLinkPaginator
 from dlt.sources.helpers.rest_client.client import RESTClient
 from dlt.pipeline.exceptions import PipelineNeverRan
-from path_config import ENV_FILE, DLT_PIPELINE_DIR
 from helper_functions import flow_summary, dbt_run_task
+from path_config import get_project_root, set_dlt_env_vars
+
+# Load environment variables and set DLT config
+paths = get_project_root()
+set_dlt_env_vars(paths)
+
+DLT_PIPELINE_DIR = paths["DLT_PIPELINE_DIR"]
+ENV_FILE = paths["ENV_FILE"]
+DBT_DIR = paths["DBT_DIR"]
 
 load_dotenv(dotenv_path="/workspaces/CamOnPrefect/.env")
 

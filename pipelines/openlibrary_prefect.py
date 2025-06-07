@@ -7,11 +7,20 @@ import time
 from pandas import DataFrame
 from dlt.sources.helpers import requests
 from typing import Iterator, Dict
-from path_config import ENV_FILE, REQUEST_CACHE_DIR, DLT_PIPELINE_DIR
 from helper_functions import sanitize_filename, flow_summary, dbt_run_task
 from dlt.destinations.exceptions import DatabaseUndefinedRelation
 from dlt.sources.helpers.rest_client.client import RESTClient
 from dlt.sources.helpers.rest_client.paginators import PageNumberPaginator
+from path_config import get_project_root, set_dlt_env_vars
+
+# Load environment variables and set DLT config
+paths = get_project_root()
+set_dlt_env_vars(paths)
+
+DLT_PIPELINE_DIR = paths["DLT_PIPELINE_DIR"]
+ENV_FILE = paths["ENV_FILE"]
+REQUEST_CACHE_DIR = paths["REQUEST_CACHE_DIR"]
+DBT_DIR = paths["DBT_DIR"]
 
 BASE_URL = "https://openlibrary.org/search.json"
 
@@ -128,7 +137,7 @@ def openlibrary_books_task(logger) -> DataFrame | None:
         pipelines_dir=str(DLT_PIPELINE_DIR),
         dataset_name="openlibrary_data"
     )
-
+    row_count = None
     try:
         dataset = pipeline.dataset()["books"].df()
         if dataset is not None:

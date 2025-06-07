@@ -1,6 +1,7 @@
 -- ------------------------------------------------------------------------------
 -- Model: Base_FBI_Wanted
 -- Description: This model is the base for the FBI wanted persons data.
+-- Source: All data in base_fbi_* models is sourced from the FBI Most Wanted API.
 -- Plan to add in more countries in the future (Please work)
 -- ------------------------------------------------------------------------------
 -- Change Log:
