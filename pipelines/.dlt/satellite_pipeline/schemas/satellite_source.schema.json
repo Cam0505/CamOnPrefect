@@ -1,8 +1,8 @@
 {
-  "version": 2,
-  "version_hash": "2dhyPhS1I6u+uGTTwSIfoaVe4zKxcj7UyNPOPos9SIU=",
+  "version": 4,
+  "version_hash": "GNE7qjtHpHTyNynvlMrltC57JolPVcJBBtvwMYhDSPs=",
   "engine_version": 11,
-  "name": "openmeteo_source",
+  "name": "satellite_source",
   "tables": {
     "_dlt_version": {
       "name": "_dlt_version",
@@ -75,68 +75,46 @@
       "resource": "_dlt_loads",
       "description": "Created by DLT. Tracks completed loads"
     },
-    "daily_weather": {
+    "satellite_positions": {
       "columns": {
-        "date": {
-          "name": "date",
-          "nullable": false,
-          "primary_key": true,
-          "data_type": "date"
-        },
-        "city": {
-          "name": "city",
-          "nullable": false,
-          "primary_key": true,
-          "data_type": "text"
-        },
-        "temperature_max": {
-          "name": "temperature_max",
-          "data_type": "double",
+        "satellite_id": {
+          "name": "satellite_id",
+          "data_type": "bigint",
           "nullable": true
         },
-        "temperature_min": {
-          "name": "temperature_min",
-          "data_type": "double",
-          "nullable": true
-        },
-        "temperature_mean": {
-          "name": "temperature_mean",
-          "data_type": "double",
-          "nullable": true
-        },
-        "precipitation_sum": {
-          "name": "precipitation_sum",
-          "data_type": "double",
-          "nullable": true
-        },
-        "windspeed_max": {
-          "name": "windspeed_max",
-          "data_type": "double",
-          "nullable": true
-        },
-        "windgusts_max": {
-          "name": "windgusts_max",
-          "data_type": "double",
-          "nullable": true
-        },
-        "sunshine_duration": {
-          "name": "sunshine_duration",
-          "data_type": "double",
-          "nullable": true
-        },
-        "location__lat": {
-          "name": "location__lat",
-          "data_type": "double",
-          "nullable": true
-        },
-        "location__lng": {
-          "name": "location__lng",
-          "data_type": "double",
+        "satellite_name": {
+          "name": "satellite_name",
+          "data_type": "text",
           "nullable": true
         },
         "timestamp": {
           "name": "timestamp",
           "data_type": "timestamp",
+          "nullable": true
+        },
+        "tle_line1": {
+          "name": "tle_line1",
+          "data_type": "text",
+          "nullable": true
+        },
+        "tle_line2": {
+          "name": "tle_line2",
+          "data_type": "text",
+          "nullable": true
+        },
+        "x_km": {
+          "name": "x_km",
+          "data_type": "double",
+          "nullable": true
+        },
+        "y_km": {
+          "name": "y_km",
+          "data_type": "double",
+          "nullable": true
+        },
+        "z_km": {
+          "name": "z_km",
+          "data_type": "double",
           "nullable": true
         },
         "_dlt_load_id": {
@@ -150,11 +128,16 @@
           "nullable": false,
           "unique": true,
           "row_key": true
+        },
+        "distance_km": {
+          "name": "distance_km",
+          "data_type": "double",
+          "nullable": true
         }
       },
-      "write_disposition": "merge",
-      "name": "daily_weather",
-      "resource": "daily_weather",
+      "write_disposition": "replace",
+      "name": "satellite_positions",
+      "resource": "satellite_positions",
       "x-normalizer": {
         "seen-data": true
       }
@@ -242,20 +225,13 @@
   "normalizers": {
     "names": "snake_case",
     "json": {
-      "module": "dlt.common.normalizers.json.relational",
-      "config": {
-        "propagation": {
-          "tables": {
-            "daily_weather": {
-              "_dlt_id": "_dlt_root_id"
-            }
-          }
-        }
-      }
+      "module": "dlt.common.normalizers.json.relational"
     }
   },
   "previous_hashes": [
-    "egbPsLgwBsINzXPLnKpCwlVGh8LkeVsBE6J7usgv3+w=",
-    "pKn2PgisJfVAgpGtoIwVZwfyIW6VRwEI1NgJIPAJOgM="
+    "WEZONM/+w/qERhvrUQIx+Q1hcLL2t7XldZys2oXEFbI=",
+    "d+1w16og8nWXNwByKEagHh7H2P9WPiO2PnZhvVzTuVE=",
+    "BJ82TNtnu3xequuPeGNTC5EskM/A7d6mDaLkPp14w24=",
+    "OTsGb713HGdfBEdoUAq0kTCOvGpRQaOsHiJe7IPzwa4="
   ]
 }

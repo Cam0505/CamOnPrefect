@@ -1,16 +1,11 @@
 version: 2
 snapshots:
-- name: glass_type_snapshot
+- name: fbi_status_snapshot
   description: ''
   columns:
-  - name: beverage_id
+  - name: fbi_status
     description: ''
-    data_tests:
-    - not_null
-    - unique
-  - name: glass_type
-    description: ''
-  - name: Glass_Type_SK
+  - name: pk
     description: ''
   - name: dbt_scd_id
     description: ''

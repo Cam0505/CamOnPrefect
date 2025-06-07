@@ -60,7 +60,7 @@ def get_uv_data(lat: float, lng: float, dt: datetime, logger):
         response.raise_for_status()
         return [response.json()]
     except Exception as e:
-        logger.log.warning(
+        logger.warning(
             f"Failed to fetch UV data for ({lat}, {lng}, {dt}): {e}")
         return []
 

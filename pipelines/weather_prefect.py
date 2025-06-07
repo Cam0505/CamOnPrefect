@@ -60,8 +60,8 @@ cities = {
 
 today = datetime.now(ZoneInfo("Australia/Sydney")).date()
 end_date = today - timedelta(days=2)
-# Last 3 years worth of data, don't need this now
-start_date = end_date - timedelta(days=3 * 365)
+# Set start_date to 1st of January 2021
+start_date = date(2021, 1, 1)
 
 BASE_URL = "https://archive-api.open-meteo.com/v1/archive"
 
@@ -124,8 +124,11 @@ def fetch_city_chunk_data(city: str, city_info: dict, city_start: date, end_date
         daily_data = data["daily"]
         for i in range(len(daily_data["time"])):
             success = True
+            date_val = daily_data["time"][i]
+            if not isinstance(date_val, date):
+                date_val = date.fromisoformat(date_val)
             records.append({
-                "date": daily_data["time"][i],
+                "date": date_val,
                 "City": city,
                 "temperature_max": daily_data["temperature_2m_max"][i],
                 "temperature_min": daily_data["temperature_2m_min"][i],
@@ -159,7 +162,7 @@ def openmeteo_source(cities: dict, base_start_date: date, end_date: date, row_ma
         all_dates = []
         futures = {}
 
-        with ThreadPoolExecutor(max_workers=4) as executor:
+        with ThreadPoolExecutor(max_workers=5) as executor:
             for city, city_info in cities.items():
                 city_start = base_start_date
 
@@ -212,9 +215,9 @@ def openmeteo_source(cities: dict, base_start_date: date, end_date: date, row_ma
                         "end": records[-1]["date"]
                     }
                     all_dates.append(
-                        date.fromisoformat(records[0]["date"]))
+                        records[0]["date"])
                     all_dates.append(
-                        date.fromisoformat(records[-1]["date"]))
+                        records[-1]["date"])
                 else:
                     state["city_status"][city] = "failed"
 
