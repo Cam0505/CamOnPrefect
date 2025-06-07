@@ -7,8 +7,16 @@ from dlt.sources.helpers import requests
 from prefect import flow, task, get_run_logger
 from dlt.pipeline.exceptions import PipelineNeverRan
 from dlt.destinations.exceptions import DatabaseUndefinedRelation
-from path_config import ENV_FILE, DLT_PIPELINE_DIR
 from helper_functions import dbt_run_task, flow_summary
+from path_config import get_project_root, set_dlt_env_vars
+
+# Load environment variables and set DLT config
+paths = get_project_root()
+set_dlt_env_vars(paths)
+
+DLT_PIPELINE_DIR = paths["DLT_PIPELINE_DIR"]
+ENV_FILE = paths["ENV_FILE"]
+DBT_DIR = paths["DBT_DIR"]
 
 # load_dotenv(ENV_FILE)
 
@@ -63,7 +71,7 @@ def wanted(logger, db_count: int):
                 # Status and Poster Classification
                 key = f"{item['uid']}|{item.get('status', '').lower()}|{item.get('poster_classification', '').lower()}"
                 if key in seen_keys and db_count != 0:
-                    logger.info(f"Skipping seen key: {key}")
+                    # logger.info(f"Skipping seen key: {key}")
                     continue
                 logger.info(f"Processing new key: {key}")
                 new_keys.add(key)

@@ -8,8 +8,16 @@ from dlt.pipeline.exceptions import PipelineNeverRan
 from dlt.destinations.exceptions import DatabaseUndefinedRelation
 import json
 from datetime import datetime, timedelta
-from path_config import ENV_FILE, REQUEST_CACHE_DIR, DLT_PIPELINE_DIR
 from helper_functions import dbt_run_task, sanitize_filename, flow_summary
+from path_config import get_project_root, set_dlt_env_vars
+
+# Load environment variables and set DLT config
+paths = get_project_root()
+set_dlt_env_vars(paths)
+
+DLT_PIPELINE_DIR = paths["DLT_PIPELINE_DIR"]
+ENV_FILE = paths["ENV_FILE"]
+REQUEST_CACHE_DIR = paths["REQUEST_CACHE_DIR"]
 
 load_dotenv(dotenv_path=ENV_FILE)
 

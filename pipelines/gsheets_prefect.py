@@ -7,8 +7,17 @@ import os
 from dotenv import load_dotenv
 from datetime import datetime, time
 from zoneinfo import ZoneInfo
-from path_config import ENV_FILE, CREDENTIALS, DLT_PIPELINE_DIR
-from helper_functions import dbt_run_task, sanitize_filename, flow_summary
+from helper_functions import dbt_run_task, flow_summary
+from path_config import get_project_root, set_dlt_env_vars
+
+# Load environment variables and set DLT config
+paths = get_project_root()
+set_dlt_env_vars(paths)
+
+DLT_PIPELINE_DIR = paths["DLT_PIPELINE_DIR"]
+ENV_FILE = paths["ENV_FILE"]
+CREDENTIALS = paths["CREDENTIALS"]
+DBT_DIR = paths["DBT_DIR"]
 
 
 # Load environment variables

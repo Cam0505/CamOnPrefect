@@ -11,8 +11,16 @@ from dlt.sources.helpers import requests
 from prefect import flow, task, get_run_logger
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from dlt.pipeline.exceptions import PipelineNeverRan
-from path_config import ENV_FILE, DLT_PIPELINE_DIR
 from helper_functions import flow_summary, dbt_run_task
+from path_config import get_project_root, set_dlt_env_vars
+
+# Load environment variables and set DLT config
+paths = get_project_root()
+set_dlt_env_vars(paths)
+
+DLT_PIPELINE_DIR = paths["DLT_PIPELINE_DIR"]
+ENV_FILE = paths["ENV_FILE"]
+DBT_DIR = paths["DBT_DIR"]
 
 
 load_dotenv(dotenv_path=ENV_FILE)
@@ -230,7 +238,7 @@ def openmeteo_task(logger) -> bool:
         dev_mode=False,
         pipelines_dir=str(DLT_PIPELINE_DIR)
     )
-
+    row_max_min_dict = {}
     try:
         dataset = pipeline.dataset()["daily_weather"].df()
         if dataset is not None:
@@ -293,8 +301,8 @@ def meteo_flow():
     """
     Main flow to run the pipeline and dbt transformations.
     """
+    logger = get_run_logger()
     try:
-        logger = get_run_logger()
         logger.info("Starting the Meteo Flow...")
 
         # Run the DLT pipeline

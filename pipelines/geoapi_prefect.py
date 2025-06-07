@@ -5,8 +5,16 @@ import json
 from dlt.sources.helpers.requests import get
 from prefect import flow, task, get_run_logger
 from dlt.pipeline.exceptions import PipelineNeverRan
-from path_config import ENV_FILE, DLT_PIPELINE_DIR
 from helper_functions import dbt_run_task, flow_summary
+from path_config import get_project_root, set_dlt_env_vars
+
+# Load environment variables and set DLT config
+paths = get_project_root()
+set_dlt_env_vars(paths)
+
+DLT_PIPELINE_DIR = paths["DLT_PIPELINE_DIR"]
+ENV_FILE = paths["ENV_FILE"]
+DBT_DIR = paths["DBT_DIR"]
 
 load_dotenv(dotenv_path=ENV_FILE)
 COUNTRIES = ["NZ", "AU", "GB", "CA"]
@@ -142,6 +150,7 @@ def get_geo_data(logger) -> bool:
         pipelines_dir=str(DLT_PIPELINE_DIR),
         dev_mode=False
     )
+    row_counts = None
     try:
         dataset = pipeline.dataset()["geo_cities"].df()
         if dataset is not None:
