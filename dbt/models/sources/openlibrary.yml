@@ -6,3 +6,6 @@ sources:
     schema: openlibrary_data
     tables:
       - name: books
+      - name: books__authors
+      - name: books__languages
+      - name: subjects

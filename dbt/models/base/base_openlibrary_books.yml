@@ -1,0 +1,17 @@
+version: 2
+models:
+- name: base_openlibrary_books
+  description: ''
+  columns:
+  - name: search_term
+    description: ''
+  - name: book_key
+    description: ''
+  - name: title
+    description: ''
+  - name: ebook_access
+    description: ''
+  - name: first_publish_year
+    description: ''
+  - name: has_fulltext
+    description: ''

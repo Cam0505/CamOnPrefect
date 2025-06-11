@@ -111,8 +111,8 @@ def openlibrary_dim_source(logger, current_table):
                             "ebook_access": doc.get("ebook_access"),
                             "first_publish_year": doc.get("first_publish_year"),
                             "has_fulltext": doc.get("has_fulltext", False),
-                            "authors": [{"name": a} for a in doc.get("author_name", [])],
-                            "languages": [{"code": l} for l in doc.get("language", [])]
+                            "authors": [{"name": a, "book_key": doc.get("key")} for a in doc.get("author_name", [])],
+                            "languages": [{"code": l, "book_key": doc.get("key")} for l in doc.get("language", [])]
                         }
 
                 state["count"][term] = count

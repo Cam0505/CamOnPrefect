@@ -43,8 +43,10 @@
         "ms-python.python",
         "ms-python.vscode-pylance",
         "dbt-labs.dbt",
+        "github.vscode-github-actions",
         // "dbtlabsinc.dbt",
-        "ms-azuretools.vscode-docker"  // Docker extension
+        "ms-azuretools.vscode-docker",
+        "GitHub.copilot"
       ]
     }
   },
