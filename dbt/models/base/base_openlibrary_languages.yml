@@ -1,0 +1,9 @@
+version: 2
+models:
+- name: base_openlibrary_languages
+  description: ''
+  columns:
+  - name: code
+    description: ''
+  - name: book_key
+    description: ''

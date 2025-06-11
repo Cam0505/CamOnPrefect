@@ -184,8 +184,7 @@ def get_geo_data(logger) -> bool:
         outcome_data = source.state.get(
             'geo_cities', {}).get("country_status", {})
 
-        logger.info("Country Status:\n" +
-                    json.dumps(outcome_data, indent=2))
+        logger.info(f"Country Status:\n {json.dumps(outcome_data, indent=2)}")
 
         statuses = [outcome_data.get(resource, 0) for resource in COUNTRIES]
 

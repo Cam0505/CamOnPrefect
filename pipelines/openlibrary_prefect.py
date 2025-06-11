@@ -111,8 +111,8 @@ def openlibrary_dim_source(logger, current_table):
                             "ebook_access": doc.get("ebook_access"),
                             "first_publish_year": doc.get("first_publish_year"),
                             "has_fulltext": doc.get("has_fulltext", False),
-                            "authors": [{"name": a} for a in doc.get("author_name", [])],
-                            "languages": [{"code": l} for l in doc.get("language", [])]
+                            "authors": [{"name": auth, "book_key": doc.get("key")} for auth in doc.get("author_name", [])],
+                            "languages": [{"code": lan, "book_key": doc.get("key")} for lan in doc.get("language", [])]
                         }
 
                 state["count"][term] = count
@@ -155,7 +155,7 @@ def openlibrary_books_task(logger) -> DataFrame | None:
     source = openlibrary_dim_source(logger, row_count)
 
     try:
-        load_info = pipeline.run(source)
+        pipeline.run(source)
 
         statuses = {
             term: source.state.get("books", {}).get(
@@ -244,8 +244,6 @@ def openlibrary_book_subjects_task(logger, books_df) -> bool:
         logger.warning(
             "📭 Skipping metadata pipeline: books_df is None or empty.")
         return False
-
-    logger.info(f"🚀 Running DLT pipeline to fetch and load work metadata...")
 
     pipeline = dlt.pipeline(
         pipeline_name="openlibrary_subjects",

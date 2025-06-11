@@ -233,35 +233,26 @@ def dimension_data(logger) -> bool:
         pipelines_dir=str(DLT_PIPELINE_DIR),
         dev_mode=False
     )
-
+    row_counts_dict = {}
     try:
         row_counts = pipeline.dataset().row_counts().df()
-        logger.info(
-            f"📊 Row counts for existing tables: {row_counts}")
+        if row_counts is not None:
+            row_counts_dict = dict(
+                zip(row_counts["table_name"], row_counts["row_count"]))
     except PipelineNeverRan:
         logger.warning(
             "⚠️ No previous runs found for this pipeline. Assuming first run.")
-        row_counts = None
+        row_counts_dict = {}
     except DatabaseUndefinedRelation:
         logger.warning(
             "⚠️ Table Doesn't Exist. Assuming truncation.")
-        row_counts = None
-
-    if row_counts is not None:
-        row_counts_dict = dict(
-            zip(row_counts["table_name"], row_counts["row_count"]))
-        logger.info(f"Row counts: {row_counts_dict}")
-    else:
-        logger.warning(
-            "⚠️ No tables found yet in dataset — assuming first run.")
         row_counts_dict = {}
 
     source = dimension_data_source(logger, row_counts_dict)
     # run pipeline
     try:
         load_info = pipeline.run(source)
-        logger.info("Beverage State:\n" +
-                    json.dumps(source.state, indent=2))
+        logger.info(f"Beverage State:\n {json.dumps(source.state, indent=2)}")
         statuses = [source.state.get(config["resource_name"], {}).get(
             'last_run_status', None) for config in DIMENSION_CONFIG.values()]
         logger.info(f"Resource Statuses: {statuses}")
@@ -337,7 +328,7 @@ def beverage_fact_data(logger, dimension_data: bool) -> bool:
         return bool(load_info)
 
     except Exception as e:
-        logger.error("DLT pipeline run failed", exc_info=True)
+        logger.error(f"DLT pipeline run failed: {e}", exc_info=True)
         raise
 
 

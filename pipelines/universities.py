@@ -148,7 +148,7 @@ def university_flow():
 
     try:
         # Load data from University API
-        university_asset_result = university_task(logger)
+        university_task(logger)
 
         # Run dbt models
         # dbt_university_data(logger, university_asset_result)

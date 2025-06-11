@@ -1,0 +1,9 @@
+version: 2
+models:
+- name: base_openlibrary_authors
+  description: ''
+  columns:
+  - name: author_name
+    description: ''
+  - name: book_key
+    description: ''

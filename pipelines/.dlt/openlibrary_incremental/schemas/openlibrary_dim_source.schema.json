@@ -1,6 +1,6 @@
 {
-  "version": 2,
-  "version_hash": "rE4/mlgCIiT6FGeg8dtXRDrfh5KFZhlwp25XnvCEJTw=",
+  "version": 3,
+  "version_hash": "1X0uhP/zqCkl6zUaTyc7sALscnsfvSs9798BN1fCgic=",
   "engine_version": 11,
   "name": "openlibrary_dim_source",
   "tables": {
@@ -212,6 +212,11 @@
           "nullable": false,
           "unique": true,
           "row_key": true
+        },
+        "book_key": {
+          "name": "book_key",
+          "data_type": "text",
+          "nullable": true
         }
       },
       "parent": "books",
@@ -250,6 +255,11 @@
           "nullable": false,
           "unique": true,
           "row_key": true
+        },
+        "book_key": {
+          "name": "book_key",
+          "data_type": "text",
+          "nullable": true
         }
       },
       "parent": "books",
@@ -300,6 +310,7 @@
     }
   },
   "previous_hashes": [
+    "rE4/mlgCIiT6FGeg8dtXRDrfh5KFZhlwp25XnvCEJTw=",
     "ibz1+h4wxNMDkDDX4cIMecJZeqDd4JxV8jFfMp3dotg=",
     "y4JRtOEtlYu5s8tWOoPLbMIVLhBhcOvsUYjAgQyJ2+o="
   ]
