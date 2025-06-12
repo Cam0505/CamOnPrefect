@@ -252,8 +252,7 @@ def dimension_data(logger) -> bool:
     # run pipeline
     try:
         load_info = pipeline.run(source)
-        logger.info("Beverage State:\n" +
-                    json.dumps(source.state, indent=2))
+        logger.info(f"Beverage State:\n {json.dumps(source.state, indent=2)}")
         statuses = [source.state.get(config["resource_name"], {}).get(
             'last_run_status', None) for config in DIMENSION_CONFIG.values()]
         logger.info(f"Resource Statuses: {statuses}")
