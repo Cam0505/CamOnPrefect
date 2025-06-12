@@ -147,7 +147,7 @@ def extract_data_from_gsheet(logger) -> bool:
             'gsheet_finance', {}).get('last_run_status', '')
 
         if status == 'skipped_no_new_data':
-            logger.info(f"\n⏭️ resource skipped — no data loaded.")
+            logger.info("\n⏭️ resource skipped — no data loaded.")
             return False
         elif status == 'success':
             logger.info(f"\n✅ Resource loaded: {load_info}")

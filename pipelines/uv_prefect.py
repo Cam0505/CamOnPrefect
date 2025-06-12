@@ -5,7 +5,7 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 from dlt.sources.helpers import requests
 from prefect import flow, task, get_run_logger
-from dlt.pipeline.exceptions import PipelineNeverRan
+# from dlt.pipeline.exceptions import PipelineNeverRan
 from helper_functions import flow_summary, dbt_run_task
 from path_config import get_project_root, set_dlt_env_vars
 
@@ -37,10 +37,10 @@ def get_dates(logger):
         pipeline = dlt.current.pipeline()
         with pipeline.sql_client() as client:
             result = client.execute_sql(
-                f"SELECT date_col FROM public_staging.staging_uv_data_dates")
+                "SELECT date_col FROM public_staging.staging_uv_data_dates")
             return [row[0] for row in result] if result else []
     except Exception as e:
-        logger.info("Failed to retrieve missing dates from the database.")
+        logger.info(f"Failed to retrieve missing dates from the database: {e}")
         return []
 
 

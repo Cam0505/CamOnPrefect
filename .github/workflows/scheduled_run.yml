@@ -18,4 +18,6 @@ jobs:
         env:
           UV_API_KEY: ${{ secrets.UV_API_KEY }}
           DLT_DESTINATION: ${{ secrets.DLT_DESTINATION }}
+          PYTHONPATH: ${{ github.workspace }}
+          PYTHONWARNINGS: ignore::UserWarning
         run: python pipelines/uv_prefect.py
