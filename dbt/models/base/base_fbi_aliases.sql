@@ -1,10 +1,9 @@
-
-
-
-SELECT value as aliases, fw.uid as wanted_id, 
-"_dlt_list_idx" as aliases_order, 
-wf."_dlt_id" as wanted_aliases_sk
-from {{ source("fbi", "wanted__aliases") }} as wf 
-left join {{ source("fbi", "wanted") }} as fw 
-on wf."_dlt_root_id" = fw."_dlt_id"
-where fw.uid is not null
+SELECT
+    value AS aliases
+    , fw.uid AS wanted_id
+    , _dlt_list_idx AS aliases_order
+    , wf._dlt_id AS wanted_aliases_sk
+FROM {{ source("fbi", "wanted__aliases") }} AS wf
+LEFT JOIN {{ source("fbi", "wanted") }} AS fw
+    ON wf._dlt_root_id = fw._dlt_id
+WHERE fw.uid IS NOT null

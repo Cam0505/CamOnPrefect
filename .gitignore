@@ -34,6 +34,8 @@ pipelines/.dlt/*/normalize
 pipelines/.dlt/*/trace.pickle
 
 
+.pytest_cache/*
+
 # IDE
 .vscode/
 .idea/
