@@ -8,7 +8,12 @@
 -- 2025-05-22 | Cam      | Initial creation
 -- YYYY-MM-DD | NAME     | [Add future changes here]
 -- ------------------------------------------------------------------------------
-select city, latitude, longitude, region, City_SK,
-Country_SK
-from {{ref('staging_geo')}}
-group by city, latitude, longitude, region, City_SK, Country_SK
+select
+    city
+    , latitude
+    , longitude
+    , region
+    , city_sk
+    , country_sk
+from {{ ref('staging_geo') }}
+group by city, latitude, longitude, region, city_sk, country_sk

@@ -6,12 +6,13 @@
 
 
 SELECT date_col
-from {{ref('dim_date')}} as t
-where date_col <= (current_date  - 1) 
-and NOT EXISTS (
-    SELECT 1
-    from {{ref('base_uv')}} as o
-    WHERE o.uv_date = t.date_col
-)
-order by date_col desc
-limit 6
+FROM {{ ref('dim_date') }} AS t
+WHERE
+    date_col <= (current_date - 1)
+    AND NOT EXISTS (
+        SELECT 1
+        FROM {{ ref('base_uv') }} AS o
+        WHERE o.uv_date = t.date_col
+    )
+ORDER BY date_col DESC
+LIMIT 6

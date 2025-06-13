@@ -1,0 +1,12 @@
+[sqlfluff]
+dialect = duckdb      
+templater = dbt
+exclude_rules = L009,L031,LT05
+max_line_length = 120
+ignore = dbt/dbt_packages/*
+
+[sqlfluff:layout:type:comma]
+line_position = leading
+
+[sqlfluff:templater:dbt]
+project_dir = dbt

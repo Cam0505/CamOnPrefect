@@ -5,7 +5,6 @@ from datetime import datetime
 from zoneinfo import ZoneInfo
 from dlt.sources.helpers import requests
 from prefect import flow, task, get_run_logger
-# from dlt.pipeline.exceptions import PipelineNeverRan
 from helper_functions import flow_summary, dbt_run_task
 from path_config import get_project_root, set_dlt_env_vars
 

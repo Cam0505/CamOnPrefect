@@ -15,14 +15,15 @@
         target_schema='public_snapshots',
         unique_key='beverage_id',
         strategy='check',
-        check_cols=['glass_type'],
+        check_cols=['glass_type', 'glass_type_sk'],
         invalidate_hard_deletes=True
     )
 }}
 
-SELECT 
-    id_drink as beverage_id, source_glass as glass_type
-    ,{{ dbt_utils.generate_surrogate_key(["glass_type"]) }} as Glass_Type_SK
-from {{ source("beverages", "glass_table") }}
+SELECT
+    id_drink AS beverage_id
+    , source_glass AS glass_type
+    , {{ dbt_utils.generate_surrogate_key(["glass_type"]) }} AS glass_type_sk
+FROM {{ source("beverages", "glass_table") }}
 
 {% endsnapshot %}

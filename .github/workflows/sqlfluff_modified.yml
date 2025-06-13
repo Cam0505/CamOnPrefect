@@ -1,0 +1,83 @@
+name: SQLFluff Lint Changed SQL Files
+
+on:
+  push:
+    paths:
+      - 'dbt/models/**/*.sql'
+      - '.sqlfluff'
+  pull_request:
+    paths:
+      - 'dbt/models/**/*.sql'
+      - '.sqlfluff'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      - run: pip install -r requirements.txt
+
+      - name: Show sqlfluff version and path
+        run: |
+          echo "Sqlfluff path: $(which sqlfluff)"
+          sqlfluff --version
+
+      - name: Set up DBT profile
+        run: |
+          mkdir -p ~/.dbt
+          cat > ~/.dbt/profiles.yml <<EOF
+          camonprefect:
+            outputs:
+              dev:
+                type: duckdb
+                path: ${{ secrets.MOTHERDUCK }}
+                schema: public
+                threads: 2
+                extensions:
+                  - httpfs
+                  - parquet
+                  - motherduck
+            target: dev
+          EOF
+
+      - name: Install DBT packages
+        run: cd dbt && dbt deps
+
+      - name: Get changed SQL files in dbt/models
+        id: changed-sql
+        run: |
+          echo "Fetching changed SQL files in dbt/models..."
+          git fetch origin ${{ github.base_ref }} || true
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git diff --name-only origin/${{ github.base_ref }}...${{ github.sha }} | grep '^dbt/models/.*\.sql$' > changed_sql.txt || true
+          else
+            if git rev-parse HEAD~1 >/dev/null 2>&1; then
+              git diff --name-only HEAD~1 | grep '^dbt/models/.*\.sql$' > changed_sql.txt || true
+            else
+              find dbt/models -name '*.sql' > changed_sql.txt
+            fi
+          fi
+          echo "Changed SQL files:"
+          cat changed_sql.txt || echo "None found."
+
+      - name: Lint only changed SQL files
+        run: |
+          echo "Linting the following SQL files:"
+          cat changed_sql.txt || echo "No SQL files to lint."
+          if [ -s changed_sql.txt ]; then
+            xargs sqlfluff lint --config .sqlfluff --ignore-local-config --dialect duckdb < changed_sql.txt
+          else
+            echo "No SQL files changed."
+          fi

@@ -1,3 +1,4 @@
-SELECT code,
-	book_key
-From {{ source("openlibrary", "books__languages") }} 
+SELECT
+    code
+    , book_key
+FROM {{ source("openlibrary", "books__languages") }}

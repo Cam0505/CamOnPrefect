@@ -21,7 +21,9 @@
 }}
 
 
-SELECT status as fbi_status, pk
+SELECT
+    status AS fbi_status
+    , pk
 FROM {{ ref('base_fbi_wanted') }}
 GROUP BY status, fbi_status, pk
 

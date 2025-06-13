@@ -1,0 +1,6 @@
+dbt/dbt_packages/*
+dbt/target/*
+dbt/logs/*
+pipelines/*
+dbt/macros/*
+dbt/tests/*
