@@ -9,7 +9,8 @@
 -- YYYY-MM-DD | NAME     | [Add future changes here]
 -- ------------------------------------------------------------------------------
 
-SELECT alcoholic_type, 
-alcoholic_type_sk
-	From {{ref('staging_beverage_lookup')}}
-group by alcoholic_type, alcoholic_type_sk
+SELECT
+    alcoholic_type
+    , alcoholic_type_sk
+FROM {{ ref('staging_beverage_lookup') }}
+GROUP BY alcoholic_type, alcoholic_type_sk

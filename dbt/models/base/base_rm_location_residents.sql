@@ -1,4 +1,3 @@
-
 -- ------------------------------------------------------------------------------
 -- Model: base_rm_location_residents
 -- Description: Base Table for ricky and morty residents within a location from API
@@ -12,6 +11,6 @@
 
 
 SELECT
-  _dlt_root_id AS location_dlt_id,
-  CAST(regexp_replace(value, '.*/(\d+)$', '\1') AS INTEGER) AS character_id
+    _dlt_root_id AS location_dlt_id
+    , CAST(REGEXP_REPLACE(value, '.*/(\d+)$', '\1') AS INTEGER) AS character_id
 FROM {{ source("rick_and_morty", "location__residents") }}

@@ -11,6 +11,6 @@
 
 
 SELECT
-  _dlt_root_id AS character_dlt_id,
-  CAST(regexp_replace(value, '.*/(\d+)$', '\1') AS INTEGER) AS episode_id
+    _dlt_root_id AS character_dlt_id
+    , CAST(REGEXP_REPLACE(value, '.*/(\d+)$', '\1') AS INTEGER) AS episode_id
 FROM {{ source("rick_and_morty", "character__episode") }}

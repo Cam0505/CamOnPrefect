@@ -1,4 +1,3 @@
-
 -- ------------------------------------------------------------------------------
 -- Model: base_weather
 -- Description: Base Table for weather data from API, Can perform bulk loads
@@ -11,7 +10,16 @@
 -- ------------------------------------------------------------------------------
 
 
-SELECT date::date AS weather_date,
-city, temperature_max, temperature_min, temperature_mean, precipitation_sum, 
-windspeed_max, windgusts_max, sunshine_duration, location__lat as latitude, location__lng as longitude
+SELECT
+    date::date AS weather_date
+    , city
+    , temperature_max
+    , temperature_min
+    , temperature_mean
+    , precipitation_sum
+    , windspeed_max
+    , windgusts_max
+    , sunshine_duration
+    , location__lat AS latitude
+    , location__lng AS longitude
 FROM {{ source("weather", "daily_weather") }}

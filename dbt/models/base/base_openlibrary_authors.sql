@@ -1,4 +1,4 @@
-
-SELECT name as author_name,
-	book_key
-From {{ source("openlibrary", "books__authors") }} 
+SELECT
+    name AS author_name
+    , book_key
+FROM {{ source("openlibrary", "books__authors") }}

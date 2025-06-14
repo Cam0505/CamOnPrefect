@@ -9,7 +9,8 @@
 -- YYYY-MM-DD | NAME     | [Add future changes here]
 -- ------------------------------------------------------------------------------
 
-SELECT glass_type, glass_type_sk
-    from {{ref('glass_type_snapshot')}}
-	group by glass_type, glass_type_sk
-	
+SELECT
+    glass_type
+    , glass_type_sk
+FROM {{ ref('glass_type_snapshot') }}
+GROUP BY glass_type, glass_type_sk

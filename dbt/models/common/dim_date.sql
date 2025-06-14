@@ -17,16 +17,17 @@ WITH RECURSIVE date_series AS (
     FROM date_series
     WHERE date + INTERVAL '1 day' < DATE '2030-01-01'
 )
+
 SELECT
-    date AS date_col,
-    EXTRACT(YEAR FROM date) AS year,
-    EXTRACT(MONTH FROM date) AS month,
-    EXTRACT(DAY FROM date) AS day,
-    strftime('%B', date) AS month_name,  -- Replacing TO_CHAR with strftime
-    strftime('%A', date) AS weekday_name,  -- Replacing TO_CHAR with strftime
-    EXTRACT(DOW FROM date) AS day_of_week,
-    CASE WHEN EXTRACT(DOW FROM date) IN (0, 6) THEN TRUE ELSE FALSE END AS is_weekend,
-    EXTRACT(DOY FROM date) AS day_of_year,
-    EXTRACT(WEEK FROM date) AS week_of_year,
-    EXTRACT(QUARTER FROM date) AS quarter
+    date AS date_col
+    , EXTRACT(YEAR FROM date) AS year
+    , EXTRACT(MONTH FROM date) AS month
+    , EXTRACT(DAY FROM date) AS day
+    , STRFTIME('%B', date) AS month_name  -- Replacing TO_CHAR with strftime
+    , STRFTIME('%A', date) AS weekday_name  -- Replacing TO_CHAR with strftime
+    , EXTRACT(DOW FROM date) AS day_of_week
+    , COALESCE(EXTRACT(DOW FROM date) IN (0, 6), FALSE) AS is_weekend
+    , EXTRACT(DOY FROM date) AS day_of_year
+    , EXTRACT(WEEK FROM date) AS week_of_year
+    , EXTRACT(QUARTER FROM date) AS quarter
 FROM date_series

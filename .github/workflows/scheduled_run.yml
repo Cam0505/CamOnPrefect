@@ -13,11 +13,19 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      - name: Cache pip dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
       - run: pip install -r requirements.txt
       - name: Run UV Prefect Pipeline
         env:
           UV_API_KEY: ${{ secrets.UV_API_KEY }}
           DLT_DESTINATION: ${{ secrets.DLT_DESTINATION }}
+          DESTINATION__MOTHERDUCK__CREDENTIALS__PASSWORD: ${{ secrets.DESTINATION__MOTHERDUCK__CREDENTIALS__PASSWORD }}
           PYTHONPATH: ${{ github.workspace }}
           PYTHONWARNINGS: ignore::UserWarning
         run: python pipelines/uv_prefect.py
