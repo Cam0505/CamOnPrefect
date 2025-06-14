@@ -8,11 +8,11 @@ models:
     data_tests:
       - unique
       - not_null
-  - name: year
+  - name: year_col
     description: ''
-  - name: month
+  - name: month_col
     description: ''
-  - name: day
+  - name: day_col
     description: ''
   - name: month_name
     description: ''
@@ -26,5 +26,5 @@ models:
     description: ''
   - name: week_of_year
     description: ''
-  - name: quarter
+  - name: quarter_col
     description: ''

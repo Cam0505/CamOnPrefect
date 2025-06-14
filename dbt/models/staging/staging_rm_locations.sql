@@ -19,20 +19,20 @@ with resident_per_location as (
 
 select
     bl.location_id
-    , location_name
-    , location_type
-    , location_dimension
-    , location_created
+    , bl.location_name
+    , bl.location_type
+    , bl.location_dimension
+    , bl.location_created
     , bl.location_dlt_id
     , rpl.num_characters
     , case
         when
-            LOWER(location_type) in (
+            LOWER(bl.location_type) in (
                 'planet', 'asteroid', 'quasar', 'mount', 'elemental rings', 'dwarf planet (celestial dwarf)'
             )
             then 'Celestial Body'
         when
-            LOWER(location_type) in (
+            LOWER(bl.location_type) in (
                 'teenyverse'
                 , 'miniverse'
                 , 'microverse'
@@ -43,10 +43,10 @@ select
             )
             then 'Artificial World'
         when
-            LOWER(location_type) in ('game', 'dream', 'memory', 'tv', 'consciousness', 'nightmare', 'fantasy town')
+            LOWER(bl.location_type) in ('game', 'dream', 'memory', 'tv', 'consciousness', 'nightmare', 'fantasy town')
             then 'Virtual/Simulated'
         when
-            LOWER(location_type) in (
+            LOWER(bl.location_type) in (
                 'space station'
                 , 'resort'
                 , 'spa'
@@ -59,32 +59,32 @@ select
             )
             then 'Location Type'
         when
-            LOWER(location_type) in ('hell', 'reality', 'liquid', 'death star', 'artificially generated world')
+            LOWER(bl.location_type) in ('hell', 'reality', 'liquid', 'death star', 'artificially generated world')
             then 'Abstract Realm'
-        when LOWER(location_type) in ('country', 'cluster', 'menagerie', 'convention') then 'Social Structure'
-        when LOWER(location_type) in ('quadrant') then 'Quadrant/Zone'
+        when LOWER(bl.location_type) in ('country', 'cluster', 'menagerie', 'convention') then 'Social Structure'
+        when LOWER(bl.location_type) in ('quadrant') then 'Quadrant/Zone'
         else 'Unknown'
     end as location_categories
     , case
-        when location_dimension ilike '%unknown%' then 'Unclassified'
-        when LOWER(location_dimension) like 'dimension c%' then 'Standard Format'
-        when location_dimension ilike '%Fascist%' then 'Fascist Variant'
+        when bl.location_dimension ilike '%unknown%' then 'Unclassified'
+        when LOWER(bl.location_dimension) like 'dimension c%' then 'Standard Format'
+        when bl.location_dimension ilike '%Fascist%' then 'Fascist Variant'
         when
-            location_dimension ilike '%Magic%'
-            or location_dimension ilike '%Fantasy%'
-            or location_dimension ilike '%Post-Apocalyptic%'
-            or location_dimension ilike '%Merged%'
-            or location_dimension ilike '%Evil Rick%'
-            or location_dimension ilike '%Testicle%'
-            or location_dimension ilike '%Eric Stoltz%'
-            or location_dimension ilike '%Wasp%'
-            or location_dimension ilike '%Phone%'
-            or location_dimension ilike '%Spider%'
-            or location_dimension ilike '%Pizza%'
-            or location_dimension ilike '%Chair%'
-            or location_dimension ilike '%Tusk%'
-            or location_dimension ilike '%Cromulon%' then 'Thematic'
-        when location_dimension ilike '%Replacement%' or location_dimension ilike '%Cronenberg%' then 'Canonical Named'
+            bl.location_dimension ilike '%Magic%'
+            or bl.location_dimension ilike '%Fantasy%'
+            or bl.location_dimension ilike '%Post-Apocalyptic%'
+            or bl.location_dimension ilike '%Merged%'
+            or bl.location_dimension ilike '%Evil Rick%'
+            or bl.location_dimension ilike '%Testicle%'
+            or bl.location_dimension ilike '%Eric Stoltz%'
+            or bl.location_dimension ilike '%Wasp%'
+            or bl.location_dimension ilike '%Phone%'
+            or bl.location_dimension ilike '%Spider%'
+            or bl.location_dimension ilike '%Pizza%'
+            or bl.location_dimension ilike '%Chair%'
+            or bl.location_dimension ilike '%Tusk%'
+            or bl.location_dimension ilike '%Cromulon%' then 'Thematic'
+        when bl.location_dimension ilike '%Replacement%' or bl.location_dimension ilike '%Cronenberg%' then 'Canonical Named'
         else 'Other'
     end as dimension_group
 from {{ ref('base_rm_locations') }} as bl

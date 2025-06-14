@@ -12,8 +12,8 @@
 SELECT
     id
     , stock
-    , CAST(price AS DECIMAL) AS price,  -- DuckDB doesn't have a money type
-    {{ convert_to_timezone(column_name='date_time') }} AS date_time
+    , CAST(price AS DECIMAL) AS price
+    ,{{ convert_to_timezone(column_name='date_time') }} AS date_time
     , ROUND((MAX(price) OVER (PARTITION BY stock) - MIN(price) OVER (PARTITION BY stock)), 2) AS price_spread
     , ROUND((LAST(price) OVER (
         PARTITION BY stock

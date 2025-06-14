@@ -11,7 +11,7 @@
 
 
 SELECT
-    bw.wanted_id
+    bw.pk AS wanted_id
     , ba.wanted_aliases_sk
     , bdob.wanted_dob_sk
     , bfo.wanted_field_offices_sk
@@ -22,7 +22,6 @@ SELECT
     , bfpc.wanted_countries_sk
     , bfps.wanted_states_sk
     , bfs.wanted_subject_sk
-    , bw.pk
 FROM {{ ref('base_fbi_wanted') }} AS bw
 LEFT JOIN {{ ref('base_fbi_aliases') }} AS ba
     ON bw.pk = ba.wanted_id

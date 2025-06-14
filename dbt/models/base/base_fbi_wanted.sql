@@ -10,8 +10,6 @@
 -- 2025-05-23 | Cam      | Initial creation
 -- YYYY-MM-DD | NAME     | [Add future changes here]
 -- ------------------------------------------------------------------------------
-
-
 SELECT
     poster_classification
     , hair
@@ -35,7 +33,6 @@ SELECT
     , person_classification
     , description
     , path_id
-    , _dlt_id AS wanted_id
     , warning_message
     , reward_text
     , details

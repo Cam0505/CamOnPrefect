@@ -1,6 +1,6 @@
 -- ------------------------------------------------------------------------------
 -- Model: Base_uv
--- Description: uv data from global api
+-- Description: uv data from global UV api
 -- ------------------------------------------------------------------------------
 -- Change Log:
 -- Date       | Author   | Description

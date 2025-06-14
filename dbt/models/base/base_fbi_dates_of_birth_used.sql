@@ -1,7 +1,7 @@
 SELECT
-    value AS dob
+    wf.value AS dob
     , fw.uid AS wanted_id
-    , _dlt_list_idx AS dob_order
+    , wf._dlt_list_idx AS dob_order
     , wf._dlt_id AS wanted_dob_sk
 FROM {{ source("fbi", "wanted__dates_of_birth_used") }} AS wf
 LEFT JOIN {{ source("fbi", "wanted") }} AS fw

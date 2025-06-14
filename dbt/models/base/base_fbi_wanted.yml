@@ -52,9 +52,6 @@ models:
     description: ''
   - name: wanted_id
     description: ''
-    data_tests:
-    - not_null
-    - unique
   - name: warning_message
     description: ''
   - name: reward_text

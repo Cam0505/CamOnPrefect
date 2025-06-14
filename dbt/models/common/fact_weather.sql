@@ -1,18 +1,18 @@
 SELECT
-    weather_date
+    sw.weather_date
     , sw.city
-    , temperature_max
-    , temperature_min
-    , temperature_range
-    , temperature_mean
-    , precipitation_sum
-    , precipitation_fortnightly_anomaly
-    , windspeed_max
-    , windgusts_max
-    , sunshine_duration
-    , mean_temp_fortnightly_anomaly
-    , mean_temp_fortnightly_avg
-    , mean_temp_moving_avg
+    , sw.temperature_max
+    , sw.temperature_min
+    , sw.temperature_range
+    , sw.temperature_mean
+    , sw.precipitation_sum
+    , sw.precipitation_fortnightly_anomaly
+    , sw.windspeed_max
+    , sw.windgusts_max
+    , sw.sunshine_duration
+    , sw.mean_temp_fortnightly_anomaly
+    , sw.mean_temp_fortnightly_avg
+    , sw.mean_temp_moving_avg
     , sg.city_sk
 FROM {{ ref('staging_weather') }} AS sw
 LEFT JOIN {{ ref('staging_geo') }} AS sg

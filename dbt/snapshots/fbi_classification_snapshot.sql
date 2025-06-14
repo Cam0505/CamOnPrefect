@@ -21,7 +21,9 @@
 }}
 
 
-SELECT person_classification, pk
+SELECT
+    person_classification
+    , pk
 FROM {{ ref('base_fbi_wanted') }}
 GROUP BY person_classification, pk
 
