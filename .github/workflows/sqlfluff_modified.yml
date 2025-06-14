@@ -1,0 +1,46 @@
+name: SQLFluff Lint Changed SQL Files
+
+on:
+  push:
+    paths:
+      - '**.sql'
+      - '.sqlfluff'
+  pull_request:
+    paths:
+      - '**.sql'
+      - '.sqlfluff'
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Cache pip dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      - run: pip install -r requirements.txt
+
+      - name: Get changed SQL files
+        id: changed-sql
+        run: |
+          git fetch origin ${{ github.base_ref }} || true
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            git diff --name-only origin/${{ github.base_ref }}...${{ github.sha }} | grep '\.sql$' > changed_sql.txt || true
+          else
+            git diff --name-only HEAD~1 | grep '\.sql$' > changed_sql.txt || true
+          fi
+
+      - name: Lint only changed SQL files
+        run: |
+          if [ -s changed_sql.txt ]; then
+            xargs sqlfluff lint < changed_sql.txt
+          else
+            echo "No SQL files changed."
+          fi
