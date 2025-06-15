@@ -14,4 +14,4 @@ jobs:
         with:
           python-version: '3.11'
       - run: pip install -r requirements.txt
-      - run: pip list --outdated --format=columns
+      - run: pip list --outdated --format=columns | grep -F -f <(grep -vE '^\s*#|^\s*$' requirements.txt | cut -d= -f1)

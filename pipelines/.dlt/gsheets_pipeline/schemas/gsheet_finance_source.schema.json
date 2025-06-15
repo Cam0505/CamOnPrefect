@@ -1,6 +1,6 @@
 {
-  "version": 2,
-  "version_hash": "RTS909St/R5NyjfJFiS5kR7Nn2ZotVhFL0opfG2Pxz4=",
+  "version": 3,
+  "version_hash": "TKawfrQB2UAT7Humc6HdpTO2JdlRA5DRmCOJ90ANbtU=",
   "engine_version": 11,
   "name": "gsheet_finance_source",
   "tables": {
@@ -80,7 +80,8 @@
         "id": {
           "name": "id",
           "data_type": "text",
-          "nullable": true
+          "nullable": false,
+          "primary_key": true
         },
         "stock": {
           "name": "stock",
@@ -110,7 +111,7 @@
           "row_key": true
         }
       },
-      "write_disposition": "append",
+      "write_disposition": "merge",
       "name": "gsheets_finance",
       "resource": "gsheets_finance",
       "x-normalizer": {
@@ -200,10 +201,20 @@
   "normalizers": {
     "names": "snake_case",
     "json": {
-      "module": "dlt.common.normalizers.json.relational"
+      "module": "dlt.common.normalizers.json.relational",
+      "config": {
+        "propagation": {
+          "tables": {
+            "gsheets_finance": {
+              "_dlt_id": "_dlt_root_id"
+            }
+          }
+        }
+      }
     }
   },
   "previous_hashes": [
+    "RTS909St/R5NyjfJFiS5kR7Nn2ZotVhFL0opfG2Pxz4=",
     "45cyBROImTyblN/LF9qCeawc4T+U9DlL5vT9CrvbyGU=",
     "FYhuILB+OVzbYfEj6w+zumzRdvhU0K5ppJeZbxIJmq8="
   ]

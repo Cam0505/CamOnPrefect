@@ -25,6 +25,8 @@ pipelines/.dlt/secrets.toml
 .dlt/secrets.toml
 pipelines/credentials.json
 
+credentials.json
+
 .dlt/secrets.toml
 .dlt/config.toml
 

@@ -131,7 +131,7 @@ def dbt_run_task(logger, dbt_trigger: bool, select_target: str = "source:openlib
             )
 
         result = subprocess.run(
-            f"dbt build --select {select_target}",
+            f"dbt build --select {select_target} --profiles-dir {DBT_DIR}",
             shell=True,
             cwd=DBT_DIR,
             capture_output=True,

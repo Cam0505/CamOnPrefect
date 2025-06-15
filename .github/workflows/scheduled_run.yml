@@ -26,6 +26,9 @@ jobs:
           UV_API_KEY: ${{ secrets.UV_API_KEY }}
           DLT_DESTINATION: ${{ secrets.DLT_DESTINATION }}
           DESTINATION__MOTHERDUCK__CREDENTIALS__PASSWORD: ${{ secrets.DESTINATION__MOTHERDUCK__CREDENTIALS__PASSWORD }}
+          DESTINATION__MOTHERDUCK__CREDENTIALS__DATABASE: ${{ secrets.DESTINATION__MOTHERDUCK__CREDENTIALS__DATABASE }}
+          MOTHERDUCK_CREDENTIALS: ${{ secrets.MOTHERDUCK_CREDENTIALS }}
+          DBT_PROFILES_YML: ${{ secrets.DBT_PROFILES_YML }}
           PYTHONPATH: ${{ github.workspace }}
           PYTHONWARNINGS: ignore::UserWarning
         run: python pipelines/uv_prefect.py
