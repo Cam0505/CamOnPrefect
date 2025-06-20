@@ -8,8 +8,6 @@ import json
 from dlt.sources.helpers.requests import get
 from prefect import flow, task, get_run_logger
 from dlt.pipeline.exceptions import PipelineNeverRan
-from helper_functions import dbt_run_task, flow_summary
-from path_config import get_project_root, set_dlt_env_vars
 
 # Load environment variables and set DLT config
 paths = get_project_root()

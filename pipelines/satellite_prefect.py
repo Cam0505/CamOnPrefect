@@ -8,16 +8,24 @@ from sgp4.api import Satrec, jday
 from datetime import datetime
 from math import sqrt
 from prefect import flow, task, get_run_logger
-from path_config import ENV_FILE, DLT_PIPELINE_DIR
 from helper_functions import dbt_run_task, flow_summary
+from path_config import get_project_root, set_dlt_env_vars
+
+# Load environment variables and set DLT config
+paths = get_project_root()
+set_dlt_env_vars(paths)
+
+DLT_PIPELINE_DIR = paths["DLT_PIPELINE_DIR"]
+ENV_FILE = paths["ENV_FILE"]
+DBT_DIR = paths["DBT_DIR"]
 
 load_dotenv(dotenv_path=ENV_FILE)
+
 
 @dlt.source
 def satellite_source(logger, prev_positions: dict):
     @dlt.resource(write_disposition="replace", name="satellite_positions")
     def satellite_resource():
-
         state = dlt.current.source_state().setdefault("satellite_positions", {
             "satellite_status": {},
             "satellite_position": {}
@@ -29,19 +37,22 @@ def satellite_source(logger, prev_positions: dict):
         except requests.RequestException as e:
             logger.error(f"Failed to fetch TLE data: {e}")
             return []
-        
+
         logger.info(f"Fetched {len(lines)//3} satellites TLE data.")
 
         did_yield = False
         for i in range(0, len(lines), 3):  # Name, line1, line2
             name, line1, line2 = lines[i:i+3]
             satrec = Satrec.twoline2rv(line1, line2)
+            sat_id = int(line1[2:7])  # Extract NORAD ID from line1
 
             dt = datetime.utcnow()
             jd, fr = jday(dt.year, dt.month, dt.day, dt.hour, dt.minute, dt.second + dt.microsecond * 1e-6)
             e, pos, _ = satrec.sgp4(jd, fr)
 
             if e != 0:
+                # pos may not be valid if SGP4 failed, so set to None or 0
+                x, y, z = (0.0, 0.0, 0.0)
                 state["satellite_status"][sat_id] = "failed"
                 state["satellite_position"][sat_id] = {
                     "x_km": x,
@@ -53,7 +64,6 @@ def satellite_source(logger, prev_positions: dict):
                 continue  # skip if SGP4 failed
 
             x, y, z = pos
-            sat_id = int(line1[2:7])  # Extract NORAD ID from line1
 
             prev_state = state["satellite_position"].get(sat_id)
 
@@ -97,7 +107,6 @@ def satellite_source(logger, prev_positions: dict):
             return
 
     return satellite_resource
-    
 
 
 @task(name="satellite-flow")
@@ -112,6 +121,7 @@ def satellite_task(logger):
         pipelines_dir=str(DLT_PIPELINE_DIR),
         dev_mode=False
     )
+    prev_positions = {}
     try:
         prev_df = pipeline.dataset()["satellite_positions"].df()
         if prev_df is not None:
@@ -124,19 +134,16 @@ def satellite_task(logger):
     except PipelineNeverRan:
         logger.warning(
             "⚠️ No previous runs found for this pipeline. Assuming first run.")
-        prev_positions = {}
     except DatabaseUndefinedRelation:
         logger.warning(
             "⚠️ Table Doesn't Exist. Assuming truncation.")
-        prev_positions = {}
-
 
     try:
         source = satellite_source(logger, prev_positions)
         load_info = pipeline.run(source)
-        current_state = source.state.get("satellite_positions", {}) 
+        current_state = source.state.get("satellite_positions", {})
         statuses = list(current_state.get("satellite_status", {}).values())
-        
+
         if statuses is None or not statuses:
             logger.info("No satellites found in the current state.")
             return False
@@ -158,7 +165,7 @@ def satellite_task(logger):
     except Exception as e:
         logger.error(f"❌ Pipeline run failed: {e}")
         return False
-    
+
 
 @flow(name="satellite_flow", on_completion=[flow_summary], on_failure=[flow_summary])
 def satellite_flow():
