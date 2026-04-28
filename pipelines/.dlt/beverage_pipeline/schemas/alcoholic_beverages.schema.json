@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "version_hash": "SOsx1C5WHdsOtzUBzt0giNuooqO/gOFF73d52/tYhio=",
+  "version_hash": "MZSb9EfGgkyOhStf4EXE2b1XKRn2WqTeTfpY1m7CuZc=",
   "engine_version": 11,
   "name": "alcoholic_beverages",
   "tables": {
@@ -87,6 +87,13 @@
           "data_type": "text",
           "nullable": true
         },
+        "str_drink_alternate": {
+          "name": "str_drink_alternate",
+          "nullable": true,
+          "x-normalizer": {
+            "seen-null-first": true
+          }
+        },
         "str_category": {
           "name": "str_category",
           "data_type": "text",
@@ -117,15 +124,24 @@
           "data_type": "text",
           "nullable": true
         },
-        "str_instructions_fr": {
-          "name": "str_instructions_fr",
-          "data_type": "text",
-          "nullable": true
-        },
         "str_instructions_it": {
           "name": "str_instructions_it",
           "data_type": "text",
           "nullable": true
+        },
+        "str_instructions_zh_hans": {
+          "name": "str_instructions_zh_hans",
+          "nullable": true,
+          "x-normalizer": {
+            "seen-null-first": true
+          }
+        },
+        "str_instructions_zh_hant": {
+          "name": "str_instructions_zh_hant",
+          "nullable": true,
+          "x-normalizer": {
+            "seen-null-first": true
+          }
         },
         "str_drink_thumb": {
           "name": "str_drink_thumb",
@@ -152,6 +168,58 @@
           "data_type": "text",
           "nullable": true
         },
+        "str_ingredient5": {
+          "name": "str_ingredient5",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_ingredient6": {
+          "name": "str_ingredient6",
+          "data_type": "text",
+          "nullable": true
+        },
+        "str_ingredient10": {
+          "name": "str_ingredient10",
+          "nullable": true,
+          "x-normalizer": {
+            "seen-null-first": true
+          }
+        },
+        "str_ingredient11": {
+          "name": "str_ingredient11",
+          "nullable": true,
+          "x-normalizer": {
+            "seen-null-first": true
+          }
+        },
+        "str_ingredient12": {
+          "name": "str_ingredient12",
+          "nullable": true,
+          "x-normalizer": {
+            "seen-null-first": true
+          }
+        },
+        "str_ingredient13": {
+          "name": "str_ingredient13",
+          "nullable": true,
+          "x-normalizer": {
+            "seen-null-first": true
+          }
+        },
+        "str_ingredient14": {
+          "name": "str_ingredient14",
+          "nullable": true,
+          "x-normalizer": {
+            "seen-null-first": true
+          }
+        },
+        "str_ingredient15": {
+          "name": "str_ingredient15",
+          "nullable": true,
+          "x-normalizer": {
+            "seen-null-first": true
+          }
+        },
         "str_measure1": {
           "name": "str_measure1",
           "data_type": "text",
@@ -167,10 +235,47 @@
           "data_type": "text",
           "nullable": true
         },
-        "str_measure4": {
-          "name": "str_measure4",
-          "data_type": "text",
-          "nullable": true
+        "str_measure10": {
+          "name": "str_measure10",
+          "nullable": true,
+          "x-normalizer": {
+            "seen-null-first": true
+          }
+        },
+        "str_measure11": {
+          "name": "str_measure11",
+          "nullable": true,
+          "x-normalizer": {
+            "seen-null-first": true
+          }
+        },
+        "str_measure12": {
+          "name": "str_measure12",
+          "nullable": true,
+          "x-normalizer": {
+            "seen-null-first": true
+          }
+        },
+        "str_measure13": {
+          "name": "str_measure13",
+          "nullable": true,
+          "x-normalizer": {
+            "seen-null-first": true
+          }
+        },
+        "str_measure14": {
+          "name": "str_measure14",
+          "nullable": true,
+          "x-normalizer": {
+            "seen-null-first": true
+          }
+        },
+        "str_measure15": {
+          "name": "str_measure15",
+          "nullable": true,
+          "x-normalizer": {
+            "seen-null-first": true
+          }
         },
         "str_creative_commons_confirmed": {
           "name": "str_creative_commons_confirmed",
@@ -194,120 +299,80 @@
           "unique": true,
           "row_key": true
         },
-        "str_ingredient5": {
-          "name": "str_ingredient5",
-          "data_type": "text",
-          "nullable": true
-        },
-        "str_ingredient6": {
-          "name": "str_ingredient6",
-          "data_type": "text",
-          "nullable": true
-        },
-        "str_measure5": {
-          "name": "str_measure5",
-          "data_type": "text",
-          "nullable": true
-        },
-        "str_tags": {
-          "name": "str_tags",
-          "data_type": "text",
-          "nullable": true
-        },
-        "str_video": {
-          "name": "str_video",
-          "data_type": "text",
-          "nullable": true
-        },
-        "str_iba": {
-          "name": "str_iba",
-          "data_type": "text",
-          "nullable": true
-        },
-        "str_image_source": {
-          "name": "str_image_source",
-          "data_type": "text",
-          "nullable": true
-        },
-        "str_image_attribution": {
-          "name": "str_image_attribution",
-          "data_type": "text",
-          "nullable": true
-        },
-        "str_measure6": {
-          "name": "str_measure6",
-          "data_type": "text",
-          "nullable": true
-        },
-        "str_measure7": {
-          "name": "str_measure7",
-          "data_type": "text",
-          "nullable": true
-        },
         "str_ingredient7": {
           "name": "str_ingredient7",
-          "data_type": "text",
-          "nullable": true
+          "nullable": true,
+          "data_type": "text"
         },
         "str_ingredient8": {
           "name": "str_ingredient8",
-          "data_type": "text",
-          "nullable": true
-        },
-        "str_measure8": {
-          "name": "str_measure8",
-          "data_type": "text",
-          "nullable": true
-        },
-        "str_measure9": {
-          "name": "str_measure9",
-          "data_type": "text",
-          "nullable": true
-        },
-        "str_measure10": {
-          "name": "str_measure10",
-          "data_type": "text",
-          "nullable": true
-        },
-        "str_measure11": {
-          "name": "str_measure11",
-          "data_type": "text",
-          "nullable": true
-        },
-        "str_measure12": {
-          "name": "str_measure12",
-          "data_type": "text",
-          "nullable": true
+          "nullable": true,
+          "data_type": "text"
         },
         "str_ingredient9": {
           "name": "str_ingredient9",
-          "data_type": "text",
-          "nullable": true
+          "nullable": true,
+          "data_type": "text"
         },
-        "str_ingredient10": {
-          "name": "str_ingredient10",
-          "data_type": "text",
-          "nullable": true
+        "str_measure4": {
+          "name": "str_measure4",
+          "nullable": true,
+          "data_type": "text"
         },
-        "str_ingredient11": {
-          "name": "str_ingredient11",
-          "data_type": "text",
-          "nullable": true
+        "str_measure5": {
+          "name": "str_measure5",
+          "nullable": true,
+          "data_type": "text"
         },
-        "str_ingredient12": {
-          "name": "str_ingredient12",
-          "data_type": "text",
-          "nullable": true
+        "str_measure6": {
+          "name": "str_measure6",
+          "nullable": true,
+          "data_type": "text"
         },
-        "str_instructions_zh_hans": {
-          "name": "str_instructions_zh_hans",
-          "data_type": "text",
-          "nullable": true
+        "str_measure7": {
+          "name": "str_measure7",
+          "nullable": true,
+          "data_type": "text"
         },
-        "str_instructions_zh_hant": {
-          "name": "str_instructions_zh_hant",
-          "data_type": "text",
-          "nullable": true
+        "str_measure8": {
+          "name": "str_measure8",
+          "nullable": true,
+          "data_type": "text"
+        },
+        "str_measure9": {
+          "name": "str_measure9",
+          "nullable": true,
+          "data_type": "text"
+        },
+        "str_instructions_fr": {
+          "name": "str_instructions_fr",
+          "nullable": true,
+          "data_type": "text"
+        },
+        "str_tags": {
+          "name": "str_tags",
+          "nullable": true,
+          "data_type": "text"
+        },
+        "str_image_source": {
+          "name": "str_image_source",
+          "nullable": true,
+          "data_type": "text"
+        },
+        "str_video": {
+          "name": "str_video",
+          "nullable": true,
+          "data_type": "text"
+        },
+        "str_iba": {
+          "name": "str_iba",
+          "nullable": true,
+          "data_type": "text"
+        },
+        "str_image_attribution": {
+          "name": "str_image_attribution",
+          "nullable": true,
+          "data_type": "text"
         }
       },
       "write_disposition": "append",

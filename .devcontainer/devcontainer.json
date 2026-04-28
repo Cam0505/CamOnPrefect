@@ -19,7 +19,7 @@
     "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"  // Docker socket mount
   ],
   "features": {
-    "docker-in-docker": {
+    "ghcr.io/devcontainers/features/docker-in-docker:2": {
       "version": "latest",
       "moby": true
     }

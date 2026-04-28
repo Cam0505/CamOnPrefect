@@ -1,7 +1,8 @@
 FROM mcr.microsoft.com/devcontainers/python:3.11
 
-# Install required packages
-RUN apt-get update && apt-get install -y \
+# Fix for expired Yarn key and installation of system dependencies in one layer
+RUN rm -f /etc/apt/sources.list.d/yarn.list && \
+    apt-get update && apt-get install -y \
     git \
     curl \
     build-essential \
@@ -14,8 +15,7 @@ RUN pip install --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
 # USER vscode
+# Correct syntax for dbt installer (if required)
 # RUN curl -fsSL https://public.cdn.getdbt.com/fs/install/install.sh | sh -s -- --update
-# ENV PATH="/home/vscode/.local/bin:${PATH}"
-
 
 WORKDIR /workspaces/CamOnPrefect

@@ -247,6 +247,10 @@ def dimension_data(logger) -> bool:
         logger.warning(
             "⚠️ Table Doesn't Exist. Assuming truncation.")
         row_counts_dict = {}
+    except (AssertionError, Exception) as e:
+        logger.warning(
+            f"⚠️ Could not retrieve row counts (first run?): {e}. Assuming empty.")
+        row_counts_dict = {}
 
     source = dimension_data_source(logger, row_counts_dict)
     # run pipeline

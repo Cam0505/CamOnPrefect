@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 2,
   "version_hash": "tPmkjZNt07GKljjpj6AD5ie3+EXsfuvahmGDvkrUQ1w=",
   "engine_version": 11,
   "name": "dimension_data_source",
@@ -89,15 +89,15 @@
         },
         "id_drink": {
           "name": "id_drink",
-          "data_type": "text",
           "nullable": false,
-          "primary_key": true
+          "primary_key": true,
+          "data_type": "text"
         },
         "source_ingredient": {
           "name": "source_ingredient",
-          "data_type": "text",
           "nullable": false,
-          "primary_key": true
+          "primary_key": true,
+          "data_type": "text"
         },
         "_dlt_load_id": {
           "name": "_dlt_load_id",
@@ -133,9 +133,9 @@
         },
         "id_drink": {
           "name": "id_drink",
-          "data_type": "text",
           "nullable": false,
-          "primary_key": true
+          "primary_key": true,
+          "data_type": "text"
         },
         "source_alcohol_type": {
           "name": "source_alcohol_type",
@@ -176,9 +176,9 @@
         },
         "id_drink": {
           "name": "id_drink",
-          "data_type": "text",
           "nullable": false,
-          "primary_key": true
+          "primary_key": true,
+          "data_type": "text"
         },
         "source_beverage_type": {
           "name": "source_beverage_type",
@@ -219,9 +219,9 @@
         },
         "id_drink": {
           "name": "id_drink",
-          "data_type": "text",
           "nullable": false,
-          "primary_key": true
+          "primary_key": true,
+          "data_type": "text"
         },
         "source_glass": {
           "name": "source_glass",
@@ -353,8 +353,7 @@
     }
   },
   "previous_hashes": [
-    "R80c7w7KnMTO44RofI8Xp1cw4W8yXuvQGxZbDVHaZ4c=",
-    "AXBqXrPmnbYr3XWRu1Le3RJwZ82TyvEiCkqtk0hZ5v8=",
-    "joSpt+mF67A/Y1uNX12r5jxhCoq19FbeerjDZho7Bjg="
+    "+SMB1LmJFw7z/LgKzgvxegxc5uq09EpRxK0bNxj6xVA=",
+    "VtA2zyYChvU9LyB19D5VlUhblukO7yZuq9Wcdn9fp0o="
   ]
 }
